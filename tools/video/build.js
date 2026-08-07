@@ -71,15 +71,31 @@ if (endCard?.narration) {
   process.stdout.write(`  · 엔드카드 ${secs(endCard.duration).padStart(7)}  ${endCard.narration}\n`);
 }
 
+// 클립에 voice를 주면 그 구간만 다른 목소리로 읽는다 — 목소리 견본 카탈로그나 두 사람이
+// 주고받는 구성에 쓴다. 문자열이면 목소리 id 를, 객체면 전역 voice 위에 덮어쓸 값을 준다
+// (`{ "gender": "male", "rate": "+8%" }` 처럼 일부만 바꿔도 된다).
+// 캐시 해시가 voiceConfig 를 포함하므로(lib/tts.js) 목소리만 바꿔도 그 구간만 다시 만든다.
+const clipVoice = (clip) =>
+  !clip.voice
+    ? voice
+    : { ...voice, ...(typeof clip.voice === 'string' ? { voice: clip.voice } : clip.voice) };
+
 // 모션 구간도 대사가 있으면 미리 만들어 두고, 그 길이만큼 구간을 늘린다.
 for (const clip of render.motion?.clips ?? []) {
   if (!clip.narration) continue;
-  const [spoken] = await synthesizeScenes([{ id: `motion-${clip.id}`, narration: clip.narration }], voice, dirs, {
-    force: Boolean(args.force),
-  });
+  const spokenVoice = clipVoice(clip);
+  const [spoken] = await synthesizeScenes(
+    [{ id: `motion-${clip.id}`, narration: clip.narration }],
+    spokenVoice,
+    dirs,
+    { force: Boolean(args.force) }
+  );
   clip.audioFile = spoken.audioFile;
   clip.duration = Math.max(clip.duration ?? 0, spoken.audioDuration + 0.5);
-  process.stdout.write(`  · 모션 ${clip.id.padEnd(8)} ${secs(clip.duration).padStart(7)}  ${clip.narration}\n`);
+  const tag = clip.voice ? `  [${resolveVoice(spokenVoice)}]` : '';
+  process.stdout.write(
+    `  · 모션 ${clip.id.padEnd(8)} ${secs(clip.duration).padStart(7)}${tag}  ${clip.narration}\n`
+  );
 }
 
 const narrationTotal =

@@ -96,6 +96,18 @@ function unavailable(message) {
 // 403 구독 정지·쿼터 소진 · 429 한도 초과. 그 밖(400 잘못된 SSML 등)은 대본 문제라 그대로 던진다.
 const AZURE_DEAD_STATUS = new Set([401, 402, 403, 429]);
 
+// 응답 코드로 이미 판정이 끝난 에러 — 다시 보내도 결과가 같으므로 재시도 대상이 아니다.
+function fatal(message) {
+  const err = new Error(message);
+  err.azureFatal = true;
+  return err;
+}
+
+// 한 번의 시도를 여기서 끊는다. 두지 않으면 undici 기본값(300초)까지 매달린다 —
+// 실제로 헤더만 오고 본문이 멈춘 채 5분을 버티다 대본 전체가 무너진 적이 있다.
+const AZURE_TIMEOUT_MS = 45_000;
+const AZURE_ATTEMPTS = 3;
+
 async function synthAzure({ text, file, voice, rate, pitch }) {
   const key = process.env.AZURE_SPEECH_KEY;
   const region = process.env.AZURE_SPEECH_REGION;
@@ -110,30 +122,44 @@ async function synthAzure({ text, file, voice, rate, pitch }) {
     `<voice name="${voice}"><prosody rate="${rate}" pitch="${pitch}">` +
     `${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}` +
     `</prosody></voice></speak>`;
-  let res;
-  try {
-    res = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
-      method: 'POST',
-      headers: {
-        'Ocp-Apim-Subscription-Key': key,
-        'Content-Type': 'application/ssml+xml',
-        'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3',
-        'User-Agent': 'develop-video',
-      },
-      body: ssml,
-    });
-  } catch (err) {
-    // 리전 주소가 틀렸거나 망이 막힌 경우 — 씬을 하나씩 다시 시도해 봐야 결과가 같다.
-    throw unavailable(`Azure TTS 연결 실패: ${err.message}`);
-  }
-  if (!res.ok) {
-    const body = (await res.text()).slice(0, 500);
-    if (AZURE_DEAD_STATUS.has(res.status)) {
-      throw unavailable(`Azure TTS ${res.status} — 키 만료·결제·쿼터 문제로 보입니다: ${body}`);
+
+  let lastError;
+  for (let attempt = 1; attempt <= AZURE_ATTEMPTS; attempt += 1) {
+    try {
+      const res = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+        method: 'POST',
+        headers: {
+          'Ocp-Apim-Subscription-Key': key,
+          'Content-Type': 'application/ssml+xml',
+          'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3',
+          'User-Agent': 'develop-video',
+        },
+        body: ssml,
+        signal: AbortSignal.timeout(AZURE_TIMEOUT_MS),
+      });
+      if (!res.ok) {
+        const body = (await res.text()).slice(0, 500);
+        if (AZURE_DEAD_STATUS.has(res.status)) {
+          throw unavailable(`Azure TTS ${res.status} — 키 만료·결제·쿼터 문제로 보입니다: ${body}`);
+        }
+        throw fatal(`Azure TTS ${res.status}: ${body}`);
+      }
+      // 본문을 끝까지 받는 것까지가 한 번의 시도다. 여기서 멈추는 경우가 실제로 있어
+      // 예전에는 이 줄이 try 밖에 있다가 잡히지 않은 채로 빌드를 통째로 죽였다.
+      fs.writeFileSync(file, Buffer.from(await res.arrayBuffer()));
+      return;
+    } catch (err) {
+      if (err.unavailable || err.azureFatal) throw err;
+      lastError = err;
+      if (attempt < AZURE_ATTEMPTS) {
+        process.stdout.write(
+          `  ! Azure TTS 응답이 끊겼습니다 (${attempt}/${AZURE_ATTEMPTS}) — 다시 시도합니다: ${err.message}\n`
+        );
+      }
     }
-    throw new Error(`Azure TTS ${res.status}: ${body}`);
   }
-  fs.writeFileSync(file, Buffer.from(await res.arrayBuffer()));
+  // 리전 주소가 틀렸거나 망이 막힌 경우 — 남은 구간도 결과가 같으므로 제공자째로 내린다.
+  throw unavailable(`Azure TTS 연결 실패 (${AZURE_ATTEMPTS}회 시도): ${lastError.message}`);
 }
 
 
