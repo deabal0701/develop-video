@@ -14,10 +14,23 @@ import { AD_DIR, ensureDir, resolvePlaywright, run } from './util.js';
 
 const { chromium } = resolvePlaywright();
 
-// html·문구가 바뀌지 않았으면 다시 굽지 않는다 — 프레임 캡처는 비싼 단계다.
-function isFresh(source, output) {
+// 템플릿은 혼자 서 있지 않다 — 여섯 장 전부가 같은 폴더의 `_base.css`·`_params.js` 를 불러온다.
+// html 하나만 보면 공용 파일에서 브랜드 색·여백을 고쳐도 캐시가 그대로 살아남아, 몇 번을 다시
+// 돌려도 예전 카드가 나온다(원인을 찾기 어려운 종류의 고장이다). 딸린 `_*.css`·`_*.js` 까지 본다.
+function sourceFiles(source) {
+  const dir = path.dirname(source);
+  const shared = fs
+    .readdirSync(dir)
+    .filter((name) => /^_.+\.(css|js)$/i.test(name))
+    .map((name) => path.join(dir, name));
+  return [source, ...shared];
+}
+
+// 소재가 하나라도 결과물보다 새로우면 다시 굽는다 — 프레임 캡처는 비싼 단계라 그 외에는 넘어간다.
+function isFresh(sources, output) {
   if (!fs.existsSync(output)) return false;
-  return fs.statSync(output).mtimeMs >= fs.statSync(source).mtimeMs;
+  const outMs = fs.statSync(output).mtimeMs;
+  return sources.every((file) => fs.statSync(file).mtimeMs <= outMs);
 }
 
 /**
@@ -41,10 +54,14 @@ export async function renderMotionClip({
   if (!fs.existsSync(source)) throw new Error(`모션 파일이 없습니다: ${source}`);
 
   const query = new URLSearchParams(params ?? {}).toString();
-  // 같은 템플릿이라도 문구가 다르면 다른 결과물이다 — 파일명에 해시를 넣어 캐시를 분리한다.
-  const stamp = query ? `-${crypto.createHash('sha1').update(query).digest('hex').slice(0, 8)}` : '';
-  const output = path.join(ensureDir(dirs.motion), `${id}${stamp}-${width}x${height}.mp4`);
-  if (!force && isFresh(source, output)) return output;
+  // 같은 템플릿이라도 문구나 길이가 다르면 다른 결과물이다 — 파일명에 해시를 넣어 캐시를 분리한다.
+  // duration 을 키에 넣는 이유: 보통은 wipeAt(= duration 에서 계산)이 질의에 섞여 들어가지만,
+  // 대본이 params.wipeAt 을 직접 지정하면 그 고리가 끊긴다. 그러면 내레이션이 길어져 구간이
+  // 늘어나도 예전 길이의 클립이 그대로 나와 뒤 구간 전체가 밀린다.
+  const key = JSON.stringify({ query, duration: Number(duration.toFixed(3)) });
+  const stamp = crypto.createHash('sha1').update(key).digest('hex').slice(0, 8);
+  const output = path.join(ensureDir(dirs.motion), `${id}-${stamp}-${width}x${height}.mp4`);
+  if (!force && isFresh(sourceFiles(source), output)) return output;
 
   const frameDir = path.join(dirs.work, `frames-${id}`);
   fs.rmSync(frameDir, { recursive: true, force: true });
