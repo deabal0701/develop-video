@@ -14,6 +14,18 @@ import { recordTake } from './lib/record.js';
 import { resolveVoice, synthesizeScenes } from './lib/tts.js';
 import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
 
+// 조치 방법이 메시지에 다 들어 있는 오류(util.js 의 expected)는 스택 없이 그것만 찍는다.
+// 스택을 함께 찍으면 "무엇을 설치하라"는 두 줄이 프레임 사이에 파묻혀 안 읽힌다.
+// 표시가 없는 오류는 진짜 버그이므로 스택을 그대로 남긴다.
+// 최상위 await 에서 던진 오류는 uncaughtException 이 아니라 unhandledRejection 으로 오므로 둘 다 받는다.
+const bail = (err) => {
+  if (err?.expected) process.stderr.write(`\n${err.message}\n`);
+  else console.error(err);
+  process.exit(1);
+};
+process.on('uncaughtException', bail);
+process.on('unhandledRejection', bail);
+
 // API 키(Azure Speech 등)는 .env 에서 읽는다. 셸에 이미 있는 값이 우선이고, 없을 때만 채운다.
 for (const { file, count } of loadEnv()) {
   process.stdout.write(`.env ${path.relative(process.cwd(), file)} — ${count}개 적용\n`);

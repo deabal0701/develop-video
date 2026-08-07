@@ -9,7 +9,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDir, resolvePlaywright, sleep, writeJson } from './util.js';
 
-const { chromium } = resolvePlaywright();
+// Playwright는 실제로 촬영할 때 찾는다 — 최상단에서 부르면 import 만으로 죽어서, 브라우저가
+// 필요 없는 경로(`--only tts`, 모션 전용 영상)까지 같이 막힌다. motion.js 도 같은 이유다.
 
 // 녹화 시작 시점과 1번 씬 시작 사이의 여유 — 첫 프레임이 흰 화면으로 찍히는 것을 막는다.
 const LEAD_IN_MS = 1200;
@@ -155,6 +156,7 @@ export async function recordTake(scenes, config, dirs, { headed = false, baseUrl
   ensureDir(videoDir);
 
   const size = { width: config.width, height: config.height };
+  const { chromium } = resolvePlaywright();
   const browser = await chromium.launch({
     headless: !headed,
     args: [`--window-size=${size.width},${size.height}`, '--force-device-scale-factor=1'],
