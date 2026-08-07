@@ -113,10 +113,40 @@ HTML/CSS 애니메이션을 **프레임 단위로** 굽어 중간에 끼운다. 
 - `params`는 질의 문자열로 넘어가고 템플릿이 `location.search`에서 읽는다 — 같은 템플릿을
   문구만 바꿔 여러 번 쓴다.
 - `narration`을 주면 TTS로 읽고 그 길이만큼 구간이 늘어난다.
+- `voice`를 주면 **그 구간만 다른 목소리로** 읽는다(아래).
 - `"variants": ["..."]`로 특정 변형에만 넣을 수 있다.
 
 기본 템플릿: `intro`(브랜드 도입) · `chapter`(단계 카드, 매뉴얼용) · `stat`(수치 강조) ·
-`outro`(마무리·CTA) · `photo`(사진 배경 + 켄번즈 줌 + 문구).
+`outro`(마무리·CTA) · `photo`(사진 배경 + 켄번즈 줌 + 문구) · `voicecard`(목소리 견본 카드).
+
+### 구간마다 목소리 바꾸기 — 클립의 `voice`
+
+기본적으로 영상 전체가 최상위 `voice` 하나로 읽힌다. 클립에 `voice`를 주면 그 구간만 달라진다 —
+목소리 견본 카탈로그, 두 사람이 주고받는 구성에 쓴다.
+
+```json
+{ "id": "v02", "file": "voicecard.html", "voice": "ko-KR-JiMinNeural", "narration": "..." }
+{ "id": "q1",  "file": "chapter.html",   "voice": { "gender": "male", "rate": "+8%" }, "narration": "..." }
+```
+
+문자열이면 목소리 id, 객체면 최상위 `voice` 위에 덮어쓸 값이다(일부만 바꿔도 된다). 캐시 해시가
+목소리 설정을 포함하므로 목소리만 고쳐도 그 구간만 다시 만든다. 씬(`scenes`)에는 아직 없다 —
+화면 녹화 구간은 영상 전체가 한 목소리다.
+
+**목소리 견본 카드 — voicecard.html.** `params`: `name`(이름) · `voiceid`(대본에 옮겨 적을 id,
+고정폭으로 크게) · `gender`·`index`(꼬리표) · `note`(설명, 없으면 지워짐) · `bars`(파형 막대 수).
+`brand`·`brandSoft`로 카드 색을 바꿔 성별·언어를 색으로 구분한다. **가로 전용이다** — id가 길어
+공통 여백(26%)을 8%로 넓혀 놓았으므로 세로 변형에서는 양끝이 잘린다.
+
+쓸 수 있는 목소리 목록은 지어내지 말고 Azure에 직접 묻는다(리전마다 다르다).
+
+```bash
+curl -H "Ocp-Apim-Subscription-Key: $AZURE_SPEECH_KEY" \
+  "https://$AZURE_SPEECH_REGION.tts.speech.microsoft.com/cognitiveservices/voices/list"
+```
+
+응답의 `ShortName`(=목소리 id) · `LocalName`(현지 이름) · `Gender` · `WordsPerMinute`(기본 속도) ·
+`SecondaryLocaleList`(다국어 지원 여부)가 그대로 카드 문구가 된다.
 
 **화면 녹화 없이 모션만으로도 만들 수 있다.** `scenes`를 빈 배열로 두고 모션 클립만 나열하면
 녹화 단계를 건너뛴다(앱을 띄울 필요도 없다). 일러스트 홍보영상·생애사·행사 영상 형식이 이쪽이다.

@@ -1,0 +1,246 @@
+{
+  "_읽어보기": "Azure Speech 한국어 음성 견본 카탈로그. 목록은 koreacentral 의 voices/list API 응답 그대로이고(10종), 카드의 '단어/분'과 '92개 언어'도 그 응답의 WordsPerMinute·SecondaryLocaleList 값이다. 클립마다 voice 를 달리 주면 그 구간만 그 목소리로 읽는다(build.js 의 clipVoice). 목소리를 고른 뒤에는 그 id 를 다른 대본의 voice.voice 에 적으면 된다.",
+
+  "id": "voices",
+  "baseUrl": "http://localhost:3000",
+  "capture": { "width": 1920, "height": 1080 },
+
+  "voice": { "provider": "azure", "lang": "ko", "gender": "female", "rate": "+0%", "strict": true },
+
+  "render": {
+    "fps": 30,
+    "crf": 23,
+    "preset": "veryfast",
+    "background": "#0B1020",
+    "brand": "#3E63DD",
+    "brandText": "#93A4F5",
+    "subtitleScale": 0.045,
+    "subtitleMargin": 0.06,
+    "watermark": { "text": "Azure TTS 음성 카탈로그" },
+    "watermarkAlign": 9,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "intro",
+          "file": "intro.html",
+          "before": "end",
+          "duration": 6.0,
+          "narration": "Azure 스피치가 지원하는 한국어 음성 열 가지를 차례로 들려드립니다.",
+          "params": {
+            "title": "Azure Speech 한국어 음성",
+            "subtitle": "여성 5 · 남성 5 — 듣고 고르세요",
+            "wipe": "off"
+          }
+        },
+
+        {
+          "id": "v01",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-SunHiNeural",
+          "narration": "안녕하세요, 저는 선히입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "1 / 10",
+            "gender": "여성",
+            "name": "선히",
+            "voiceid": "ko-KR-SunHiNeural",
+            "note": "이 파이프라인의 여성 기본값 · 기본 속도 274 단어/분",
+            "brand": "#D6409F",
+            "brandSoft": "#F0A8D8",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v02",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-JiMinNeural",
+          "narration": "안녕하세요, 저는 지민입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "2 / 10",
+            "gender": "여성",
+            "name": "지민",
+            "voiceid": "ko-KR-JiMinNeural",
+            "note": "기본 속도 291 단어/분 — 한국어 음성 중 가장 빠름",
+            "brand": "#D6409F",
+            "brandSoft": "#F0A8D8",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v03",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-SeoHyeonNeural",
+          "narration": "안녕하세요, 저는 서현입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "3 / 10",
+            "gender": "여성",
+            "name": "서현",
+            "voiceid": "ko-KR-SeoHyeonNeural",
+            "note": "기본 속도 258 단어/분 — 한국어 여성 음성 중 가장 느림",
+            "brand": "#D6409F",
+            "brandSoft": "#F0A8D8",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v04",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-SoonBokNeural",
+          "narration": "안녕하세요, 저는 순복입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "4 / 10",
+            "gender": "여성",
+            "name": "순복",
+            "voiceid": "ko-KR-SoonBokNeural",
+            "note": "기본 속도 271 단어/분",
+            "brand": "#D6409F",
+            "brandSoft": "#F0A8D8",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v05",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-YuJinNeural",
+          "narration": "안녕하세요, 저는 유진입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "5 / 10",
+            "gender": "여성",
+            "name": "유진",
+            "voiceid": "ko-KR-YuJinNeural",
+            "note": "기본 속도 288 단어/분",
+            "brand": "#D6409F",
+            "brandSoft": "#F0A8D8",
+            "wipe": "off"
+          }
+        },
+
+        {
+          "id": "v06",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-InJoonNeural",
+          "narration": "안녕하세요, 저는 인준입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "6 / 10",
+            "gender": "남성",
+            "name": "인준",
+            "voiceid": "ko-KR-InJoonNeural",
+            "note": "이 파이프라인의 남성 기본값 · 기본 속도 253 단어/분",
+            "brand": "#3E63DD",
+            "brandSoft": "#93A4F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v07",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-BongJinNeural",
+          "narration": "안녕하세요, 저는 봉진입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "7 / 10",
+            "gender": "남성",
+            "name": "봉진",
+            "voiceid": "ko-KR-BongJinNeural",
+            "note": "기본 속도 262 단어/분",
+            "brand": "#3E63DD",
+            "brandSoft": "#93A4F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v08",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-GookMinNeural",
+          "narration": "안녕하세요, 저는 국민입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "8 / 10",
+            "gender": "남성",
+            "name": "국민",
+            "voiceid": "ko-KR-GookMinNeural",
+            "note": "기본 속도 278 단어/분 — 한국어 남성 음성 중 가장 빠름",
+            "brand": "#3E63DD",
+            "brandSoft": "#93A4F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v09",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-HyunsuNeural",
+          "narration": "안녕하세요, 저는 현수입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "9 / 10",
+            "gender": "남성",
+            "name": "현수",
+            "voiceid": "ko-KR-HyunsuNeural",
+            "brand": "#3E63DD",
+            "brandSoft": "#93A4F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "v10",
+          "file": "voicecard.html",
+          "before": "end",
+          "duration": 10.0,
+          "voice": "ko-KR-HyunsuMultilingualNeural",
+          "narration": "안녕하세요, 저는 현수 다국어 음성입니다. 이 목소리로 제품 소개와 안내 영상을 만듭니다.",
+          "params": {
+            "index": "10 / 10",
+            "gender": "남성",
+            "name": "현수 다국어",
+            "voiceid": "ko-KR-HyunsuMultilingualNeural",
+            "note": "한국어 외 92개 언어를 같은 목소리로 읽는다",
+            "brand": "#3E63DD",
+            "brandSoft": "#93A4F5",
+            "wipe": "off"
+          }
+        },
+
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "before": "end",
+          "duration": 9.0,
+          "voice": "ko-KR-SunHiNeural",
+          "narration": "마음에 드는 목소리의 아이디를 대본의 보이스 항목에 적으면, 그 목소리로 영상이 만들어집니다.",
+          "params": {
+            "title": "고른 id 를 적는다",
+            "subtitle": "scenes.json 의 voice 항목",
+            "cta": "\"voice\": \"ko-KR-JiMinNeural\"",
+            "url": "provider 는 azure · rate 로 속도를 바꾼다",
+            "wipe": "off"
+          }
+        }
+      ]
+    },
+
+    "bgm": "",
+    "syncOffset": 0
+  },
+
+  "variants": [
+    { "id": "voices-16x9", "label": "가로 (목소리 고르기용)", "width": 1920, "height": 1080 }
+  ],
+
+  "scenes": []
+}
