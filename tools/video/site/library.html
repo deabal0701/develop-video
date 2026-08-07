@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>나 — 유튜브 화면 재현</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="main">
+      <div style="display:flex;align-items:center;gap:22px;margin-bottom:10px">
+        <div class="ch-avatar" style="width:88px;height:88px;flex:0 0 88px;font-size:34px;background:linear-gradient(135deg,#7c5cff,#3ea6ff)">민</div>
+        <div>
+          <div style="font-size:34px;font-weight:700">김민수</div>
+          <div style="font-size:17px;color:#aaa;margin-top:6px">@minsu_kim · 내 채널 보기</div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2 id="head-history">🕘 시청 기록</h2><span class="link" id="link-history">모두 보기</span></div>
+      <div id="history-list"></div>
+
+      <div class="section-head"><h2 id="head-later">🕐 나중에 볼 동영상</h2><span class="link">모두 보기</span></div>
+      <div id="later-list"></div>
+
+      <div class="section-head"><h2 id="head-playlists">📂 재생목록</h2><span class="link">모두 보기</span></div>
+      <div class="grid" id="playlist-grid" style="grid-template-columns:repeat(4,1fr)"></div>
+
+      <div class="pad-bottom"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      renderShell('you');
+
+      const row = (e, t, meta, dur, i) => `
+        <div class="list-row">
+          ${thumb(i, e, dur)}
+          <div><div class="row-title" style="font-size:21px">${t}</div>
+          <div class="row-meta">${meta}</div></div>
+        </div>`;
+
+      document.getElementById('history-list').innerHTML = [
+        ['🧘', '아침 10분 스트레칭 — 초보자도 따라 하는 기본 동작', '건강한하루 · 방금 시청', '10:24'],
+        ['🍳', '자취 요리 입문: 계란 하나로 만드는 반찬 5가지', '오늘의부엌 · 어제 시청', '14:02'],
+      ].map((r, i) => row(r[0], r[1], r[2], r[3], i)).join('');
+
+      document.getElementById('later-list').innerHTML = [
+        ['🧘', '아침 10분 스트레칭 — 초보자도 따라 하는 기본 동작', '건강한하루 · 저장함', '10:24'],
+        ['🎸', '기타 코드 C부터 G까지 — 첫날에 배우는 것', '기타연습실 · 저장함', '18:37'],
+      ].map((r, i) => row(r[0], r[1], r[2], r[3], i + 2)).join('');
+
+      document.getElementById('playlist-grid').innerHTML = [
+        ['🌅', '아침 루틴 모음', '동영상 6개'],
+        ['🍚', '자취 요리', '동영상 12개'],
+        ['🎧', '작업할 때 듣는 음악', '동영상 34개'],
+        ['👍', '좋아요 표시한 동영상', '동영상 41개'],
+      ].map(([e, t, m], i) => `
+        <div class="card">
+          ${thumb(i + 4, e, '▤ ' + m.replace('동영상 ', '').replace('개', ''))}
+          <div class="card-body"><div><div class="card-title">${t}</div>
+          <div class="card-meta">${m} · 비공개</div></div></div>
+        </div>`).join('');
+    </script>
+  </body>
+</html>
