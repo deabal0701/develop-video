@@ -65,7 +65,11 @@ export async function renderMotionClip({
   const output = path.join(ensureDir(dirs.motion), `${id}-${stamp}-${width}x${height}.mp4`);
   if (!force && isFresh(sourceFiles(source), output)) return output;
 
-  const frameDir = path.join(dirs.work, `frames-${id}`);
+  // 프레임 폴더도 결과물과 같은 키로 나눈다. 같은 클립을 16:9·9:16 두 번 굽는데, 이름이
+  // id 하나뿐이면 두 렌더가 같은 폴더를 쓰고 시작할 때 서로를 rm -rf 한다. 지금은 변형을
+  // 순서대로 처리해 부딪히지 않지만, 결과물만 크기로 갈라 두고 임시물은 안 갈라 두면
+  // 나중에 이 단계를 병렬로 돌리는 순간 조용히 깨진다.
+  const frameDir = path.join(dirs.work, `frames-${id}-${stamp}-${width}x${height}`);
   fs.rmSync(frameDir, { recursive: true, force: true });
   ensureDir(frameDir);
 
