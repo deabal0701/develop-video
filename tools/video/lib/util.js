@@ -44,6 +44,63 @@ export function ensureVideoDirs(dirs) {
   return dirs;
 }
 
+// ── 영상 폴더 잠금 ────────────────────────────────────────────────────────────
+// 서로 다른 id 는 쓰는 경로가 하나도 겹치지 않아 마음껏 병렬로 돌려도 된다. 문제는 **같은 id**다.
+// 두 프로세스가 같은 폴더를 쓰면 ass·무음·완성본을 서로 덮어쓰고 모션 프레임 폴더를 서로
+// rm -rf 해서, 양쪽 다 "완료"를 찍는데 나온 mp4 는 h264 NAL 이 깨져 있다. 실패보다 나쁘다 —
+// 성공했다고 믿고 납품하게 된다. 파일 하나로 선점해 두 번째 실행을 시작 전에 끊는다.
+function pidAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0); // 신호 0 은 보내지 않고 존재만 확인한다
+    return true;
+  } catch (err) {
+    return err.code === 'EPERM'; // 살아 있지만 남의 프로세스
+  }
+}
+
+export function lockVideoDir(dirs) {
+  const file = path.join(dirs.root, '.lock');
+  const mine = `${JSON.stringify({ pid: process.pid, at: new Date().toISOString() })}\n`;
+
+  try {
+    fs.writeFileSync(file, mine, { flag: 'wx' }); // 이미 있으면 EEXIST
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+    let owner = null;
+    try {
+      owner = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch {
+      /* 내용이 깨진 잠금은 주인이 없는 것으로 본다 */
+    }
+    if (owner && pidAlive(owner.pid)) {
+      throw new Error(
+        `같은 영상 id 로 이미 실행 중입니다: ${dirs.id} (pid ${owner.pid}, ${owner.at} 시작)\n` +
+          `  --project 로 id 를 나누세요. 두 작업이 같은 폴더를 쓰면 결과물이 조용히 깨집니다.\n` +
+          `  강제로 풀려면: rm ${file}`
+      );
+    }
+    // 죽은 프로세스(강제 종료·재부팅)가 남긴 잠금 — 이어받는다.
+    fs.writeFileSync(file, mine, 'utf8');
+  }
+
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    fs.rmSync(file, { force: true });
+  };
+  // 정상 종료·예외·process.exit(--only tts 등) 모두 'exit' 를 거친다.
+  process.on('exit', release);
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(signal, () => {
+      release();
+      process.exit(130);
+    });
+  }
+  return release;
+}
+
 // 프로젝트 루트는 깊이를 가정하지 않고 위로 올라가며 찾는다 — 이 파이프라인은 어느 저장소의
 // 어느 하위 경로에 놓이든 동작해야 한다.
 function findRoot(from) {

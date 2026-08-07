@@ -12,7 +12,7 @@ import path from 'node:path';
 import { composeVariant } from './lib/compose.js';
 import { recordTake } from './lib/record.js';
 import { resolveVoice, synthesizeScenes } from './lib/tts.js';
-import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
+import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
 
 // API 키(Azure Speech 등)는 .env 에서 읽는다. 셸에 이미 있는 값이 우선이고, 없을 때만 채운다.
 for (const { file, count } of loadEnv()) {
@@ -41,6 +41,9 @@ const fallbackId = path.basename(configFile, '.json').replace(/^scenes[.\-_]?/, 
 const dirs = ensureVideoDirs(
   videoDirs(args.out ? path.resolve(args.out) : OUT_DIR, args.project ?? config.id ?? fallbackId)
 );
+// 다른 id 끼리는 쓰는 경로가 안 겹쳐 병렬로 돌려도 되지만, 같은 id 를 겹쳐 돌리면 서로의
+// 중간물을 덮어써서 양쪽 다 "완료"를 찍고도 깨진 mp4 가 나온다. 여기서 미리 끊는다.
+lockVideoDir(dirs);
 
 // 세로(쇼츠) 변형은 켜고 끌 수 있다 — 세로 비율인지로 판별한다.
 const isVertical = (v) => v.height > v.width;
