@@ -1,0 +1,10 @@
+# 키가 든 파일은 커밋하지 않는다. 커밋되는 것은 .env.sample 뿐이다.
+.env
+.env.*
+!.env.sample
+
+# 영상 산출물 (develop-video)
+/tools/video/out/
+/tools/video/presenter/
+
+node_modules/
