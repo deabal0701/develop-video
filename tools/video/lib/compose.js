@@ -230,6 +230,26 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
   // ── 구간 조립 ──
   // 화면 녹화 씬, 모션그래픽 구간, 엔드카드를 하나의 순서로 늘어놓는다. 이후 영상·오디오·문구가
   // 전부 이 목록을 기준으로 만들어지므로 중간에 무엇을 끼워 넣어도 타이밍이 어긋나지 않는다.
+  // 화면 녹화가 없는 영상(모션·사진 전용)은 모션을 **변형 크기로 직접** 렌더한다.
+  // 가로로 만든 카드를 세로에 끼워 넣으면 위아래가 텅 비어 쇼츠로 못 쓴다.
+  // 녹화본이 있으면 concat 하려면 크기가 같아야 하므로 촬영 크기를 따라간다.
+  const nativeMotion = !take.videoFile;
+  const motionWidth = nativeMotion ? width : take.width;
+  const motionHeight = nativeMotion ? height : take.height;
+
+  // 모션 템플릿(_params.js)이 질의 문자열에서 읽는 CSS 변수 이름에 맞춰 넘긴다.
+  // 값이 없는 키는 아예 빼야 한다 — URLSearchParams 가 undefined 를 "undefined" 문자열로 넣는다.
+  const brandParams = Object.fromEntries(
+    Object.entries({
+      brand: config.brand,
+      brandSoft: config.brandText,
+      bg: variant.background ?? config.background,
+      fg: config.foreground,
+      font: config.motionFont,
+      fontUrl: config.motionFontUrl,
+    }).filter(([, v]) => v)
+  );
+
   const motionClips = motionClipsFor(config.motion, variant.id);
   const renderMotion = async (clip) => ({
     kind: 'motion',
@@ -244,8 +264,8 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
           file: clip.video,
           start: clip.videoStart ?? 0,
           duration: clip.duration,
-          width: take.width,
-          height: take.height,
+          width: motionWidth,
+          height: motionHeight,
           fps,
           dirs,
           id: clip.id,
@@ -254,14 +274,20 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
       : await renderMotionClip({
           file: path.join(config.motion.dir ?? 'motion', clip.file),
           duration: clip.duration,
-          width: take.width,
-          height: take.height,
+          width: motionWidth,
+          height: motionHeight,
           fps,
           dirs,
           id: clip.id,
+          // 브랜드 색을 모션 카드에도 넘긴다 — 이게 없으면 render.brand 를 아무리 바꿔도
+          // 자막·뱃지 색만 바뀌고 카드는 템플릿 기본색(파랑) 그대로 나온다.
           // 와이프는 클립 끝에 맞춰 떨어져야 한다. 내레이션 길이에 따라 구간이 늘어나면 템플릿의
           // 고정 지연으로는 와이프가 먼저 끝나 버려 남은 시간이 흰 화면으로 남는다.
-          params: { wipeAt: Math.max(0, clip.duration - 0.45).toFixed(2), ...clip.params },
+          params: {
+            ...brandParams,
+            wipeAt: Math.max(0, clip.duration - 0.45).toFixed(2),
+            ...clip.params, // 클립이 직접 지정한 값이 항상 이긴다
+          },
           force: config.motionForce,
         }),
   });
@@ -410,7 +436,7 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
       const endBg = (endCard.background ?? bg).replace('#', '0x');
       inputs.push(
         ...['-f', 'lavfi', '-t', p.duration.toFixed(3)],
-        ...['-i', `color=c=${endBg}:s=${take.width}x${take.height}:r=${fps}`]
+        ...['-i', `color=c=${endBg}:s=${motionWidth}x${motionHeight}:r=${fps}`]
       );
       videoChains.push(`[${nextIndex}:v]format=yuv420p,setsar=1,setpts=PTS-STARTPTS[v${i}]`);
       nextIndex += 1;
@@ -434,9 +460,12 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
 
   // padY: 세로 영상은 화면을 위로 올려 하단에 자막 자리를 비운다 — 쇼츠 UI(제목·채널명)가
   // 하단 약 330px을 덮으므로 가운데 정렬로 두면 자막이 가려진다.
-  const padY = variant.padY === undefined ? '(oh-ih)/2' : String(variant.padY);
+  //
+  // 변형 크기로 직접 렌더한 경우(nativeMotion)에는 자를 것도 밀어 올릴 것도 없다.
+  // 그대로 두면 크기가 같은데 y 오프셋을 주게 되어 ffmpeg 이 "입력이 패딩 영역을 벗어난다"로 죽는다.
+  const padY = nativeMotion || variant.padY === undefined ? '(oh-ih)/2' : String(variant.padY);
   const geometry = [
-    variant.crop ? `crop=${variant.crop}` : null,
+    !nativeMotion && variant.crop ? `crop=${variant.crop}` : null,
     `fps=${fps}`,
     `scale=${width}:${height}:force_original_aspect_ratio=decrease`,
     `pad=${width}:${height}:(ow-iw)/2:${padY}:color=${bg}`,

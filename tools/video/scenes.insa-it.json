@@ -1,0 +1,80 @@
+{
+  "_읽어보기": "insa-IT 인사 + 자기소개 10초 영상. 앱 화면 없이 타이포 모션 카드만(scenes: []). BGM 없음.",
+
+  "id": "insa-it-intro",
+  "baseUrl": "http://localhost:3000",
+  "capture": { "width": 1920, "height": 1080 },
+
+  "voice": {
+    "provider": "eleven",
+    "lang": "ko",
+    "gender": "male",
+    "voice": "Liam",
+    "model": "eleven_turbo_v2_5",
+    "stability": 0.4,
+    "similarity": 0.75,
+    "rate": "+8%",
+    "pitch": "+12Hz",
+    "volume": "+8%"
+  },
+
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#12100D",
+    "brand": "#F08A4B",
+    "brandText": "#F6C79E",
+
+    "subtitleScale": 0.05,
+    "subtitleMargin": 0.07,
+    "watermark": { "text": "insa-IT" },
+    "watermarkAlign": 9,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "hello",
+          "file": "intro.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "안녕하세요! 즐거운 하루 되세요!",
+          "params": { "title": "insa-IT", "subtitle": "인사잇" }
+        },
+        {
+          "id": "who",
+          "file": "outro.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "소프트웨어를 만드는 인사잇입니다!",
+          "params": {
+            "title": "인사잇",
+            "subtitle": "소프트웨어를 만듭니다",
+            "cta": "insa-IT",
+            "wipe": "off"
+          }
+        }
+      ]
+    },
+
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-471.mp3",
+    "bgmGain": 0.14,
+    "bgmDucking": true,
+    "syncOffset": 0
+  },
+
+  "variants": [
+    { "id": "insa-it-16x9", "label": "가로 (16:9)", "width": 1920, "height": 1080 },
+    {
+      "id": "insa-it-9x16",
+      "label": "세로 (쇼츠)",
+      "width": 1080,
+      "height": 1920,
+      "subtitleMargin": 0.185,
+      "watermarkMargin": 0.075
+    }
+  ],
+
+  "scenes": []
+}

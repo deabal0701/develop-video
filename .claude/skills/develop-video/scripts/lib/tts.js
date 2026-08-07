@@ -137,6 +137,167 @@ async function synthAzure({ text, file, voice, rate, pitch }) {
 }
 
 
+// ── ElevenLabs ────────────────────────────────────────────────────────────────
+// 유료 API. 키는 .env 의 ELEVENLABS_API_KEY 하나뿐이고 리전 개념이 없다.
+//
+// 목소리 id 를 코드에 박아 두지 않는다 — 계정마다 보유 목록이 다르고(복제·커스텀 음성 포함)
+// 프리메이드 id 도 바뀐다. 지정이 없으면 /v1/voices 를 조회해 성별 라벨로 고르고, 고른 이름을
+// 화면에 찍어 준다. 고정하고 싶으면 scenes.json 의 voice.voice 나 ELEVENLABS_VOICE_ID 에 id 를 넣는다.
+const ELEVEN_API = 'https://api.elevenlabs.io/v1';
+
+// 401 잘못된 키 · 402 결제 필요 · 403 정지 · 429 한도 초과. 422(잘못된 목소리·모델)는
+// 설정 문제라 폴백하지 않고 그대로 드러낸다 — 조용히 edge 로 내려가면 원인을 못 찾는다.
+const ELEVEN_DEAD_STATUS = new Set([401, 402, 403, 429]);
+
+async function elevenFetch(pathname, init = {}) {
+  const key = process.env.ELEVENLABS_API_KEY;
+  if (!key) {
+    throw unavailable('ELEVENLABS_API_KEY 가 없습니다 (.env.sample 을 .env 로 복사해 채우세요)');
+  }
+  let res;
+  try {
+    res = await fetch(`${ELEVEN_API}${pathname}`, {
+      ...init,
+      headers: { 'xi-api-key': key, ...(init.headers ?? {}) },
+    });
+  } catch (err) {
+    throw unavailable(`ElevenLabs 연결 실패: ${err.message}`);
+  }
+  if (!res.ok) {
+    const body = (await res.text()).slice(0, 500);
+    // 크레딧 소진은 401/402 로 오면서 본문에 quota 가 들어오는 경우가 있어 본문도 본다.
+    if (ELEVEN_DEAD_STATUS.has(res.status) || /quota|unusual_activity/i.test(body)) {
+      throw unavailable(`ElevenLabs ${res.status} — 키·크레딧 문제로 보입니다: ${body}`);
+    }
+    throw new Error(`ElevenLabs ${res.status}: ${body}`);
+  }
+  return res;
+}
+
+export async function elevenVoices() {
+  return (await (await elevenFetch('/voices')).json()).voices ?? [];
+}
+
+export async function elevenModels() {
+  return (await (await elevenFetch('/models')).json()) ?? [];
+}
+
+// 크레딧 잔량 — 글자를 쓰지 않고 키만 확인할 때 쓴다(check-tts.js).
+export async function elevenSubscription() {
+  return (await elevenFetch('/user/subscription')).json();
+}
+
+// 한국어 목소리 기준값. ElevenLabs 목소리 id 는 계정마다 다르므로 **이름**으로 적어 둔다 —
+// 이름은 보이스 라이브러리에서 바뀌지 않고, 사용자가 화면에서 본 그대로라 확인이 쉽다.
+// 앞에 있는 것부터 찾아 계정에 있으면 그것을 쓴다. 하나도 없으면 성별 라벨로 고른다.
+//
+// 주의: ElevenLabs 의 "탐색(Voice Library)" 목소리는 **내 음성에 추가해야** API 로 쓸 수 있다.
+// 추가하지 않으면 /v1/voices 에 안 나오고, 여기 이름도 못 찾는다.
+export const ELEVEN_PRESETS = {
+  // 이름 · 화면 설명 기준 성별 (라이브러리 설명에서 옮긴 것이라 계정 라벨과 다를 수 있다)
+  female: [
+    'Annie', //        친근·부드럽고 또렷 — 기준값. 강의·매뉴얼에 무난하다
+    'Kanna', //        젊은 여성, 차분·친근 — 홍보·쇼츠
+    'Sola', //         맑고 풍부 — 내레이션
+    'Park Hyun-mi', // 중년 여성 — 신뢰감이 필요한 안내
+    'Chungman', //     명상적·부드러움 — 느린 학습 영상
+    'Hanabad', //      편안한 톤
+  ],
+  male: [
+    'Taehyung', //     젊은 남성, 자연·친근·또렷 — 기준값
+    'Hojin Lim', //    30대 남성, 자연스럽고 몰입감
+    'Harry Kim', //    대화체, 차분
+    'Juan', //         깊고 풍부한 스토리텔러 — 다큐·생애사
+  ],
+};
+
+// 목소리 id 는 20자 안팎의 영숫자다. 공백이나 하이픈이 있으면 이름으로 본다.
+const looksLikeVoiceId = (s) => /^[A-Za-z0-9]{18,26}$/.test(s);
+
+const elevenPicked = new Map();
+
+// "auto:female" → 계정이 가진 목소리 중 하나를 고른다. 한 번 고르면 실행 내내 같은 것을 쓴다
+// (씬마다 다른 목소리가 나오면 영상이 망가진다).
+async function resolveElevenVoice(spec) {
+  if (looksLikeVoiceId(spec)) return { id: spec, name: spec };
+  if (elevenPicked.has(spec)) return elevenPicked.get(spec);
+
+  const voices = await elevenVoices();
+  if (!voices.length) {
+    throw unavailable(
+      'ElevenLabs 계정에 쓸 수 있는 목소리가 없습니다.\n' +
+        '  보이스 라이브러리(탐색)에서 쓸 목소리를 "내 음성"에 추가한 뒤 다시 실행하세요.'
+    );
+  }
+  const byName = (name) =>
+    voices.find((v) => String(v.name).toLowerCase().includes(String(name).toLowerCase()));
+
+  let best;
+  let how;
+  if (!spec.startsWith('auto:')) {
+    // 이름으로 지정 — 부분 일치로 찾는다("Annie" → "Annie - Friendly, Soft and Clear").
+    best = byName(spec);
+    if (!best) {
+      throw new Error(
+        `ElevenLabs 목소리를 찾지 못했습니다: "${spec}"\n` +
+          `  계정에 있는 것: ${voices.map((v) => v.name).slice(0, 12).join(' · ')}\n` +
+          `  전체 목록: node tools/video/check-tts.js --list-voices`
+      );
+    }
+    how = '이름 지정';
+  } else {
+    const gender = spec.slice('auto:'.length);
+    // ① 한국어 기준값 목록 순서대로 계정에서 찾는다
+    for (const name of ELEVEN_PRESETS[gender] ?? []) {
+      best = byName(name);
+      if (best) {
+        how = '기준값';
+        break;
+      }
+    }
+    // ② 없으면 성별 라벨 → 한국어 표기 → 이름순
+    if (!best) {
+      const score = (v) => {
+        const labels = v.labels ?? {};
+        const langs = JSON.stringify(v.verified_languages ?? labels.language ?? '');
+        return (
+          (String(labels.gender ?? '').toLowerCase() === gender ? 4 : 0) +
+          (/ko|korean/i.test(langs) ? 2 : 0) +
+          (v.category === 'premade' ? 1 : 0)
+        );
+      };
+      best = [...voices].sort(
+        (a, b) => score(b) - score(a) || String(a.name).localeCompare(String(b.name))
+      )[0];
+      how = '라벨 추정';
+    }
+  }
+
+  const picked = { id: best.voice_id, name: best.name };
+  elevenPicked.set(spec, picked);
+  process.stdout.write(`  · ElevenLabs 목소리(${how}): ${picked.name}  [${picked.id}]\n`);
+  return picked;
+}
+
+async function synthEleven({ text, file, voice, rate, voiceConfig }) {
+  const picked = await resolveElevenVoice(voice);
+  const model = voiceConfig?.model ?? process.env.ELEVENLABS_MODEL ?? 'eleven_multilingual_v2';
+  // ElevenLabs 에는 pitch 가 없고 속도는 voice_settings.speed(배율)다. "+8%" → 1.08 로 옮긴다.
+  // 기본값(1.0)일 때는 아예 안 보낸다 — 구형 API 가 speed 를 모르면 422 로 죽기 때문이다.
+  const speed = Math.min(1.2, Math.max(0.7, 1 + (Number.parseFloat(rate) || 0) / 100));
+  const settings = {
+    stability: voiceConfig?.stability ?? 0.5,
+    similarity_boost: voiceConfig?.similarity ?? 0.75,
+    ...(Math.abs(speed - 1) > 0.001 ? { speed } : {}),
+  };
+  const res = await elevenFetch(`/text-to-speech/${picked.id}?output_format=mp3_44100_128`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, model_id: model, voice_settings: settings }),
+  });
+  fs.writeFileSync(file, Buffer.from(await res.arrayBuffer()));
+}
+
 // 목소리는 언어 × 성별로 고른다. voice에 정확한 id를 직접 쓰면 그쪽이 우선한다.
 // (edge-tts `--list-voices`로 더 많은 후보를 볼 수 있다.)
 const VOICE_TABLE = {
@@ -147,7 +308,18 @@ const VOICE_TABLE = {
 };
 
 export function resolveVoice(voiceConfig = {}) {
+  return resolveVoiceFor(voiceConfig.provider === 'file' ? voiceConfig.fallback : voiceConfig.provider, voiceConfig);
+}
+
+// 목소리 이름은 제공자마다 체계가 다르다 — edge·azure 는 같은 뉴럴 id(ko-KR-SunHiNeural),
+// sapi 는 윈도에 설치된 음성 이름, eleven 은 계정별 voice_id 다. 폴백으로 제공자가 바뀌면
+// 이름도 같이 바뀌어야 한다(azure 이름을 edge 에 넘기면 우연히 되지만, eleven id 를 넘기면 죽는다).
+export function resolveVoiceFor(provider, voiceConfig = {}) {
+  if (provider === 'eleven') {
+    return voiceConfig.voice ?? process.env.ELEVENLABS_VOICE_ID ?? `auto:${voiceConfig.gender ?? 'female'}`;
+  }
   if (voiceConfig.voice) return voiceConfig.voice;
+  if (provider === 'sapi') return ''; // 윈도 기본 목소리
   const table = VOICE_TABLE[voiceConfig.lang ?? 'ko'] ?? VOICE_TABLE.ko;
   return table[voiceConfig.gender ?? 'female'] ?? table.female;
 }
@@ -156,6 +328,7 @@ const PROVIDERS = {
   edge: { synth: synthEdge, ext: 'mp3' },
   sapi: { synth: synthSapi, ext: 'wav' },
   azure: { synth: synthAzure, ext: 'mp3' },
+  eleven: { synth: synthEleven, ext: 'mp3' },
 };
 
 export const PROVIDER_LIST = Object.keys(PROVIDERS);
@@ -173,7 +346,7 @@ export function synthDirect(name, args) {
 // 엔드포인트로, 키 없이 같은 Azure 뉴럴 음성(ko-KR-SunHiNeural …)을 쓴다. 목소리 id 가 같으니
 // scenes.json 을 한 줄도 안 고치고 이어서 만든다. 확장자도 둘 다 mp3 라 캐시 경로가 어긋나지 않는다.
 // (다만 azure 전용 커스텀 보이스는 edge 에 없다 — 그때는 edge-tts 가 이름을 못 찾고 그대로 실패한다.)
-const UNAVAILABLE_FALLBACK = { azure: 'edge' };
+const UNAVAILABLE_FALLBACK = { azure: 'edge', eleven: 'edge' };
 
 // 한 번 죽은 제공자는 실행이 끝날 때까지 죽은 것으로 둔다 — 씬마다 401 을 다시 맞지 않는다.
 // build.js 가 씬·엔드카드·모션을 나눠 호출하므로 이 상태는 모듈 수준에 둔다.
@@ -183,16 +356,18 @@ export function activeProvider(name) {
   return degraded.get(name) ?? name;
 }
 
+// 목소리 이름은 제공자별로 여기서 채운다 — 폴백으로 제공자가 바뀌면 이름도 함께 바뀌어야 한다.
 async function synthWithFallback(name, args, { allowFallback = true } = {}) {
   const active = activeProvider(name);
+  const forProvider = (p) => ({ ...args, voice: resolveVoiceFor(p, args.voiceConfig) });
   try {
-    return await PROVIDERS[active].synth(args);
+    return await PROVIDERS[active].synth(forProvider(active));
   } catch (err) {
     const next = UNAVAILABLE_FALLBACK[active];
     if (!err.unavailable || !next || !allowFallback) throw err;
     degraded.set(name, next);
     process.stdout.write(`  ! ${active} 사용 불가 → ${next}(키 불필요)로 전환합니다\n    ${err.message}\n`);
-    return PROVIDERS[next].synth(args);
+    return PROVIDERS[next].synth(forProvider(next));
   }
 }
 
@@ -259,7 +434,7 @@ export async function synthesizeScenes(scenes, voiceConfig, dirs, { force = fals
       {
         text: scene.narration,
         file,
-        voice: resolveVoice(voiceConfig),
+        voiceConfig, // voice(목소리 이름)는 실제로 쓰는 제공자에 맞춰 synthWithFallback 이 채운다
         rate: voiceConfig.rate ?? '+0%',
         volume: voiceConfig.volume ?? '+0%',
         pitch: voiceConfig.pitch ?? '+0Hz',

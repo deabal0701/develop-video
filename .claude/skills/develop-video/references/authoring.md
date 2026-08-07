@@ -25,6 +25,22 @@ scenes.json → ① 음성(TTS) → ② 화면 녹화(Playwright) → ③ 합성
 `scenes.json` 최상위에 쓸 수 있는 키 하나가 더 있다 — `"id"`. 대본 파일이 하나뿐이어도 이걸 적어
 두면 출력 폴더 이름이 파일 이름에 끌려다니지 않는다.
 
+## voice 블록
+
+```json
+"voice": { "provider": "edge", "lang": "ko", "gender": "female", "rate": "+8%" }
+```
+
+| 키 | 값 | 비고 |
+|---|---|---|
+| `provider` | `edge`(기본) · `azure` · `eleven` · `sapi` · `file` | 키가 죽으면 azure·eleven은 edge로 자동 전환 |
+| `gender` · `lang` | `female`\|`male` · `ko`\|`en`\|`ja`\|`zh` | 제공자별 목소리 표에서 고른다 |
+| `voice` | 목소리 이름/ID를 직접 지정 | edge·azure는 `ko-KR-SunHiNeural`, eleven은 `voice_id` |
+| `rate` · `pitch` · `volume` | `"+8%"` · `"+0Hz"` | eleven은 pitch가 없고 rate만 speed 배율로 옮겨진다 |
+| `strict` | `true`면 폴백 없이 실패 | 납품본 목소리를 고정해야 할 때 |
+| `model` · `stability` · `similarity` | eleven 전용 | 기본 `eleven_multilingual_v2` · 0.5 · 0.75 |
+| `fallback` | `file` 제공자에서 녹음이 없는 씬을 채울 제공자 | 보통 `"edge"` |
+
 ## 액션 문법
 
 | 액션 | 예 | 비고 |
