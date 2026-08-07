@@ -44,6 +44,17 @@ export function ensureVideoDirs(dirs) {
   return dirs;
 }
 
+// ── 사람이 읽어야 하는 오류 ───────────────────────────────────────────────────
+// "Playwright 를 설치하세요" 같은 안내는 조치 방법이 메시지 안에 다 들어 있다. 그런데 그대로
+// 던지면 Node 가 스택 트레이스를 함께 찍어서, 정작 읽어야 할 두 줄이 프레임 대여섯 줄 사이에
+// 파묻힌다 — 처음 클론한 사람이 "무엇을 설치해야 하는지"를 못 찾는다. 이 표시가 붙은 오류는
+// build.js 가 메시지만 깔끔하게 찍는다. 진짜 버그(예상 못 한 오류)는 스택을 그대로 남긴다.
+export function expected(message) {
+  const err = new Error(message);
+  err.expected = true;
+  return err;
+}
+
 // ── 영상 폴더 잠금 ────────────────────────────────────────────────────────────
 // 서로 다른 id 는 쓰는 경로가 하나도 겹치지 않아 마음껏 병렬로 돌려도 된다. 문제는 **같은 id**다.
 // 두 프로세스가 같은 폴더를 쓰면 ass·무음·완성본을 서로 덮어쓰고 모션 프레임 폴더를 서로
@@ -74,7 +85,7 @@ export function lockVideoDir(dirs) {
       /* 내용이 깨진 잠금은 주인이 없는 것으로 본다 */
     }
     if (owner && pidAlive(owner.pid)) {
-      throw new Error(
+      throw expected(
         `같은 영상 id 로 이미 실행 중입니다: ${dirs.id} (pid ${owner.pid}, ${owner.at} 시작)\n` +
           `  --project 로 id 를 나누세요. 두 작업이 같은 폴더를 쓰면 결과물이 조용히 깨집니다.\n` +
           `  강제로 풀려면: rm ${file}`
@@ -208,9 +219,13 @@ export function resolvePlaywright() {
       }
     }
   }
-  throw new Error(
-    'Playwright를 찾지 못했습니다. 프로젝트 어딘가에 설치하세요:\n' +
-      '  npm i -D playwright && npx playwright install chromium'
+  // 브라우저 실물(수 GB)은 ~/.cache/ms-playwright 에 전역으로 공유되므로, 이미 다른 프로젝트에서
+  // 받아 두었다면 아래 설치는 18MB 짜리 패키지만 받고 몇 초 만에 끝난다.
+  throw expected(
+    'Playwright를 찾지 못했습니다. 영상 작업 폴더에 설치하세요:\n' +
+      `  npm --prefix ${path.relative(process.cwd(), AD_DIR) || '.'} i -D playwright\n` +
+      `  npx --prefix ${path.relative(process.cwd(), AD_DIR) || '.'} playwright install chromium   # 브라우저가 없을 때만\n` +
+      '저장소 어딘가(프론트엔드 등)에 이미 있으면 그걸 그대로 씁니다 — 또 깔 필요 없습니다.'
   );
 }
 

@@ -12,7 +12,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { AD_DIR, ensureDir, resolvePlaywright, run } from './util.js';
 
-const { chromium } = resolvePlaywright();
+// Playwright는 실제로 구울 때 찾는다 — 최상단에서 부르면 import 만으로 죽어서, 브라우저가
+// 필요 없는 경로(`--only tts` 로 목소리부터 고르는 단계)까지 같이 막힌다. 게다가 안내문이
+// 스택 트레이스에 파묻혀, 새로 클론한 사람이 "무엇을 설치해야 하는지"를 못 읽는다.
 
 // 템플릿은 혼자 서 있지 않다 — 여섯 장 전부가 같은 폴더의 `_base.css`·`_params.js` 를 불러온다.
 // html 하나만 보면 공용 파일에서 브랜드 색·여백을 고쳐도 캐시가 그대로 살아남아, 몇 번을 다시
@@ -67,6 +69,7 @@ export async function renderMotionClip({
   fs.rmSync(frameDir, { recursive: true, force: true });
   ensureDir(frameDir);
 
+  const { chromium } = resolvePlaywright();
   const browser = await chromium.launch({
     headless: true,
     // file:// 에서 웹폰트를 읽으려면 필요하다 (Pretendard를 frontend/public에서 그대로 쓴다).
