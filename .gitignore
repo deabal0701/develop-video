@@ -12,9 +12,15 @@
 /tools/video/out/*/*
 !/tools/video/out/*/final/
 
-# 파이프라인 점검용 셀프테스트 결과는 납품물이 아니다.
+# 파이프라인 점검용 결과는 납품물이 아니다 — selftest 는 점검용, par-* 는 병렬 실행 시험용.
 /tools/video/out/selftest/
+/tools/video/out/par-*/
 
 /tools/video/presenter/
+
+# 작업용 git worktree. 저장소 안에 있어서 막아 두지 않으면 `git add -A` 한 번에
+# 워크트리가 통째로 딸려 들어간다 — 복사된 node_modules·영상 캐시 수십 MB에
+# 중첩된 .git 파일까지 함께다.
+.claude/worktrees/
 
 node_modules/
