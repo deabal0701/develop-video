@@ -5,16 +5,15 @@
   "baseUrl": "http://localhost:3000",
   "capture": { "width": 1920, "height": 1080 },
 
+  "_목소리메모": "ElevenLabs 'Taehyung' 은 보이스 라이브러리(공유) 목소리라 무료 플랜에서는 API 로 못 쓴다(402 paid_plan_required). 유료 플랜으로 올리면 voice 를 \"Taehyung\", provider 를 eleven 으로 바꾸면 된다. 그 전까지는 한국어 원어민인 Azure 남성 목소리가 낫다.",
+
   "voice": {
-    "provider": "eleven",
+    "provider": "azure",
     "lang": "ko",
     "gender": "male",
-    "voice": "Liam",
-    "model": "eleven_turbo_v2_5",
-    "stability": 0.4,
-    "similarity": 0.75,
-    "rate": "+8%",
-    "pitch": "+12Hz",
+    "voice": "ko-KR-HyunsuNeural",
+    "rate": "+14%",
+    "pitch": "+10Hz",
     "volume": "+8%"
   },
 

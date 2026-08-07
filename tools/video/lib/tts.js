@@ -165,6 +165,16 @@ async function elevenFetch(pathname, init = {}) {
   }
   if (!res.ok) {
     const body = (await res.text()).slice(0, 500);
+    // 무료 플랜은 보이스 라이브러리(공유) 목소리를 API 로 못 쓴다 — "내 음성"에 추가해도 마찬가지다.
+    // 목소리를 잘못 고른 것이지 키가 죽은 게 아니므로, 원인을 분명히 적어서 알린다.
+    if (/paid_plan_required|library voices/i.test(body)) {
+      throw unavailable(
+        'ElevenLabs 무료 플랜은 보이스 라이브러리 목소리를 API 로 쓸 수 없습니다 ' +
+          '("내 음성"에 추가해도 안 됩니다).\n' +
+          '  → 기본 제공(premade) 목소리를 쓰거나, 유료 플랜으로 올리세요.\n' +
+          '  → 한국어 원어민 목소리가 필요하면 --provider azure (ko-KR-*Neural) 가 낫습니다.'
+      );
+    }
     // 크레딧 소진은 401/402 로 오면서 본문에 quota 가 들어오는 경우가 있어 본문도 본다.
     if (ELEVEN_DEAD_STATUS.has(res.status) || /quota|unusual_activity/i.test(body)) {
       throw unavailable(`ElevenLabs ${res.status} — 키·크레딧 문제로 보입니다: ${body}`);
