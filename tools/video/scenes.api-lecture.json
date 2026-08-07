@@ -5,12 +5,17 @@
   "baseUrl": "http://localhost:4310",
   "capture": { "width": 1920, "height": 1080 },
 
+  "_목소리메모": "ElevenLabs 'Taehyung' 은 보이스 라이브러리(공유) 목소리라 무료 플랜에서는 API 로 못 쓴다 — 402 paid_plan_required, \"Free users cannot use library voices via the API\". 유료 플랜으로 올리면 voice 를 \"Taehyung\" 으로 바꾸기만 하면 된다. 그 전까지는 계정에 있는 premade 남성 목소리를 쓴다. strict 를 켜 둔 이유는 폴백이 조용히 edge 로 내려가면 납품본 목소리가 바뀐 줄 모르고 넘어가기 때문이다.",
+
   "voice": {
-    "provider": "azure",
+    "provider": "eleven",
     "lang": "ko",
-    "gender": "female",
-    "voice": "ko-KR-SunHiNeural",
-    "rate": "+6%"
+    "gender": "male",
+    "voice": "Daniel",
+    "model": "eleven_multilingual_v2",
+    "stability": 0.5,
+    "similarity": 0.75,
+    "strict": true
   },
 
   "render": {
@@ -121,16 +126,16 @@
       "_타이밍": "highlight 는 화면에만 duration 만큼 남고 촬영을 붙잡지 않는다(record.js 는 300ms 뒤 다음 액션으로 간다). 그래서 wait 으로 직접 벌려 내레이션이 말하는 순간에 조작이 오게 맞췄다.",
       "actions": [
         { "goto": "/" },
-        { "wait": 5.5 },
-        { "highlight": "#req-card", "duration": 3.0 },
-        { "wait": 2.7 },
-        { "highlight": "#res-card", "duration": 3.0 },
-        { "wait": 12.5 },
-        { "highlight": "#path", "duration": 2.5 },
-        { "wait": 4.6 },
+        { "wait": 6.2 },
+        { "highlight": "#req-card", "duration": 3.4 },
+        { "wait": 3.1 },
+        { "highlight": "#res-card", "duration": 3.4 },
+        { "wait": 14.1 },
+        { "highlight": "#path", "duration": 2.8 },
+        { "wait": 5.2 },
         { "click": "#send" },
         { "waitFor": "#status.ok", "timeout": 10, "optional": true },
-        { "wait": 2.0 },
+        { "wait": 2.3 },
         { "highlight": "#res-body", "duration": 3.0 }
       ]
     },
@@ -139,19 +144,19 @@
       "hold": 1.4,
       "narration": "요청을 뜯어보면 항상 네 가지입니다. 메서드는 무엇을 할 것인가. 조회는 GET, 생성은 POST, 삭제는 DELETE를 씁니다. 경로는 무엇을 대상으로 하는가입니다. 헤더는 누가 보냈는지 같은 부가 정보를 담고, 본문은 실제로 보낼 데이터입니다. 아래 상자에는 지금 나가는 요청이 글자 그대로 보입니다. 경로 끝에 2를 붙여 보겠습니다. 목록 전체가 아니라, 두 번째 할 일 하나만 돌아옵니다. 경로 한 글자가 결과를 바꿉니다.",
       "actions": [
+        { "wait": 3.4 },
+        { "highlight": ".methods", "duration": 8.4 },
+        { "wait": 8.6 },
+        { "highlight": "#path", "duration": 3.9 },
+        { "wait": 3.6 },
+        { "highlight": "#token", "duration": 3.9 },
+        { "wait": 3.6 },
+        { "highlight": "#body", "duration": 3.4 },
         { "wait": 3.0 },
-        { "highlight": ".methods", "duration": 7.5 },
-        { "wait": 7.7 },
-        { "highlight": "#path", "duration": 3.5 },
-        { "wait": 3.2 },
-        { "highlight": "#token", "duration": 3.5 },
-        { "wait": 3.2 },
-        { "highlight": "#body", "duration": 3.0 },
-        { "wait": 2.7 },
-        { "highlight": "#req-raw", "duration": 4.5 },
-        { "wait": 4.2 },
+        { "highlight": "#req-raw", "duration": 5.0 },
+        { "wait": 4.7 },
         { "type": "#path", "text": "/api/todos/2", "delay": 85 },
-        { "wait": 1.2 },
+        { "wait": 1.3 },
         { "click": "#send" },
         { "waitFor": "#status.ok", "timeout": 10, "optional": true }
       ]
@@ -161,17 +166,17 @@
       "hold": 1.4,
       "narration": "응답 맨 앞의 세 자리 숫자를 상태 코드라고 합니다. 이백 번대는 성공, 사백 번대는 요청을 보낸 쪽의 잘못, 오백 번대는 서버의 잘못입니다. 없는 것을 달라고 하면 어떻게 될까요. 아이디 구백구십구번을 조회해 보겠습니다. 사백사. 그런 것은 없다는 뜻입니다. 서버가 멈춘 게 아니라, 요청은 잘 도착했고 대상이 없다고 정확히 알려 준 것입니다. 본문에도 이유가 적혀 있습니다.",
       "actions": [
-        { "wait": 0.6 },
-        { "highlight": "#status", "duration": 4.0 },
-        { "wait": 15.6 },
+        { "wait": 0.7 },
+        { "highlight": "#status", "duration": 4.6 },
+        { "wait": 18.0 },
         { "type": "#path", "text": "/api/todos/999", "delay": 80 },
-        { "wait": 1.0 },
+        { "wait": 1.2 },
         { "click": "#send" },
         { "waitFor": "#status.err", "timeout": 10, "optional": true },
-        { "wait": 1.0 },
-        { "highlight": "#status", "duration": 3.0 },
-        { "wait": 6.5 },
-        { "highlight": "#res-body", "duration": 3.5 }
+        { "wait": 1.2 },
+        { "highlight": "#status", "duration": 3.5 },
+        { "wait": 7.5 },
+        { "highlight": "#res-body", "duration": 4.0 }
       ]
     },
     {
@@ -179,17 +184,19 @@
       "hold": 1.4,
       "narration": "이번에는 새 할 일을 만들어 보겠습니다. 만드는 요청은 POST이고, 경로는 목록과 같습니다. 본문에는 만들 내용을 제이슨으로 적습니다. 그대로 보내면 사백일이 돌아옵니다. 권한 없음. 서버가, 너는 누구냐고 묻는 겁니다. 조회는 아무나 해도 되지만, 무언가를 바꾸는 요청은 보낸 사람이 누구인지 확인합니다.",
       "actions": [
-        { "wait": 3.5 },
+        { "wait": 3.9 },
         { "click": "#m-post" },
-        { "wait": 0.6 },
+        { "wait": 0.7 },
         { "type": "#path", "text": "/api/todos", "delay": 80 },
-        { "wait": 1.6 },
-        { "type": "#body", "text": "{ \"title\": \"API 배우기\", \"tags\": [\"공부\"] }", "delay": 45 },
         { "wait": 1.8 },
+        { "type": "#body", "text": "{ \"title\": \"API 배우기\", \"tags\": [\"공부\"] }", "delay": 45 },
+        { "wait": 2.0 },
         { "click": "#send" },
         { "waitFor": "#status.err", "timeout": 10, "optional": true },
-        { "wait": 2.4 },
-        { "highlight": "#status", "duration": 4.0 }
+        { "wait": 2.7 },
+        { "highlight": "#status", "duration": 4.5 },
+        { "wait": 4.5 },
+        { "highlight": "#res-body", "duration": 4.0 }
       ]
     },
     {
@@ -197,19 +204,19 @@
       "hold": 1.4,
       "narration": "내가 누구인지는 Authorization 헤더 한 줄로 밝힙니다. Bearer 다음에 서버가 발급한 토큰을 붙이는 방식이 가장 흔합니다. 토큰을 넣고 다시 보내겠습니다. 이백일. 새로 만들었다는 뜻입니다. 성공은 성공인데, 만들기가 성공하면 이백이 아니라 이백일을 씁니다. 응답 헤더의 로케이션에는 방금 만들어진 할 일의 주소가 담겨 있습니다. 다음에 그 주소로 조회하면 됩니다.",
       "actions": [
-        { "wait": 1.0 },
-        { "highlight": "#token", "duration": 3.5 },
-        { "wait": 4.0 },
+        { "wait": 1.2 },
+        { "highlight": "#token", "duration": 4.0 },
+        { "wait": 4.7 },
         { "type": "#token", "text": "Bearer demo-token-2026", "delay": 55 },
-        { "wait": 1.0 },
-        { "highlight": "#req-raw", "duration": 3.0 },
-        { "wait": 3.4 },
+        { "wait": 1.2 },
+        { "highlight": "#req-raw", "duration": 3.5 },
+        { "wait": 4.0 },
         { "click": "#send" },
         { "waitFor": "#status.ok", "timeout": 10, "optional": true },
-        { "wait": 1.2 },
-        { "highlight": "#status", "duration": 3.0 },
-        { "wait": 8.3 },
-        { "highlight": "#res-headers", "duration": 4.5 }
+        { "wait": 1.4 },
+        { "highlight": "#status", "duration": 3.5 },
+        { "wait": 9.7 },
+        { "highlight": "#res-headers", "duration": 5.0 }
       ]
     },
     {
@@ -217,15 +224,15 @@
       "hold": 1.6,
       "narration": "마지막으로, 자주 만나는 실수 하나. 본문에서 제목을 빼고 보내면 사백이 돌아옵니다. 어느 항목이 잘못됐는지 필드에 적혀 있습니다. 사백일과 사백사와 사백은 모두 사백 번대지만 원인이 다릅니다. 사백일은 누구인지 모르겠다, 사백사는 그런 건 없다, 사백은 보낸 값이 잘못됐다입니다. 상태 코드만 봐도 어디를 고쳐야 하는지 절반은 알 수 있습니다.",
       "actions": [
-        { "wait": 3.5 },
+        { "wait": 4.0 },
         { "type": "#body", "text": "{ \"tags\": [\"공부\"] }", "delay": 60 },
-        { "wait": 1.0 },
+        { "wait": 1.1 },
         { "click": "#send" },
         { "waitFor": "#status.err", "timeout": 10, "optional": true },
-        { "wait": 1.2 },
-        { "highlight": "#res-body", "duration": 4.5 },
-        { "wait": 9.5 },
-        { "highlight": "#status", "duration": 5.0 }
+        { "wait": 1.4 },
+        { "highlight": "#res-body", "duration": 5.0 },
+        { "wait": 10.8 },
+        { "highlight": "#status", "duration": 5.5 }
       ]
     }
   ]
