@@ -3,8 +3,18 @@
 .env.*
 !.env.sample
 
-# 영상 산출물 (develop-video)
-/tools/video/out/
+# 영상 산출물 (develop-video) — 납품물인 final/ 만 커밋하고 나머지는 제외한다.
+# raw(통짜 원본)·audio·motion(캐시)·work(중간물)·frames(검증 캡처)는 다시 만들 수 있고 크다.
+# 아래를 한 줄(`/tools/video/out/`)로 줄일 수 없다 — 디렉터리째 제외하면 git 이 그 아래로
+# 내려가지 않아서 안쪽을 되살리는 `!` 규칙이 아예 먹지 않는다. 그래서 한 단계씩 열고 닫는다.
+/tools/video/out/*
+!/tools/video/out/*/
+/tools/video/out/*/*
+!/tools/video/out/*/final/
+
+# 파이프라인 점검용 셀프테스트 결과는 납품물이 아니다.
+/tools/video/out/selftest/
+
 /tools/video/presenter/
 
 node_modules/
