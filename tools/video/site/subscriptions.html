@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>구독 — 유튜브 화면 재현</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="main">
+      <div class="page-title">구독</div>
+      <div style="display:flex;gap:26px;margin-bottom:28px" id="sub-channels"></div>
+      <div class="grid" id="sub-grid"></div>
+      <div class="pad-bottom"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      renderShell('subs');
+
+      const CH = [
+        ['건', '건강한하루'], ['오', '오늘의부엌'], ['기', '기타연습실'],
+        ['걷', '걷는사람'], ['사', '사진공부방'], ['커', '커피한잔'],
+      ];
+      document.getElementById('sub-channels').innerHTML = CH.map(([c, n], i) => `
+        <div style="text-align:center;width:120px">
+          <div class="ch-avatar" style="width:88px;height:88px;flex:0 0 88px;font-size:34px;margin:0 auto;background:${art(i)}">${c}</div>
+          <div style="font-size:16px;margin-top:10px">${n}</div>
+        </div>`).join('');
+
+      const FEED = [
+        ['🧘', '아침 10분 스트레칭 — 초보자도 따라 하는 기본 동작', '건강한하루', '조회수 128만회 · 3일 전', '10:24'],
+        ['🍲', '오늘의 저녁: 된장찌개 기본 비율', '오늘의부엌', '조회수 21만회 · 1일 전', '11:12'],
+        ['🎸', '기타 코드 바꾸는 연습 — 손이 안 따라올 때', '기타연습실', '조회수 9.8만회 · 2일 전', '15:44'],
+        ['🏞', '새벽 강변 걷기 4K', '걷는사람', '조회수 6.3만회 · 4시간 전', '28:15'],
+        ['📷', '역광에서 인물 찍는 법', '사진공부방', '조회수 14만회 · 2일 전', '09:31'],
+        ['☕', '드립 없이 커피 내리기', '커피한잔', '조회수 7.7만회 · 3일 전', '07:20'],
+        ['🥬', '나물 데치는 시간 정리', '오늘의부엌', '조회수 18만회 · 5일 전', '06:48'],
+        ['🎼', '초보가 자주 틀리는 리듬 3가지', '기타연습실', '조회수 5.2만회 · 6일 전', '13:02'],
+        ['🌄', '해 뜨는 시간에 맞춰 걷기', '걷는사람', '조회수 4.1만회 · 1주 전', '24:30'],
+        ['🥔', '감자 하나로 만드는 야식', '오늘의부엌', '조회수 33만회 · 1주 전', '08:55'],
+        ['🖼', '사진 고르는 기준 세 가지', '사진공부방', '조회수 8.8만회 · 1주 전', '12:07'],
+        ['🫖', '차 우리는 온도와 시간', '커피한잔', '조회수 5.6만회 · 2주 전', '09:14'],
+      ];
+      document.getElementById('sub-grid').innerHTML = FEED.map(([e, t, c, m, d], i) => `
+        <a class="card" href="watch.html">
+          ${thumb(i, e, d)}
+          <div class="card-body">
+            <div class="ch-avatar" style="background:${art(i + 3)}">${c[0]}</div>
+            <div><div class="card-title">${t}</div><div class="card-meta">${c}<br>${m}</div></div>
+          </div>
+        </a>`).join('');
+    </script>
+  </body>
+</html>

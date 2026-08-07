@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>홈 — 유튜브 화면 재현</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="main">
+      <div id="chips">
+        <div class="chip active" id="chip-all">전체</div>
+        <div class="chip" id="chip-music">음악</div>
+        <div class="chip" id="chip-cook">요리</div>
+        <div class="chip" id="chip-game">게임</div>
+        <div class="chip" id="chip-live">실시간</div>
+        <div class="chip" id="chip-news">뉴스</div>
+        <div class="chip" id="chip-study">학습</div>
+        <div class="chip" id="chip-travel">여행</div>
+        <div class="chip" id="chip-recent">최근에 업로드된 동영상</div>
+        <div class="chip" id="chip-watched">시청한 동영상</div>
+      </div>
+      <div class="grid" id="home-grid"></div>
+      <div class="pad-bottom"></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      renderShell('home');
+      renderHomeGrid(document.getElementById('home-grid'));
+      document.querySelectorAll('.chip').forEach((c) =>
+        c.addEventListener('click', () => {
+          document.querySelectorAll('.chip').forEach((x) => x.classList.remove('active'));
+          c.classList.add('active');
+        })
+      );
+    </script>
+  </body>
+</html>

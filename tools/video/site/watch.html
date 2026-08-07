@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>재생 화면 — 유튜브 화면 재현</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <div id="main">
+      <div id="watch">
+        <div id="watch-left">
+          <div id="player">
+            <div id="player-art">🧘</div>
+            <div id="big-play">▶</div>
+            <div id="cc-line">이제 어깨를 천천히 뒤로 돌려 주세요.</div>
+
+            <div id="settings-menu">
+              <div id="menu-main">
+                <div class="set-item" id="set-cc"><span>자막</span><span>한국어</span></div>
+                <div class="set-item" id="set-speed"><span>재생 속도</span><span id="speed-now">보통</span></div>
+                <div class="set-item" id="set-quality"><span>화질</span><span id="quality-now">자동 720p</span></div>
+              </div>
+              <div id="menu-speed" style="display:none">
+                <div class="set-item" id="sp-05">0.5배</div>
+                <div class="set-item" id="sp-075">0.75배</div>
+                <div class="set-item chosen" id="sp-1">보통</div>
+                <div class="set-item" id="sp-125">1.25배</div>
+                <div class="set-item" id="sp-15">1.5배</div>
+                <div class="set-item" id="sp-2">2배</div>
+              </div>
+              <div id="menu-quality" style="display:none">
+                <div class="set-item" id="q-1080">1080p HD</div>
+                <div class="set-item" id="q-720">720p</div>
+                <div class="set-item" id="q-480">480p</div>
+                <div class="set-item" id="q-240">240p</div>
+                <div class="set-item chosen" id="q-auto">자동 (720p)</div>
+              </div>
+            </div>
+
+            <div id="controls">
+              <div id="progress"><div id="progress-fill"></div></div>
+              <div id="ctrl-row">
+                <button class="pbtn" id="pc-play" title="재생/일시정지">⏸</button>
+                <button class="pbtn" id="pc-next" title="다음 동영상">⏭</button>
+                <button class="pbtn" id="pc-mute" title="음소거"></button>
+                <span id="time">3:32 / 10:24</span>
+                <div class="spacer"></div>
+                <button class="pbtn" id="pc-cc" title="자막">CC</button>
+                <button class="pbtn" id="pc-settings" title="설정">⚙</button>
+                <button class="pbtn" id="pc-mini" title="미니 플레이어">🗗</button>
+                <button class="pbtn" id="pc-theater" title="극장 모드">▭</button>
+                <button class="pbtn" id="pc-full" title="전체화면">⛶</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="video-title">아침 10분 스트레칭 — 초보자도 따라 하는 기본 동작</div>
+
+          <div id="channel-row">
+            <div id="ch-big">건</div>
+            <div>
+              <div id="ch-name">건강한하루</div>
+              <div id="ch-subs">구독자 82만명</div>
+            </div>
+            <button id="btn-subscribe">구독</button>
+            <button id="btn-bell">🔔 전체</button>
+
+            <div class="action-group">
+              <button class="abtn" id="btn-like">👍 4.2만</button>
+              <button class="abtn" id="btn-dislike">👎</button>
+              <button class="abtn" id="btn-share">↗ 공유</button>
+              <button class="abtn" id="btn-save">＋ 저장</button>
+              <button class="abtn" id="btn-more">⋯</button>
+            </div>
+          </div>
+
+          <div id="desc-box">
+            <b>조회수 128만회 · 3일 전 &nbsp;#스트레칭 #아침루틴 #초보</b>
+            매트 없이 침대 옆에서 바로 할 수 있는 동작만 모았습니다.
+            타임라인 — 0:00 인사 · 0:48 목과 어깨 · 4:10 허리 · 7:30 다리 · 9:40 마무리
+          </div>
+
+          <div class="section-head"><h2>댓글 1,204개</h2><span class="link">정렬 기준</span></div>
+          <div style="display:flex;gap:16px;margin-bottom:22px">
+            <div class="ch-avatar" style="background:linear-gradient(135deg,#7c5cff,#3ea6ff)">민</div>
+            <div style="flex:1;border-bottom:1px solid #303030;padding-bottom:12px;color:#888;font-size:17px">
+              댓글 추가...
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:20px">
+            <div class="ch-avatar" style="background:#4a6b8a">하</div>
+            <div>
+              <div style="font-size:16px;color:#aaa">@하늘바다 · 2일 전</div>
+              <div style="font-size:18px;margin-top:6px">일주일째 따라 하는 중인데 아침이 훨씬 가벼워요.</div>
+            </div>
+          </div>
+          <div class="pad-bottom"></div>
+        </div>
+
+        <div id="watch-right"></div>
+      </div>
+    </div>
+
+    <div id="bell-menu">
+      <div class="bell-item chosen" id="bell-all">🔔 전체</div>
+      <div class="bell-item" id="bell-custom">⚙ 맞춤설정</div>
+      <div class="bell-item" id="bell-none">🔕 없음</div>
+    </div>
+
+    <div id="save-pop">
+      <h3>저장할 위치</h3>
+      <div class="save-row" id="save-later"><span class="box"></span>나중에 볼 동영상</div>
+      <div class="save-row" id="save-morning"><span class="box"></span>아침 루틴 모음</div>
+      <div class="save-row" id="save-new"><span class="box">＋</span>새 재생목록 만들기</div>
+      <div style="text-align:right;padding:10px 22px 6px"><span class="link" id="save-close">완료</span></div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      renderShell('home');
+      document.getElementById('pc-mute').innerHTML = ICON_VOL;
+
+      /* 오른쪽 추천 목록 */
+      const UP = [
+        ['🌅', '굳은 몸 푸는 5분 루틴', '스트레칭연구소', '조회수 63만회', '05:12'],
+        ['🛏', '자기 전 스트레칭', '밤의루틴', '조회수 47만회', '12:40'],
+        ['💪', '앉아서 하는 사무실 스트레칭', '오피스핏', '조회수 22만회', '08:03'],
+        ['🚶', '30분 걷기 운동 함께해요', '걷는사람', '조회수 18만회', '30:00'],
+        ['🥗', '운동 후 먹기 좋은 간단식', '오늘의부엌', '조회수 55만회', '12:31'],
+        ['🧘', '호흡만 따라 하는 명상 10분', '고요한방', '조회수 9.1만회', '10:00'],
+      ];
+      document.getElementById('watch-right').innerHTML = UP.map(
+        ([e, t, c, m, d], i) => `
+        <div class="up-card">
+          ${thumb(i + 1, e, d)}
+          <div><div class="up-title">${t}</div><div class="up-meta">${c}<br>${m}</div></div>
+        </div>`).join('');
+
+      /* 재생/일시정지 */
+      const player = document.getElementById('player');
+      document.getElementById('pc-play').addEventListener('click', () => {
+        const paused = player.classList.toggle('paused');
+        document.getElementById('pc-play').textContent = paused ? '▶' : '⏸';
+      });
+
+      /* 진행바를 누르면 그 위치로 이동한다 */
+      document.getElementById('progress').addEventListener('click', (e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        const pct = Math.max(2, Math.min(98, ((e.clientX - r.left) / r.width) * 100));
+        document.getElementById('progress-fill').style.width = pct + '%';
+        const total = 10 * 60 + 24;
+        const cur = Math.round((total * pct) / 100);
+        document.getElementById('time').textContent =
+          `${Math.floor(cur / 60)}:${String(cur % 60).padStart(2, '0')} / 10:24`;
+      });
+
+      /* 자막 */
+      document.getElementById('pc-cc').addEventListener('click', (e) => {
+        e.currentTarget.classList.toggle('on');
+        document.getElementById('cc-line').classList.toggle('on');
+      });
+
+      /* 설정 메뉴 — 재생 속도 · 화질 */
+      const menu = document.getElementById('settings-menu');
+      const panes = ['menu-main', 'menu-speed', 'menu-quality'];
+      const showPane = (id) =>
+        panes.forEach((p) => (document.getElementById(p).style.display = p === id ? 'block' : 'none'));
+
+      document.getElementById('pc-settings').addEventListener('click', () => {
+        menu.classList.toggle('on');
+        showPane('menu-main');
+      });
+      document.getElementById('set-speed').addEventListener('click', () => showPane('menu-speed'));
+      document.getElementById('set-quality').addEventListener('click', () => showPane('menu-quality'));
+
+      document.querySelectorAll('#menu-speed .set-item').forEach((it) =>
+        it.addEventListener('click', () => {
+          document.querySelectorAll('#menu-speed .set-item').forEach((x) => x.classList.remove('chosen'));
+          it.classList.add('chosen');
+          document.getElementById('speed-now').textContent = it.textContent;
+          showPane('menu-main');
+        })
+      );
+      document.querySelectorAll('#menu-quality .set-item').forEach((it) =>
+        it.addEventListener('click', () => {
+          document.querySelectorAll('#menu-quality .set-item').forEach((x) => x.classList.remove('chosen'));
+          it.classList.add('chosen');
+          document.getElementById('quality-now').textContent = it.textContent;
+          showPane('menu-main');
+        })
+      );
+
+      /* 구독 → 알림 종이 따라 나온다 */
+      const sub = document.getElementById('btn-subscribe');
+      const bell = document.getElementById('btn-bell');
+      sub.addEventListener('click', () => {
+        const on = sub.classList.toggle('subscribed');
+        sub.textContent = on ? '구독중 ✓' : '구독';
+        bell.classList.toggle('on', on);
+        document.getElementById('ch-subs').textContent = on ? '구독자 82만명 · 구독중' : '구독자 82만명';
+      });
+
+      const bellMenu = document.getElementById('bell-menu');
+      bell.addEventListener('click', () => {
+        const r = bell.getBoundingClientRect();
+        bellMenu.style.position = 'fixed';
+        bellMenu.style.left = r.left + 'px';
+        bellMenu.style.top = r.bottom + 10 + 'px';
+        bellMenu.classList.toggle('on');
+      });
+      document.querySelectorAll('.bell-item').forEach((it) =>
+        it.addEventListener('click', () => {
+          document.querySelectorAll('.bell-item').forEach((x) => x.classList.remove('chosen'));
+          it.classList.add('chosen');
+          bell.textContent = it.textContent.trim();
+          bellMenu.classList.remove('on');
+        })
+      );
+
+      /* 좋아요 · 저장 */
+      document.getElementById('btn-like').addEventListener('click', (e) => {
+        e.currentTarget.classList.toggle('active');
+      });
+      document.getElementById('btn-save').addEventListener('click', () => {
+        menu.classList.remove('on');          // 설정 메뉴가 열려 있으면 겹치므로 먼저 닫는다
+        document.getElementById('save-pop').classList.add('on');
+      });
+      document.querySelectorAll('#save-pop .save-row').forEach((r) =>
+        r.addEventListener('click', () => {
+          if (r.id === 'save-new') return;
+          r.classList.toggle('checked');
+          r.querySelector('.box').textContent = r.classList.contains('checked') ? '✓' : '';
+        })
+      );
+      document.getElementById('save-close').addEventListener('click', () => {
+        document.getElementById('save-pop').classList.remove('on');
+      });
+    </script>
+  </body>
+</html>
