@@ -48,7 +48,7 @@ scenes.json → ① TTS 음성 → ② Playwright 화면 녹화 → ③ ffmpeg �
 |---|---|---|---|
 | 1 | 영상 종류 (`용도`) | 강의·학습 **/** 홍보 **/** 사용 매뉴얼 **/** 쇼츠 | 대본 골격·길이·변형·BGM 기본값 |
 | 2 | 화면 소재 (`소재`) | 앱 화면 녹화 **/** 타이포 모션만 **/** 사진+B롤 **/** 앱+모션 혼합 | 파이프라인 분기(녹화 유무) |
-| 3 | 목소리 (`목소리`) | 여성·edge **/** 남성·edge **/** azure(뉴럴) **/** eleven(유료·최고품질) | `voice.gender`·`voice.provider` |
+| 3 | 목소리 (`목소리`) | **선희·edge (권장)** **/** 남성·edge **/** azure(뉴럴) **/** eleven(유료·최고품질) | `voice.gender`·`voice.provider` |
 | 4 | 배경음악 (`BGM`) | 없음 **/** 낮게 깔기 **/** 후보 들어보고 고르기 | `render.bgm`·`bgmGain` |
 
 **선택 → 설정 매핑.** 답을 받으면 그대로 아래로 떨어뜨린다.
@@ -62,7 +62,7 @@ scenes.json → ① TTS 음성 → ② Playwright 화면 녹화 → ③ ffmpeg �
 | 앱 화면 녹화 | `scenes[]`에 `actions` 작성 — 셀렉터를 저장소에서 **실제로 확인**(2단계) |
 | 타이포 모션만 | `scenes: []` + `render.motion.clips`만. 앱을 띄울 필요 없다 |
 | 사진 + B롤 | `photo.html`(켄번즈) + 클립에 `video`. **`assets/`에 이미 받아둔 것**을 쓰거나 링크를 받는다 |
-| 여성/남성 | `--gender female|male` |
+| 선희(기본)/남성 | `--gender female|male`. 기본은 여성 = `ko-KR-SunHiNeural`(선희) |
 | edge / azure / eleven | `--provider edge|azure|eleven`. azure·eleven이 죽으면 자동으로 edge로 내려간다 |
 | BGM 고르기 | `assets/bgm`의 후보를 `ffplay`로 들려주고 **사람이 고른다**. 자동 선택 금지 |
 
@@ -329,6 +329,10 @@ TTS 제공자는 5종이다.
 | `eleven` | `ELEVENLABS_API_KEY` | **글자수 과금** | 감정 표현이 중요한 강의·내레이션 |
 | `sapi` | 불필요 | 무료 | 네트워크가 막힌 환경 (품질 낮음) |
 | `file` | — | — | 직접 녹음·촬영한 파일 (인물 PiP와 같은 파일을 쓴다) |
+
+**기본 목소리는 edge의 선희(`ko-KR-SunHiNeural`)다.** 사용자가 목소리를 따로 고르지 않으면
+`voice`를 `{ "provider": "edge", "lang": "ko", "gender": "female" }`로 둔다 — 이 조합이 선희다.
+새 `scenes.json`을 만들 때 이 블록을 그대로 넣는다.
 
 **초안은 edge로 돌리고, 대본이 확정된 뒤에 유료 제공자로 다시 뽑는다.** 대본은 몇 번씩 고쳐지는데
 그때마다 과금되면 아깝다. `--only tts`로 목소리만 먼저 비교할 수 있다.

@@ -31,10 +31,13 @@ scenes.json → ① 음성(TTS) → ② 화면 녹화(Playwright) → ③ 합성
 "voice": { "provider": "edge", "lang": "ko", "gender": "female", "rate": "+8%" }
 ```
 
+이게 **기본값**이다 — edge + 한국어 + 여성 = `ko-KR-SunHiNeural`(선희). 사용자가 다른 목소리를
+고르지 않았으면 이 블록을 그대로 쓴다.
+
 | 키 | 값 | 비고 |
 |---|---|---|
 | `provider` | `edge`(기본) · `azure` · `eleven` · `sapi` · `file` | 키가 죽으면 azure·eleven은 edge로 자동 전환 |
-| `gender` · `lang` | `female`\|`male` · `ko`\|`en`\|`ja`\|`zh` | 제공자별 목소리 표에서 고른다 |
+| `gender` · `lang` | `female`(기본)\|`male` · `ko`(기본)\|`en`\|`ja`\|`zh` | 제공자별 목소리 표에서 고른다 |
 | `voice` | 목소리 이름/ID를 직접 지정 | edge·azure는 `ko-KR-SunHiNeural`, eleven은 `voice_id` |
 | `rate` · `pitch` · `volume` | `"+8%"` · `"+0Hz"` | eleven은 pitch가 없고 rate만 speed 배율로 옮겨진다 |
 | `strict` | `true`면 폴백 없이 실패 | 납품본 목소리를 고정해야 할 때 |
