@@ -98,8 +98,12 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       borderStyle: subtitleBoxless ? 1 : 3,
       box: config.subtitleBoxColour ?? assColour(config.background ?? '#0B1020', 0x8c),
       outlineColour: assColour(config.subtitleOutlineColour ?? '#000000'),
-      outline: Math.round(base * (subtitleBoxless ? 0.016 : 0.008)),
-      shadow: subtitleBoxless ? Math.round(base * 0.006) : 0,
+      // 판 없는 자막은 테두리를 두르지 않는다 — 0.016(9:16에서 17px)은 글자가 검정
+      // 덩어리로 뭉쳤고, 0.006 으로 줄여도 윤곽선이 지저분하다. 대신 그림자만 남긴다.
+      // 그림자는 글자를 감싸지 않고 아래로만 떨어져 흰 글자가 밝은 하늘에서도 떠 보인다.
+      // 완전히 지우려면 subtitleOutline: 0 · subtitleShadow: 0 을 준다.
+      outline: Math.round(base * (variant.subtitleOutline ?? config.subtitleOutline ?? (subtitleBoxless ? 0 : 0.008))),
+      shadow: Math.round(base * (variant.subtitleShadow ?? config.subtitleShadow ?? (subtitleBoxless ? 0.004 : 0))),
       maxUnits: fit(subSize, subMarginL, subMarginR),
       maxLines: 3, // 넘치는 분량은 잘리지 않는다 — timedCues가 여러 장으로 나눈다
     },
