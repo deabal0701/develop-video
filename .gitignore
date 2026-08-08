@@ -23,4 +23,8 @@
 # 중첩된 .git 파일까지 함께다.
 .claude/worktrees/
 
+# 토론·컨셉 검증 로그. 그때그때의 작업 흔적이지 저장소가 기억해야 할 산출물이 아니다.
+# 남길 가치가 있는 결정은 .claude/memory/<영상 id>.md 의 제작 기록에 옮겨 적는다.
+.claude/debate-logs/
+
 node_modules/
