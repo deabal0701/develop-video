@@ -10,6 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { composeVariant } from './lib/compose.js';
+import { preflight, reportPreflight } from './lib/preflight.js';
 import { recordTake } from './lib/record.js';
 import { resolveVoice, synthesizeScenes } from './lib/tts.js';
 import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
@@ -65,6 +66,36 @@ if (args['only-shorts']) variants = variants.filter(isVertical);
 if (!variants.length) throw new Error(`변형을 찾지 못했습니다: ${args.variant}`);
 
 const step = (n, title) => process.stdout.write(`\n[${n}] ${title}\n`);
+
+// ── 0. 사전 점검 ──────────────────────────────────────────────────────────────
+// 굽기 전에 대본을 정적으로 훑는다. 이 파이프라인의 결함은 대부분 오류를 내지 않고
+// "합성 성공 + 화면만 틀림"으로 끝나는데, 그걸 알아채려면 수십 분을 굽고 프레임을 뽑아야 한다.
+// 판단 자료는 굽기 전에 이미 다 있으므로 여기서 1초에 잡는다. --skip-preflight 로 끌 수 있다.
+if (!args['skip-preflight']) {
+  step(0, '사전 점검');
+  // 지난 실행이 남긴 음성 길이가 있으면 쓴다 — B롤이 소스보다 길어지는지는 음성 길이로 정해지는데,
+  // 굽기 전에는 그 값이 없다. 캐시가 있으면 정확히, 없으면 선언한 duration 으로만 본다.
+  let audioDurations = {};
+  try {
+    const manifest = readJson(path.join(dirs.audio, 'manifest.json'));
+    for (const [key, v] of Object.entries(manifest)) {
+      audioDurations[key.replace(/^motion-/, '')] = v.duration;
+    }
+  } catch {
+    /* 첫 실행이면 캐시가 없다 — 그래도 나머지 검사는 그대로 돈다 */
+  }
+
+  const found = preflight({
+    config,
+    motionDir: path.resolve(AD_DIR, config.render?.motion?.dir ?? 'motion'),
+    videoRoot: AD_DIR,
+    audioDurations,
+  });
+  if (reportPreflight(found)) {
+    process.stdout.write('\n대본을 고친 뒤 다시 실행하세요 (무시하려면 --skip-preflight).\n');
+    process.exit(1);
+  }
+}
 
 // ── 1. 음성 ───────────────────────────────────────────────────────────────────
 step(1, `TTS (${voice.provider} / ${resolveVoice(voice)})`);
