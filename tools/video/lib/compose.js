@@ -160,7 +160,10 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       box: assColour(config.watermarkEdge ?? config.background ?? '#0B1020'), // 판이 아니라 글자 테두리 색
       borderStyle: 1,
       outline: Math.max(1, Math.round(base * 0.001)),
-      shadow: Math.max(2, Math.round(base * 0.002)),
+      // 그림자 0.002(9:16에서 2px)는 밝은 B롤 위에서 워터마크를 못 살린다 — 금색 파티클
+      // 화면에서 거의 사라졌다. 0.004 로 키우면 어두운 배경에서 지저분해지지 않으면서
+      // 밝은 배경에서도 글자 윤곽이 남는다.
+      shadow: Math.max(2, Math.round(base * (config.watermarkShadow ?? 0.004))),
       bold: false,
       maxUnits: units(markSize),
       maxLines: 1,

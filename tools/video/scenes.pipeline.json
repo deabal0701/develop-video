@@ -32,7 +32,7 @@
       "label": "파이프라인 소개 쇼츠 (9:16)",
       "width": 1080,
       "height": 1920,
-      "subtitleMargin": 0.185,
+      "subtitleMargin": 0.21,
       "watermarkMargin": 0.075
     }
   ],
@@ -48,7 +48,7 @@
     "subtitleScale": 0.052,
     "subtitleBox": false,
 
-    "watermark": { "text": "대본만 쓰면 된다" },
+    "watermark": { "text": "develop-video" },
 
     "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-471.mp3",
     "bgmGain": 0.14,
@@ -60,6 +60,7 @@
       "clips": [
         {
           "id": "hook",
+          "duration": 4.4,
           "file": "stat.html",
           "before": "end",
           "wipe": "off",
@@ -72,6 +73,7 @@
         },
         {
           "id": "proof",
+          "duration": 3.7,
           "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
           "videoStart": 3.0,
           "shade": 0.4,
@@ -80,6 +82,7 @@
         },
         {
           "id": "what",
+          "duration": 5.3,
           "file": "intro.html",
           "before": "end",
           "wipe": "off",
@@ -91,6 +94,7 @@
         },
         {
           "id": "code",
+          "duration": 4.8,
           "video": "../../.claude/skills/develop-video/assets/broll/ai-datacenter.mp4",
           "videoStart": 4.0,
           "shade": 0.45,
@@ -99,6 +103,7 @@
         },
         {
           "id": "motion",
+          "duration": 4.8,
           "file": "stat.html",
           "before": "end",
           "wipe": "off",
@@ -111,22 +116,24 @@
         },
         {
           "id": "auto",
+          "duration": 4.7,
           "file": "chapter.html",
           "before": "end",
           "wipe": "off",
           "narration": "자막은 말에서 자동으로 떨어져 나옵니다.",
           "params": {
-            "num": "3",
             "title": "자막",
             "subtitle": "내레이션에서 자동 생성"
           }
         },
         {
           "id": "close",
+          "duration": 5.1,
           "file": "outro.html",
           "before": "end",
           "narration": "대본만 쓰면, 나머지는 알아서 붙습니다.",
           "params": {
+            "padY": "30",
             "title": "대본만 쓰면 된다",
             "subtitle": "목소리 · 자막 · 모션 · 합성",
             "cta": "develop-video"
