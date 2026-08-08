@@ -60,7 +60,6 @@
       "clips": [
         {
           "id": "hook",
-          "duration": 4.4,
           "file": "stat.html",
           "before": "end",
           "wipe": "off",
@@ -73,7 +72,6 @@
         },
         {
           "id": "proof",
-          "duration": 3.7,
           "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
           "videoStart": 3.0,
           "shade": 0.4,
@@ -82,7 +80,6 @@
         },
         {
           "id": "what",
-          "duration": 5.3,
           "file": "intro.html",
           "before": "end",
           "wipe": "off",
@@ -94,7 +91,6 @@
         },
         {
           "id": "code",
-          "duration": 4.8,
           "video": "../../.claude/skills/develop-video/assets/broll/ai-datacenter.mp4",
           "videoStart": 4.0,
           "shade": 0.45,
@@ -103,7 +99,6 @@
         },
         {
           "id": "motion",
-          "duration": 4.8,
           "file": "stat.html",
           "before": "end",
           "wipe": "off",
@@ -116,7 +111,6 @@
         },
         {
           "id": "auto",
-          "duration": 4.7,
           "file": "chapter.html",
           "before": "end",
           "wipe": "off",
@@ -128,7 +122,6 @@
         },
         {
           "id": "close",
-          "duration": 5.1,
           "file": "outro.html",
           "before": "end",
           "narration": "대본만 쓰면, 나머지는 알아서 붙습니다.",
