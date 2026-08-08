@@ -1,5 +1,5 @@
 {
-  "_읽어보기": "API 기초 강의 (5분 이내). 실제로 도는 데모 서버(tools/video/demo-api/server.js)를 띄우고, 그 API 콘솔을 Playwright로 조작하며 찍는다. 화면에 나오는 200·404·401·201·400 은 전부 진짜 응답이다. 촬영 전에 서버를 새로 띄워야 상태가 초기값(할 일 3건)에서 시작한다.",
+  "_읽어보기": "API 기초 강의 (5분 이내). 실제로 도는 데모 서버(tools/video/projects/api-lecture/demo-api/server.js)를 띄우고, 그 API 콘솔을 Playwright로 조작하며 찍는다. 화면에 나오는 200·404·401·201·400 은 전부 진짜 응답이다. 촬영 전에 서버를 새로 띄워야 상태가 초기값(할 일 3건)에서 시작한다.",
 
   "id": "api-lecture",
   "baseUrl": "http://localhost:4310",

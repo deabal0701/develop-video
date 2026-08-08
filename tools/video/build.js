@@ -33,7 +33,15 @@ for (const { file, count } of loadEnv()) {
 
 const args = parseArgs();
 const only = args.only ?? 'all';
-const configFile = path.resolve(args.scenes ?? path.join(AD_DIR, 'scenes.json'));
+// 대본은 --scenes 가 우선이고, 없으면 --project 로 projects/<id>/scenes.json 을 찾는다.
+// 영상 한 편의 입력물(대본·전용 모션·facts)은 projects/<id>/ 한 폴더에 모은다 —
+// 대본이 tools/video 직속에 평평하게 쌓이면 영상 수만큼 무한히 늘어난다.
+const projectScenes = args.project && !args.scenes
+  ? path.join(AD_DIR, 'projects', String(args.project), 'scenes.json')
+  : null;
+const configFile = path.resolve(
+  args.scenes ?? (projectScenes && fs.existsSync(projectScenes) ? projectScenes : path.join(AD_DIR, 'scenes.json'))
+);
 const config = readJson(configFile);
 
 const baseUrl = (args['base-url'] ?? config.baseUrl).replace(/\/$/, '');
@@ -46,6 +54,9 @@ const voice = {
   ...(args.voice ? { voice: args.voice } : {}),
 };
 const render = config.render ?? {};
+// 전용 모션 템플릿(한 영상에서만 쓰는 것)은 대본 옆에 둔다. compose 가 대본 폴더를 먼저
+// 뒤지고 없으면 공용 motion/ 으로 내려가므로, 공용 폴더가 영상별 파일로 어질러지지 않는다.
+if (render.motion) render.motion.projectDir = path.dirname(configFile);
 
 // 영상 한 편 = out/<id>/ 한 폴더. id는 --project > scenes.json의 "id" > 대본 파일 이름 순으로 정한다
 // (scenes.json → default, scenes.promo.json → promo). 여러 편을 만들어도 서로 덮어쓰지 않는다.

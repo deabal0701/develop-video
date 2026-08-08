@@ -239,7 +239,21 @@ Workflow({
 
 ### 5. 대본 작성
 
-용도에 맞는 템플릿을 `tools/video/scenes.json`으로 복사하고 **대괄호 부분을 전부 실제 값으로 채운다**.
+**영상 한 편의 입력물은 `tools/video/projects/<영상 id>/` 한 폴더에 모은다** — 대본은
+`projects/<영상 id>/scenes.json`, 그 영상에서만 쓰는 전용 모션 템플릿·조사 자료(facts)·데모
+서버도 같은 폴더에 둔다. 대본을 `tools/video` 직속에 `scenes.<이름>.json`으로 평평하게 두면
+영상 수만큼 무한히 쌓인다 — 실제로 열 개가 쌓인 뒤에 이 구조로 바꿨다.
+
+- 폴더 이름 = 영상 id = `out/<영상 id>/`. 셋을 맞추면 `--project <id>` 하나로 대본을 찾는다.
+- 전용 모션 템플릿은 공용 `_base.css`·`_params.js`를 `../../motion/` 상대 경로로 참조한다.
+  합성은 대본 폴더를 먼저 뒤지고 없으면 공용 `motion/`으로 내려간다.
+- 실험용 대본·중간 산출물 같은 임시 파일은 저장소에 만들지 않는다 — 렌더 중간물은
+  `out/<id>/work/`가 그 자리다(언제든 지워도 된다). 저장소 안에 임시 파일을 만들 수밖에
+  없었다면 작업이 끝날 때 지운다.
+- 점검용 `scenes.selftest.json`만 예외로 직속에 남는다.
+
+용도에 맞는 템플릿을 `projects/<영상 id>/scenes.json`으로 복사하고 **대괄호 부분을 전부 실제
+값으로 채운다**.
 
 - 홍보: `templates/scenes.promo.json`
 - 매뉴얼: `templates/scenes.manual.json`
@@ -582,10 +596,12 @@ tools/video/out/
 **중간물까지 전부 영상별 폴더 안에서 논다.** 그래서 id만 다르면 두 작업을 나란히 돌려도 섞이지 않는다.
 
 ```bash
-node tools/video/build.js --scenes tools/video/scenes.promo.json  --project promo  &
-node tools/video/build.js --scenes tools/video/scenes.manual.json --project manual &
+node tools/video/build.js --project promo  &
+node tools/video/build.js --project manual &
 wait
 ```
+
+`--project <id>`는 `projects/<id>/scenes.json`을 알아서 찾는다(`--scenes`를 주면 그쪽이 우선).
 
 | 무엇이 | 어디에 |
 |---|---|
@@ -618,5 +634,5 @@ wait
 | 3 | 대본 파일 이름 | `scenes.json` → `default`, `scenes.promo.json` → `promo` |
 
 한글 이름도 그대로 폴더가 된다(`--project "사용 매뉴얼"` → `out/사용-매뉴얼/`). 공백·슬래시는
-하이픈으로 바뀐다. 여러 편을 만들 때는 **대본 파일을 나누는 편이 낫다** — `scenes.promo.json`,
-`scenes.manual.json`처럼 두면 id가 자동으로 갈리고 `--scenes`로 골라 쓴다.
+하이픈으로 바뀐다. 여러 편을 만들 때는 **`projects/<id>/` 폴더를 나눈다** — 폴더 이름이 곧
+id 가 되어 `--project` 하나로 대본·산출물이 다 갈린다(5단계 규약 참조).
