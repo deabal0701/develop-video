@@ -6,7 +6,7 @@ status: done
 variants: [16x9]
 duration: 265.8s (4m26s)
 voice: edge / ko-KR-SunHiNeural (선희)
-scenes: tools/video/scenes.cloud-lecture.json
+scenes: tools/video/projects/cloud-lecture/scenes.json
 score: 3.8
 ---
 
@@ -162,7 +162,7 @@ B롤은 원래 AI 강의용으로 받은 것이지만 데이터센터·도시 �
 | 라우드니스 | **-14.0 LUFS** · True Peak -2.3 dBTP (규격값) |
 | 도식 5개 | 완성본에서 프레임을 뽑아 **소리 없이** 확인 — 5개 모두 그림이 개념을 설명 |
 | 워터마크 | 밝은 데이터센터 B롤 위에서 판때기 없이 읽힘 |
-| 자막 | 141줄. 개정 문구("비밀번호 관리처럼"·"삼백육십사") 반영 확인, 근거없는 "수천만 원" 없음 |
+| 자막 | 55장 · 최장 10.2s. 개정 문구 반영 확인, 근거없는 "수천만 원" 없음 |
 
 ## 남은 것
 - 세로(9:16) 변형은 만들지 않았다. 필요하면 `variants` 에 추가하고 `subtitleMargin` 0.185 ·
