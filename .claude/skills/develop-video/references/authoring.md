@@ -151,6 +151,17 @@ curl -H "Ocp-Apim-Subscription-Key: $AZURE_SPEECH_KEY" \
 **화면 녹화 없이 모션만으로도 만들 수 있다.** `scenes`를 빈 배열로 두고 모션 클립만 나열하면
 녹화 단계를 건너뛴다(앱을 띄울 필요도 없다). 일러스트 홍보영상·생애사·행사 영상 형식이 이쪽이다.
 
+단, **`baseUrl`은 그래도 적어 둔다.** 녹화를 건너뛰더라도 `build.js`가 시작하자마자 값을 읽어서,
+없으면 `Cannot read properties of undefined (reading 'replace')`로 죽는다. 쓰이지 않는 값이므로
+`"http://localhost:9999"`처럼 아무 주소나 넣으면 된다.
+
+**클립의 `src`는 템플릿 html 파일(`tools/video/motion/`) 기준 상대 경로다.** 대본 파일이나
+저장소 루트 기준이 아니다. 스킬 `assets/`를 가리키려면 세 단계를 올라가야 한다
+(`../../../.claude/skills/develop-video/assets/photo/<파일>.jpg`). 경로가 틀려도 **합성은 그대로
+성공하고** 그 구간만 검은 화면으로 나오므로, 프레임을 뽑아 보기 전에는 모른다.
+반면 `render.bgm`과 클립의 `video`는 **영상 작업 폴더(`tools/video/`) 기준**이라 두 단계다 —
+같은 대본 안에서 기준이 다르니 헷갈리지 않게 한다.
+
 ### 사진 구간 — photo.html
 
 내려받은 사진(또는 개인 사진)을 배경으로 깔고 문구를 얹는다. 느린 줌이 걸려 정지 화면으로
