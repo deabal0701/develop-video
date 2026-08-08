@@ -17,6 +17,16 @@ import { buildPresenterTrack } from './presenter.js';
 import { motionClipsFor, renderMotionClip } from './motion.js';
 import { renderMediaClip } from './media.js';
 
+// 모션 템플릿은 대본 폴더(전용) → 공용 motion/ 순으로 찾는다. 한 영상에서만 쓰는 전용
+// 템플릿(한강 단면도 등)을 projects/<id>/ 에 대본과 같이 두기 위한 것. projectDir 는
+// build.js 가 대본 파일 위치로 채워 준다 — 전용 템플릿은 공용 _base.css·_params.js 를
+// `../../motion/` 상대 경로로 참조해야 한다(프레임 굽기가 file:// 로 열기 때문).
+function resolveMotionFile(motion, name) {
+  const local = motion.projectDir && path.join(motion.projectDir, name);
+  if (local && fs.existsSync(local)) return local;
+  return path.join(motion.dir ?? 'motion', name);
+}
+
 // 씬 오디오를 각자 목표 길이만큼 무음으로 늘린 뒤 하나로 이어 붙인다.
 async function buildNarration(segments, file) {
   const inputs = segments.flatMap((s) => ['-i', s.audioFile]);
@@ -287,7 +297,7 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
           force: config.motionForce,
         })
       : await renderMotionClip({
-          file: path.join(config.motion.dir ?? 'motion', clip.file),
+          file: resolveMotionFile(config.motion, clip.file),
           duration: clip.duration,
           width: motionWidth,
           height: motionHeight,
@@ -302,6 +312,13 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
             ...brandParams,
             wipeAt: Math.max(0, clip.duration - 0.45).toFixed(2),
             ...clip.params, // 클립이 직접 지정한 값이 항상 이긴다
+            // 클립 최상위의 `wipe` 도 params 의 것과 똑같이 먹힌다. 템플릿에 닿는 것은 params
+            // 뿐이라 예전에는 `{"id":"ch1","wipe":"off"}` 가 **조용히 무시**됐다 — 대본은
+            // 껐다고 믿는데 흰 면이 그대로 떨어져 카드가 통째로 지워진 프레임이 남았다
+            // (cloud-lecture 에서 챕터 카드 6곳 전부가 이 경우였다).
+            ...(clip.wipe !== undefined && (clip.params ?? {}).wipe === undefined
+              ? { wipe: clip.wipe }
+              : {}),
           },
           force: config.motionForce,
         }),

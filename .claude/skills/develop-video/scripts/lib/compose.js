@@ -287,6 +287,13 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
             ...brandParams,
             wipeAt: Math.max(0, clip.duration - 0.45).toFixed(2),
             ...clip.params, // 클립이 직접 지정한 값이 항상 이긴다
+            // 클립 최상위의 `wipe` 도 params 의 것과 똑같이 먹힌다. 템플릿에 닿는 것은 params
+            // 뿐이라 예전에는 `{"id":"ch1","wipe":"off"}` 가 **조용히 무시**됐다 — 대본은
+            // 껐다고 믿는데 흰 면이 그대로 떨어져 카드가 통째로 지워진 프레임이 남았다
+            // (cloud-lecture 에서 챕터 카드 6곳 전부가 이 경우였다).
+            ...(clip.wipe !== undefined && (clip.params ?? {}).wipe === undefined
+              ? { wipe: clip.wipe }
+              : {}),
           },
           force: config.motionForce,
         }),

@@ -56,14 +56,35 @@ export function splitCue(text, maxUnits = DEFAULT_UNITS, maxLines = 3) {
   const budget = Math.max(1, maxUnits * maxLines);
   const source = String(text ?? '').trim();
   if (!source) return [];
-  if (visualWidth(source) <= budget) return [source];
+
+  // 폭 합계(budget)만으로 판정하면 안 된다 — 줄바꿈마다 줄 끝에 빈 자리가 남으므로
+  // 합계가 예산 안이어도 실제로 감으면 maxLines를 넘길 수 있다. 그때 wrap()이 넘친 줄을
+  // 잘라 버려 문장 끝이 통째로 사라진다(실제로 "…다음 단계" 뒤 "과제입니다."가 날아갔다).
+  // 그래서 판정은 항상 **실제 줄 수**로 한다.
+  const fitsOneCard = (s) => {
+    if (visualWidth(s) > budget) return false;
+    const lines = [];
+    let line = '';
+    for (const word of s.split(' ')) {
+      if (line && visualWidth(`${line} ${word}`) > maxUnits) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = line ? `${line} ${word}` : word;
+      }
+    }
+    if (line) lines.push(line);
+    return lines.length <= maxLines;
+  };
+
+  if (fitsOneCard(source)) return [source];
 
   // 문장 경계에서 먼저 끊는다 — 말의 단위와 자막 전환이 맞아야 읽힌다.
   const chunks = [];
   let cur = '';
   for (const sentence of source.split(/(?<=[.!?…])\s+/).filter(Boolean)) {
-    for (const part of visualWidth(sentence) > budget ? splitByWords(sentence, budget) : [sentence]) {
-      if (cur && visualWidth(`${cur} ${part}`) > budget) {
+    for (const part of fitsOneCard(sentence) ? [sentence] : splitByWords(sentence, budget)) {
+      if (cur && !fitsOneCard(`${cur} ${part}`)) {
         chunks.push(cur);
         cur = part;
       } else {
@@ -72,12 +93,36 @@ export function splitCue(text, maxUnits = DEFAULT_UNITS, maxLines = 3) {
     }
   }
   if (cur) chunks.push(cur);
-  return chunks;
+
+  // 마지막 안전망 — 그래도 한 장에 안 들어가는 덩어리는 단어 단위로 더 쪼갠다.
+  // 여기까지 왔는데 넘치면 글자가 잘리므로, 보기 나쁜 편이 사라지는 것보다 낫다.
+  return chunks.flatMap((c) => (fitsOneCard(c) ? [c] : splitByWords(c, Math.floor(budget * 0.8))));
 }
 
 /** 자막 한 덩어리를 화면에 들어가는 크기로 쪼개고, 말한 시간을 글자 수에 비례해 나눈다. */
+/**
+ * 자막 한 장이 화면에 머무는 최대 시간(초).
+ * 폭만 보고 쪼개면 "세 줄에 들어가니까 한 장"이 되어, 내레이션이 긴 구간에서는 같은 글자가
+ * 15초 넘게 붙박이로 떠 있는다. 읽기 리듬이 끊기고, 이미 읽은 문장을 계속 보게 된다.
+ * (cloud-lecture 1차에서 27장 중 18장이 10초를 넘겼다.)
+ */
+const MAX_CUE_SECONDS = 6;
+
 export function timedCues(text, start, end, maxUnits = DEFAULT_UNITS, maxLines = 3) {
-  const chunks = splitCue(text, maxUnits, maxLines);
+  let chunks = splitCue(text, maxUnits, maxLines);
+
+  // 폭으로 쪼갠 뒤에도 한 장이 너무 오래 머물면 더 잘게 나눈다. 필요한 장수를 시간으로 구하고,
+  // 그 장수가 나올 때까지 splitCue 에 점점 좁은 폭을 준다 — 자르는 자리는 splitCue 가 정하므로
+  // 문장·어절 경계는 그대로 지켜진다.
+  const span = Math.max(0, end - start);
+  if (chunks.length && span / chunks.length > MAX_CUE_SECONDS) {
+    const want = Math.ceil(span / MAX_CUE_SECONDS);
+    for (let units = maxUnits; units >= 10 && chunks.length < want; units -= 4) {
+      const narrower = splitCue(text, units, maxLines);
+      if (narrower.length > chunks.length) chunks = narrower;
+    }
+  }
+
   if (chunks.length <= 1) return chunks.map((t) => ({ start, end, text: t }));
   const widths = chunks.map(visualWidth);
   const total = widths.reduce((a, b) => a + b, 0) || 1;

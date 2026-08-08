@@ -56,7 +56,8 @@
           "params": {
             "num": "1",
             "title": "클라우드는 하늘에 없다",
-            "progress": "20"
+            "progress": "20",
+            "wipe": "off"
           }
         },
         {
@@ -92,7 +93,8 @@
           "params": {
             "num": "2",
             "title": "왜 빌려 쓰는가",
-            "progress": "40"
+            "progress": "40",
+            "wipe": "off"
           }
         },
         {
@@ -142,7 +144,8 @@
           "params": {
             "num": "3",
             "title": "늘었다 줄었다 한다",
-            "progress": "60"
+            "progress": "60",
+            "wipe": "off"
           }
         },
         {
@@ -176,7 +179,8 @@
           "params": {
             "num": "4",
             "title": "어디까지 빌릴 것인가",
-            "progress": "80"
+            "progress": "80",
+            "wipe": "off"
           }
         },
         {
@@ -213,7 +217,8 @@
           "params": {
             "num": "5",
             "title": "그래서 어디를 쓰나",
-            "progress": "85"
+            "progress": "85",
+            "wipe": "off"
           }
         },
         {
@@ -248,7 +253,8 @@
           "params": {
             "num": "6",
             "title": "남의 컴퓨터인데 안전한가",
-            "progress": "100"
+            "progress": "100",
+            "wipe": "off"
           }
         },
         {
@@ -273,7 +279,8 @@
           "narration": "정리하겠습니다. 클라우드는 남의 컴퓨터를 필요한 만큼 빌려 쓰는 것입니다. 미리 크게 사 두지 않아도 되고, 몰릴 때만 늘렸다가 줄일 수 있습니다. 이 세 가지만 기억하시면, 앞으로 클라우드라는 말이 나와도 당황할 일은 없습니다. 오늘 영상은 여기까지입니다. 고맙습니다.",
           "params": {
             "title": "빌려 쓴다 · 미리 안 산다 · 늘렸다 줄인다",
-            "subtitle": "클라우드 5분 개념"
+            "subtitle": "클라우드 5분 개념",
+            "wipe": "off"
           }
         }
       ]
