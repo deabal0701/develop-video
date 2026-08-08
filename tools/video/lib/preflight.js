@@ -17,6 +17,10 @@ function templateKeys(file) {
   const html = fs.readFileSync(file, 'utf8');
   const keys = new Set();
   for (const m of html.matchAll(/data-p="([a-zA-Z][\w-]*)"/g)) keys.add(m[1]);
+  // data-p 로 글자를 꽂는 것 말고 **스크립트가 직접 읽는** 값도 있다
+  // (chapter.html 의 progress·strike 처럼 레이아웃을 바꾸는 것들). 이것까지 세지 않으면
+  // 멀쩡히 동작하는 파라미터를 "받지 않는다"고 오탐한다 — 실제로 strike 가 그렇게 걸렸다.
+  for (const m of html.matchAll(/\.get\(\s*['"]([a-zA-Z][\w-]*)['"]\s*\)/g)) keys.add(m[1]);
   return keys;
 }
 
@@ -49,8 +53,12 @@ export function preflight({ config, motionDir, videoRoot, audioDurations = {} })
     // "그 글자가 화면에서 빠진 채로" 완성된다. (실제로 stat.html 에 label·note 를 지어냈다가
     // 6장이 통째로 비었다.)
     if (clip.file) {
-      const tpl = path.join(motionDir, clip.file);
-      if (!fs.existsSync(tpl)) {
+      // compose.js resolveMotionFile 과 같은 순서 — 전용 템플릿(projects/<id>/)을 먼저 찾는다.
+      // 공용 motion/ 만 보면 전용 도식이 전부 "템플릿이 없다"로 오탐된다.
+      const projectDir = config.render?.motion?.projectDir;
+      const tpl = [projectDir && path.join(projectDir, clip.file), path.join(motionDir, clip.file)]
+        .filter(Boolean).find((f) => fs.existsSync(f));
+      if (!tpl) {
         say('error', clip.id, `템플릿이 없다: ${clip.file}`);
       } else {
         const known = templateKeys(tpl);
@@ -111,4 +119,39 @@ export function reportPreflight(found) {
     process.stdout.write(`  ${mark} ${f.clip}: ${f.msg}\n`);
   }
   return found.some((f) => f.level === 'error');
+}
+
+/**
+ * 완성본에서 **빈 화면(흰 점멸)** 을 찾는다. 합성이 끝난 뒤에 돌린다.
+ *
+ * 씬 전환에서 SPA 가 새 라우트를 그리기 전의 흰 배경이 그대로 녹화되면, 홍보영상에서는
+ * 버그처럼 보인다. 실제로 18개 전환에 12.75초(최장 2.75초)가 섞여 나간 적이 있다.
+ *
+ * **워터마크를 크롭으로 빼고 재야 한다.** 워터마크가 항상 어두운 픽셀을 공급하기 때문에
+ * 화면 전체의 최소 밝기로 재면 완전한 백지에서도 YMIN 이 13 까지 떨어져 검사가 무력해진다.
+ * (이 오탐으로 같은 결함을 두 번 통과시켰다.)
+ */
+export async function scanBlankFrames(file, { run, fps = 8, threshold = 150, minRun = 0.4 } = {}) {
+  const { out } = await run(
+    'ffmpeg',
+    ['-v', 'error', '-i', file,
+     '-vf', `fps=${fps},crop=iw*0.9:ih*0.92:0:ih*0.07,signalstats,metadata=print:key=lavfi.signalstats.YMIN:file=-`,
+     '-f', 'null', '-'],
+    {}
+  ).catch(() => ({ out: '' }));
+
+  const runs = [];
+  let t = null;
+  for (const line of String(out).split('\n')) {
+    if (line.startsWith('frame:')) t = Number.parseFloat(line.split('pts_time:')[1]);
+    else if (line.includes('YMIN') && t !== null) {
+      if (Number.parseFloat(line.split('=')[1]) > threshold) {
+        const last = runs[runs.length - 1];
+        if (last && t - last[1] <= 1.5 / fps) last[1] = t;
+        else runs.push([t, t]);
+      }
+    }
+  }
+  const step = 1 / fps;
+  return runs.map(([a, b]) => ({ start: a, duration: b - a + step })).filter((r) => r.duration >= minRun);
 }

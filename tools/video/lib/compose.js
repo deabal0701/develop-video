@@ -169,7 +169,10 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       primary: assColour(config.watermarkColour ?? '#FFFFFF', 0x1a),
       box: assColour(config.watermarkEdge ?? config.background ?? '#0B1020'), // 판이 아니라 글자 테두리 색
       borderStyle: 1,
-      outline: Math.max(1, Math.round(base * 0.001)),
+      // 그림자(BackColour)는 libass 가 검정 고정이라, 밝은 앱 화면에서는 글자 아래로
+      // 검은 얼룩이 깔린다. 그림자를 0 으로 끄고 테두리로만 읽히게 하려면 테두리를
+      // 두껍게 줄 수 있어야 하므로 watermarkOutline 으로 연다(기본값은 종전과 같다).
+      outline: Math.max(1, Math.round(base * (config.watermarkOutline ?? 0.001))),
       // 그림자 0.002(9:16에서 2px)는 밝은 B롤 위에서 워터마크를 못 살린다 — 금색 파티클
       // 화면에서 거의 사라졌다. 0.004 로 키우면 어두운 배경에서 지저분해지지 않으면서
       // 밝은 배경에서도 글자 윤곽이 남는다.

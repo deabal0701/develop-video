@@ -123,14 +123,38 @@ export function timedCues(text, start, end, maxUnits = DEFAULT_UNITS, maxLines =
     }
   }
 
+  // 좁은 폭으로 다시 쪼개면 "조퇴는 따로" · "붙입니다." 같은 한 뼘짜리 조각이 남는다.
+  // 화면에 0.5초 떴다 사라지면 읽히지도 않고 깜빡임으로만 보이므로, 짧은 것은 이웃에 붙인다.
+  // (한 장에 안 들어가게 되는 합치기는 하지 않는다 — 그러면 다시 글자가 잘린다.)
+  if (chunks.length > 1) {
+    const minUnits = Math.max(6, maxUnits * 0.45);
+    const fits = (s) => visualWidth(s) <= maxUnits * maxLines;
+    const merged = [];
+    for (const c of chunks) {
+      const prev = merged[merged.length - 1];
+      const tooShort = visualWidth(c) < minUnits;
+      if (prev && tooShort && fits(`${prev} ${c}`)) merged[merged.length - 1] = `${prev} ${c}`;
+      else merged.push(c);
+    }
+    // 첫 조각이 짧으면 뒤에 붙인다(앞에 붙일 것이 없으므로).
+    if (merged.length > 1 && visualWidth(merged[0]) < minUnits && fits(`${merged[0]} ${merged[1]}`)) {
+      merged.splice(0, 2, `${merged[0]} ${merged[1]}`);
+    }
+    chunks = merged;
+  }
+
   if (chunks.length <= 1) return chunks.map((t) => ({ start, end, text: t }));
   const widths = chunks.map(visualWidth);
   const total = widths.reduce((a, b) => a + b, 0) || 1;
+  // 자막 장이 바뀔 때 앞 장을 아주 살짝 먼저 거둔다. 끝시각과 다음 시작시각이 같으면
+  // 플레이어에 따라 두 장이 한 프레임 겹쳐 보이거나 전환이 끊긴 것처럼 읽힌다.
+  const GAP = 0.08;
   let cursor = start;
   return chunks.map((text_, i) => {
     const from = cursor;
-    cursor = i === chunks.length - 1 ? end : from + (end - start) * (widths[i] / total);
-    return { start: from, end: cursor, text: text_ };
+    const last = i === chunks.length - 1;
+    cursor = last ? end : from + (end - start) * (widths[i] / total);
+    return { start: from, end: last ? end : Math.max(from + 0.1, cursor - GAP), text: text_ };
   });
 }
 

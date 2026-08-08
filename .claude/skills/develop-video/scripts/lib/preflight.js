@@ -49,8 +49,12 @@ export function preflight({ config, motionDir, videoRoot, audioDurations = {} })
     // "그 글자가 화면에서 빠진 채로" 완성된다. (실제로 stat.html 에 label·note 를 지어냈다가
     // 6장이 통째로 비었다.)
     if (clip.file) {
-      const tpl = path.join(motionDir, clip.file);
-      if (!fs.existsSync(tpl)) {
+      // compose.js resolveMotionFile 과 같은 순서 — 전용 템플릿(projects/<id>/)을 먼저 찾는다.
+      // 공용 motion/ 만 보면 전용 도식이 전부 "템플릿이 없다"로 오탐된다.
+      const projectDir = config.render?.motion?.projectDir;
+      const tpl = [projectDir && path.join(projectDir, clip.file), path.join(motionDir, clip.file)]
+        .filter(Boolean).find((f) => fs.existsSync(f));
+      if (!tpl) {
         say('error', clip.id, `템플릿이 없다: ${clip.file}`);
       } else {
         const known = templateKeys(tpl);

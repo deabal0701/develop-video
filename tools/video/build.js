@@ -10,10 +10,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { composeVariant } from './lib/compose.js';
-import { preflight, reportPreflight } from './lib/preflight.js';
+import { preflight, reportPreflight, scanBlankFrames } from './lib/preflight.js';
 import { recordTake } from './lib/record.js';
 import { resolveVoice, synthesizeScenes } from './lib/tts.js';
-import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
+import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, run, secs, videoDirs } from './lib/util.js';
 
 // 조치 방법이 메시지에 다 들어 있는 오류(util.js 의 expected)는 스택 없이 그것만 찍는다.
 // 스택을 함께 찍으면 "무엇을 설치하라"는 두 줄이 프레임 사이에 파묻혀 안 읽힌다.
@@ -194,6 +194,17 @@ for (const variant of variants) {
   process.stdout.write(
     `  ✓ ${path.relative(process.cwd(), result.file)}  ${secs(result.duration)}  ${variant.label ?? ''}\n`
   );
+  // 완성본에 빈 화면(전환 공백)이 남았는지 바로 재 본다. 눈으로 프레임을 뽑기 전에는
+  // 안 보이는 결함이고, 사람이 지나치면 그대로 나간다 — 실제로 두 번 통과했다.
+  const blanks = await scanBlankFrames(result.file, { run });
+  if (blanks.length) {
+    const total = blanks.reduce((a, b) => a + b.duration, 0);
+    process.stdout.write(
+      `    ⚠ 빈 화면 ${blanks.length}곳 · 합계 ${total.toFixed(1)}s — 가장 긴 곳 ` +
+        blanks.sort((a, b) => b.duration - a.duration).slice(0, 3)
+          .map((b) => `${b.start.toFixed(1)}s(${b.duration.toFixed(1)}s)`).join(', ') + '\n'
+    );
+  }
 }
 process.stdout.write(
   `\n완료 — ${path.relative(process.cwd(), dirs.root)}\n` +
