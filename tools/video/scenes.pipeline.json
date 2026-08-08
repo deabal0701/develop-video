@@ -1,0 +1,138 @@
+{
+  "_읽어보기": "이 저장소의 영상 파이프라인을 소개하는 쇼츠. 컨셉 검증(video-concept 워크플로) 확정안 '0개, 그리고'를 따른다. 구조는 훅(0개) → 자기증명 → 무엇이 붙는가 → 마무리. 세로(9:16) 하나만 뽑는다.",
+
+  "_지킨 제약": [
+    "발화 속도 5.9자/초 실측(hangang 355자 ÷ TTS 60.14초). 3초 창 = 17자 상한.",
+    "b롤 위에 카드를 얹지 않는다 — compose.js 는 클립을 video: 또는 file: 하나로만 굽는다.",
+    "stat.html 에 카운트업이 없다. 숫자는 popIn 으로 통째 등장한다.",
+    "검증되지 않은 수치를 쓰지 않는다. 나오는 숫자는 0(녹화 없음)과 7(모션 템플릿 수)뿐이고 둘 다 실측이다."
+  ],
+
+  "id": "pipeline-shorts",
+
+  "_baseUrl메모": "scenes 가 비어 녹화는 돌지 않지만 build.js 가 시작할 때 무조건 읽는다. 쓰이지 않는 값이다.",
+  "baseUrl": "http://localhost:9999",
+
+  "capture": { "width": 1920, "height": 1080 },
+
+  "voice": {
+    "provider": "azure",
+    "lang": "ko",
+    "gender": "male",
+    "voice": "ko-KR-InJoonNeural",
+    "rate": "+9%",
+    "pitch": "+0Hz"
+  },
+
+  "scenes": [],
+
+  "variants": [
+    {
+      "id": "9x16",
+      "label": "파이프라인 소개 쇼츠 (9:16)",
+      "width": 1080,
+      "height": 1920,
+      "subtitleMargin": 0.185,
+      "watermarkMargin": 0.075
+    }
+  ],
+
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#0b1020",
+    "brand": "#2f6fd0",
+    "brandText": "#9fc4f2",
+
+    "subtitleScale": 0.052,
+    "subtitleBox": false,
+
+    "watermark": { "text": "대본만 쓰면 된다" },
+
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-471.mp3",
+    "bgmGain": 0.14,
+    "bgmDucking": true,
+    "endCard": false,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "hook",
+          "file": "stat.html",
+          "before": "end",
+          "wipe": "off",
+          "narration": "화면 녹화, 0개.",
+          "params": {
+            "value": "0",
+            "unit": "개",
+            "title": "이 영상이 찍은 화면"
+          }
+        },
+        {
+          "id": "proof",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
+          "videoStart": 3.0,
+          "shade": 0.4,
+          "before": "end",
+          "narration": "이 영상이 그렇습니다."
+        },
+        {
+          "id": "what",
+          "file": "intro.html",
+          "before": "end",
+          "wipe": "off",
+          "narration": "사람이 한 건 대본 한 편. 텍스트 파일 하나입니다.",
+          "params": {
+            "title": "대본 한 편",
+            "subtitle": "사람이 만진 것의 전부"
+          }
+        },
+        {
+          "id": "code",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-datacenter.mp4",
+          "videoStart": 4.0,
+          "shade": 0.45,
+          "before": "end",
+          "narration": "거기 적힌 문장을 읽어 목소리를 만듭니다."
+        },
+        {
+          "id": "motion",
+          "file": "stat.html",
+          "before": "end",
+          "wipe": "off",
+          "narration": "타이포 카드는 일곱 종류가 준비돼 있습니다.",
+          "params": {
+            "value": "7",
+            "unit": "종",
+            "title": "모션 템플릿"
+          }
+        },
+        {
+          "id": "auto",
+          "file": "chapter.html",
+          "before": "end",
+          "wipe": "off",
+          "narration": "자막은 말에서 자동으로 떨어져 나옵니다.",
+          "params": {
+            "num": "3",
+            "title": "자막",
+            "subtitle": "내레이션에서 자동 생성"
+          }
+        },
+        {
+          "id": "close",
+          "file": "outro.html",
+          "before": "end",
+          "narration": "대본만 쓰면, 나머지는 알아서 붙습니다.",
+          "params": {
+            "title": "대본만 쓰면 된다",
+            "subtitle": "목소리 · 자막 · 모션 · 합성",
+            "cta": "develop-video"
+          }
+        }
+      ]
+    }
+  }
+}

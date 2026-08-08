@@ -25,9 +25,10 @@ function isFresh(source, output) {
  * @param {object} o
  * @param {string} o.file    영상 작업 폴더 기준 상대 경로 (bgm과 같은 기준)
  * @param {number} o.start   소스에서 잘라 올 시작 시각(초). 기본 0
+ * @param {number} o.shade   0~1. 위에 까는 검은 막의 진하기. 기본 0(그대로)
  * @returns {string} 만들어진 클립 경로
  */
-export async function renderMediaClip({ file, duration, width, height, fps, dirs, id, force, start = 0 }) {
+export async function renderMediaClip({ file, duration, width, height, fps, dirs, id, force, start = 0, shade = 0 }) {
   const source = path.resolve(AD_DIR, file);
   if (!fs.existsSync(source)) throw new Error(`영상 소재가 없습니다: ${source}`);
   if (IMAGE_EXTS.includes(path.extname(source).toLowerCase())) {
@@ -37,18 +38,23 @@ export async function renderMediaClip({ file, duration, width, height, fps, dirs
     );
   }
 
-  const key = JSON.stringify({ file, start, duration, width, height, fps });
+  const key = JSON.stringify({ file, start, duration, width, height, fps, shade });
   const stamp = crypto.createHash('sha1').update(key).digest('hex').slice(0, 8);
   const output = path.join(ensureDir(dirs.motion), `${id}-media-${stamp}.mp4`);
   if (!force && isFresh(source, output)) return output;
 
   // 소스가 구간보다 짧으면 마지막 프레임을 물려 채운다(tpad). 짧은 B롤을 이어 붙이면
   // 점프컷처럼 튀는데, 생애사·다큐 톤에서는 한 프레임 붙드는 편이 덜 거슬린다.
+  // shade: 자막은 B롤 위에 판 없이 얹히므로(subtitleBox:false) 밝거나 무늬가 복잡한
+  // 소재에서는 흰 글자가 묻힌다 — 금색 파티클과 초록 헥스코드에서 실제로 걸렸다.
+  // photo.html 의 shade 와 같은 역할을 여기서도 한다. 0.35 안팎이면 소재는 살고 글자는 뜬다.
+  const dim = Math.min(Math.max(Number(shade) || 0, 0), 1);
   const chain = [
     `fps=${fps}`,
     `scale=${width}:${height}:force_original_aspect_ratio=increase`,
     `crop=${width}:${height}`,
     'setsar=1',
+    ...(dim > 0 ? [`colorlevels=romax=${(1 - dim).toFixed(3)}:gomax=${(1 - dim).toFixed(3)}:bomax=${(1 - dim).toFixed(3)}`] : []),
     `tpad=stop_mode=clone:stop_duration=${duration.toFixed(3)}`,
     'format=yuv420p',
   ].join(',');

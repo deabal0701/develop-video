@@ -274,6 +274,7 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
       ? await renderMediaClip({
           file: clip.video,
           start: clip.videoStart ?? 0,
+          shade: clip.shade ?? 0,
           duration: clip.duration,
           width: motionWidth,
           height: motionHeight,
