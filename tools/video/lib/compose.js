@@ -4,7 +4,7 @@
 // 오디오는 씬 길이에 맞춰 무음을 덧댄(apad) 뒤 이어 붙이므로 영상과 프레임 단위로 맞는다.
 //
 // 화면에 얹는 글자는 5종이고 전부 하나의 ASS 파일에 스타일만 달리해 들어간다.
-//   Sub   자막(CC)            하단 중앙 — 내레이션이 있으면 **항상** 굽는다(끄는 스위치 없음)
+//   Sub   자막(CC)            하단 중앙 — 기본은 항상 굽는다. subtitles:false 로만 끈다(.srt 는 그대로 나감)
 //   Cap   상단 헤드라인        상단 중앙 — 소리 없이 보는 시청자용
 //   Badge 강조 뱃지            헤드라인 바로 아래
 //   Mark  로고 워터마크        기본 오른쪽 위 — 판때기 없이, 첫 프레임부터 끝까지 계속
@@ -360,9 +360,12 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
         styles.Sub.maxUnits,
         styles.Sub.maxLines
       );
+      // subtitles: false 는 **화면에 굽는 것만** 끈다. cues 는 그대로 쌓여 .srt 사이드카로 나가므로
+      // 유튜브에 올릴 때 자막을 따로 붙일 수 있다. 기본값은 켬 — 끄는 것은 명시적 선택이다.
+      const burnSubs = (variant.subtitles ?? config.subtitles) !== false;
       for (const part of parts) {
         cues.push(part);
-        events.push({ style: 'Sub', ...part });
+        if (burnSubs) events.push({ style: 'Sub', ...part });
       }
     }
     if (s.caption && variant.captions !== false) {
