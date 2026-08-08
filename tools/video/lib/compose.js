@@ -58,6 +58,7 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
 
   const subSizeForBand = Math.round(base * (variant.subtitleScale ?? config.subtitleScale ?? 0.05));
   const subMarginV = Math.round(height * (variant.subtitleMargin ?? config.subtitleMargin ?? 0.07));
+  const subtitleBoxless = (variant.subtitleBox ?? config.subtitleBox) === false;
 
   // 인물이 자막대와 세로로 겹치면 자막이 그 위에 그려진다(ass가 overlay 뒤에 온다).
   // 그럴 때만 인물 쪽 여백을 넓혀 자막을 반대쪽으로 밀어낸다. 정렬 키워드가 아니라 실제
@@ -84,6 +85,8 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
   const endUrlSize = Math.round(base * 0.035);
 
   return {
+    // subtitleBox: false 로 글자 뒤 판을 없앤다. 판이 사라지면 배경이 그대로 비치므로
+    // 테두리를 두 배로 키우고 그림자를 넣어 밝은 화면에서도 흰 글자가 읽히게 한다.
     Sub: {
       font,
       size: subSize,
@@ -91,8 +94,12 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       marginL: subMarginL,
       marginR: subMarginR,
       marginV: Math.round(height * (variant.subtitleMargin ?? config.subtitleMargin ?? 0.07)),
+      primary: config.subtitleColour ? assColour(config.subtitleColour) : undefined,
+      borderStyle: subtitleBoxless ? 1 : 3,
       box: config.subtitleBoxColour ?? assColour(config.background ?? '#0B1020', 0x8c),
-      outline: Math.round(base * 0.008),
+      outlineColour: assColour(config.subtitleOutlineColour ?? '#000000'),
+      outline: Math.round(base * (subtitleBoxless ? 0.016 : 0.008)),
+      shadow: subtitleBoxless ? Math.round(base * 0.006) : 0,
       maxUnits: fit(subSize, subMarginL, subMarginR),
       maxLines: 3, // 넘치는 분량은 잘리지 않는다 — timedCues가 여러 장으로 나눈다
     },
