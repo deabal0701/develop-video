@@ -1,0 +1,87 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>rest outro</title>
+<!-- 마무리 — 공용 outro.html 은 40초 내레이션 동안 정지 카드라 이탈 위험(평가 지적 3번).
+     정리 4항목(주소→명사 · 동사→메서드 · 대답→상태 코드 · 요청→완결)을 내레이션이 그 말을
+     하는 시각에 맞춰 순차 등장시키고, 마지막에 채널 표기를 띄운다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 22%; gap: 3.2vh; }
+
+  .head {
+    font-size: 6.2vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.8s;
+    animation-delay: 1.5s;
+  }
+
+  .rows { display: flex; flex-direction: column; gap: 1.9vh; width: 100%; }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2vh;
+    padding: 1.7vh 2.4vh;
+    border-radius: 1.5vh;
+    background: #0e1526;
+    border: 0.2vh solid #223052;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+  }
+  .row .k { width: 5em; text-align: right; font-size: 3.1vh; font-weight: 800; }
+  .row .arrow { color: #55648a; font-size: 2.6vh; }
+  .row .v { width: 9em; text-align: left; font-size: 3.1vh; font-weight: 800; }
+
+  /* 내레이션과 동행 — "주소는 명사로"(~8.5s) "동작은 메서드로"(~10.5s)
+     "대답은 상태 코드로"(~12.5s) "요청 하나는 그 자체로 완결"(~15s) */
+  .row.r1 { animation-delay: 8.5s; }  .row.r1 .v { color: #9fb2f5; }
+  .row.r2 { animation-delay: 10.5s; } .row.r2 .v { color: #4c8dff; }
+  .row.r3 { animation-delay: 12.5s; } .row.r3 .v { color: #2bd97c; }
+  .row.r4 { animation-delay: 15s; }   .row.r4 .v { color: #f5a524; }
+
+  /* "이제 문장이 보일 겁니다"(~30s) 즈음 마무리 한 줄 */
+  .close {
+    font-size: 3vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 30s;
+  }
+
+  .brandline {
+    font-size: 2.3vh;
+    font-weight: 700;
+    color: #8fa3c8;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 36.5s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="rows">
+    <div class="row r1 animated"><span class="k">주소</span><span class="arrow">→</span><span class="v">명사</span></div>
+    <div class="row r2 animated"><span class="k">동사</span><span class="arrow">→</span><span class="v">메서드</span></div>
+    <div class="row r3 animated"><span class="k">대답</span><span class="arrow">→</span><span class="v">상태 코드</span></div>
+    <div class="row r4 animated"><span class="k">요청</span><span class="arrow">→</span><span class="v">그 자체로 완결</span></div>
+  </div>
+
+  <div class="close animated" data-p="note"></div>
+  <div class="brandline animated">REST API 5분 개념</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

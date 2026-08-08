@@ -1,0 +1,148 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>rest uri</title>
+<!-- 1장 도식 — 서버라는 건물 안의 '것'(자원)마다 주소가 하나씩 붙어 있다.
+     칩이 차례로 켜진 뒤 /users/1 에 강조 테두리가 앉는다. 주소가 전부 명사임을 보인다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 16%; gap: 3.4vh; }
+
+  .head {
+    font-size: 5vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+  }
+
+  /* 서버 상자 — 자원들이 사는 곳 */
+  .server {
+    position: relative;
+    width: 100%;
+    padding: 5.4vh 3vh 3vh;
+    border-radius: 2vh;
+    border: 0.25vh solid #2b3a5e;
+    background: linear-gradient(#0e1526, #0a101d);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 0.2s;
+  }
+  .server .cap {
+    position: absolute;
+    top: -1.7vh;
+    left: 3vh;
+    padding: 0.6vh 1.8vh;
+    border-radius: 1.2vh;
+    background: #22314f;
+    border: 0.2vh solid #3b4f7c;
+    font-size: 2.2vh;
+    font-weight: 700;
+    color: #b9c6e8;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.2vh;
+  }
+  .chip {
+    padding: 2.2vh 1.6vh;
+    border-radius: 1.4vh;
+    background: #131c31;
+    border: 0.2vh solid #263657;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+  .chip .what { font-size: 2.7vh; font-weight: 800; }
+  .chip .addr {
+    margin-top: 1vh;
+    font-family: var(--mono);
+    font-size: 2.3vh;
+    font-weight: 600;
+    color: #8fa3c8;
+  }
+  /* 등장 시각은 내레이션에 맞춘다 — "사용자 한 명, 글 한 편, 사진 한 장"(~6초부터),
+     "슬래시 유저스 일"(~15초), "명사만"(~30초). 그림이 말보다 한참 먼저 끝나면 강의가 아니다. */
+  .chip.c1 { animation-delay: 5.5s; }
+  .chip.c2 { animation-delay: 6.0s; }
+  .chip.c3 { animation-delay: 6.6s; }
+  .chip.c4 { animation-delay: 7.1s; }
+  .chip.c5 { animation-delay: 7.7s; }
+  .chip.c6 { animation-delay: 8.2s; }
+
+  /* 주인공 /users/1 — 강조 테두리가 나중에 앉는다 */
+  .chip.hero { position: relative; }
+  .chip.hero .ring {
+    position: absolute;
+    inset: -0.7vh;
+    border-radius: 1.8vh;
+    border: 0.45vh solid var(--brand);
+    box-shadow: 0 0 2.6vh color-mix(in srgb, var(--brand) 55%, transparent);
+    animation-name: ringin;
+    animation-duration: 0.5s;
+    animation-delay: 15s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes ringin {
+    from { opacity: 0; transform: scale(1.15); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .chip.hero .addr { color: #d7e2ff; }
+
+  .note {
+    font-size: 3vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 30s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="server animated">
+    <div class="cap">서버</div>
+    <div class="grid">
+      <div class="chip hero c1 animated">
+        <div class="what">사용자 1</div>
+        <div class="addr">/users/1</div>
+        <i class="ring animated"></i>
+      </div>
+      <div class="chip c2 animated">
+        <div class="what">사용자 2</div>
+        <div class="addr">/users/2</div>
+      </div>
+      <div class="chip c3 animated">
+        <div class="what">글 1</div>
+        <div class="addr">/posts/1</div>
+      </div>
+      <div class="chip c4 animated">
+        <div class="what">글 2</div>
+        <div class="addr">/posts/2</div>
+      </div>
+      <div class="chip c5 animated">
+        <div class="what">사진 7</div>
+        <div class="addr">/photos/7</div>
+      </div>
+      <div class="chip c6 animated">
+        <div class="what">주문 3</div>
+        <div class="addr">/orders/3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

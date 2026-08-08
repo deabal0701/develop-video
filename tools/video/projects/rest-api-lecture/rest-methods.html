@@ -1,0 +1,137 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>rest methods</title>
+<!-- 2장 도식 — 주소는 그대로 두고 동사만 바꾸면 하는 일이 바뀐다.
+     위에 고정된 주소 판, 아래로 대표 동사 4개(GET·POST·PUT·DELETE)가 줄줄이 선다.
+     DELETE 줄에는 "아까 그 줄" 꼬리표가 붙어 오프닝과 이어진다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+          --get: #4c8dff; --post: #2bd97c; --put: #f5a524; --del: #f4586a; }
+
+  .stage { padding: 0 18%; gap: 3vh; }
+
+  .head {
+    font-size: 5vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+  }
+
+  /* 고정된 주소 판 — "주소는 그대로" */
+  .addr {
+    display: flex;
+    align-items: center;
+    gap: 1.8vh;
+    padding: 1.6vh 3vh;
+    border-radius: 1.6vh;
+    background: #131c31;
+    border: 0.25vh solid #3b4f7c;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 0.2s;
+  }
+  .addr .path { font-family: var(--mono); font-size: 4.2vh; font-weight: 700; color: #d7e2ff; }
+  .addr .fix  { font-size: 2.2vh; font-weight: 700; color: #8fa3c8; }
+
+  .rows { display: flex; flex-direction: column; gap: 1.8vh; width: 100%; }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 2.4vh;
+    padding: 1.7vh 2.6vh;
+    border-radius: 1.5vh;
+    background: #0e1526;
+    border: 0.2vh solid #223052;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+    text-align: left;
+  }
+  .row .verb {
+    flex: none;
+    width: 16ch;
+    font-family: var(--mono);
+    font-size: 3.6vh;
+    font-weight: 800;
+  }
+  .row .kr   { flex: none; width: 5em; font-size: 3.2vh; font-weight: 800; }
+  .row .desc { font-size: 2.5vh; font-weight: 500; color: #a9b8da; }
+
+  /* 내레이션과 동행 — "겟은 조회"(~4.5초) → "포스트"(~10초) → "풋"(~15초) → "딜리트"(~18.5초) */
+  .row.get    { animation-delay: 4.5s; }
+  .row.post   { animation-delay: 10s; }
+  .row.put    { animation-delay: 15s; }
+  .row.del    { animation-delay: 18.5s; }
+  .row.get  .verb { color: var(--get); }
+  .row.post .verb { color: var(--post); }
+  .row.put  .verb { color: var(--put); }
+  .row.del  .verb { color: var(--del); }
+
+  .row.del { position: relative; border-color: color-mix(in srgb, var(--del) 45%, #223052); }
+  .row.del .mark {
+    position: absolute;
+    right: 2.4vh;
+    top: 50%;
+    margin-top: -1.5vh;
+    height: 3vh;
+    display: flex;
+    align-items: center;
+    padding: 0 1.4vh;
+    border-radius: 1.5vh;
+    background: color-mix(in srgb, var(--del) 22%, transparent);
+    border: 0.18vh solid var(--del);
+    font-size: 1.9vh;
+    font-weight: 700;
+    color: #ffb9c2;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: 21.5s;
+  }
+
+  .note {
+    font-size: 3vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 30s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="addr animated"><span class="path">/users/1</span><span class="fix">← 주소는 그대로</span></div>
+
+  <div class="rows">
+    <div class="row get animated">
+      <span class="verb">GET /users/1</span><span class="kr">조회</span>
+      <span class="desc">그대로 두고 읽는다</span>
+    </div>
+    <div class="row post animated">
+      <span class="verb">POST /users</span><span class="kr">생성</span>
+      <span class="desc">새로 만든다</span>
+    </div>
+    <div class="row put animated">
+      <span class="verb">PUT /users/1</span><span class="kr">수정</span>
+      <span class="desc">내용을 바꾼다</span>
+    </div>
+    <div class="row del animated">
+      <span class="verb">DELETE /users/1</span><span class="kr">삭제</span>
+      <span class="desc">지운다</span>
+      <span class="mark animated">아까 그 줄</span>
+    </div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
