@@ -197,14 +197,17 @@ export function assColour(hex, alpha = 0) {
 }
 
 function styleLine(name, s) {
-  // BorderStyle 3 = 글자 뒤에 불투명 판을 깐다. 1 = 판 없이 글자에 테두리만 두른다.
-  // 판을 뺄 때는 OutlineColour 가 판 색이 아니라 테두리 색이 되므로 검정으로 돌리고,
-  // 테두리를 두껍게(+그림자) 줘야 밝은 배경에서 흰 글자가 뭉개지지 않는다.
+  // BorderStyle 4 = 문단 전체에 판 하나(libass 확장, 판 색은 BackColour에서 읽는다).
+  // 3 = 줄마다 판 — 여러 줄이면 반투명 판이 겹쳐 이중으로 어두운 띠가 생기므로 쓰지 않는다.
+  // 1 = 판 없이 글자에 테두리만. 판을 뺄 때는 OutlineColour 가 판 색이 아니라 테두리 색이
+  // 되므로 검정으로 돌리고, 테두리를 두껍게(+그림자) 줘야 밝은 배경에서 글자가 안 뭉개진다.
+  // 판 색은 OutlineColour(3용)·BackColour(4용) 양쪽에 넣어 어느 스타일이든 같게 나온다.
   const boxless = s.borderStyle === 1;
   const border = boxless ? (s.outlineColour ?? '&H00000000') : (s.box ?? '&H8C1A1005');
+  const back = boxless ? '&H00000000' : (s.box ?? '&H8C1A1005');
   return (
     `Style: ${name},${s.font},${s.size},${s.primary ?? '&H00FFFFFF'},&H000000FF,` +
-    `${border},&H00000000,${s.bold === false ? 0 : -1},0,0,0,100,100,` +
+    `${border},${back},${s.bold === false ? 0 : -1},0,0,0,100,100,` +
     `${s.spacing ?? 0},0,${s.borderStyle ?? 3},${s.outline ?? 4},${s.shadow ?? 0},${s.alignment ?? 2},` +
     `${s.marginL ?? s.marginH ?? 60},${s.marginR ?? s.marginH ?? 60},${s.marginV ?? 60},1`
   );

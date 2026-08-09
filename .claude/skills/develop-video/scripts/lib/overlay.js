@@ -123,14 +123,38 @@ export function timedCues(text, start, end, maxUnits = DEFAULT_UNITS, maxLines =
     }
   }
 
+  // 좁은 폭으로 다시 쪼개면 "조퇴는 따로" · "붙입니다." 같은 한 뼘짜리 조각이 남는다.
+  // 화면에 0.5초 떴다 사라지면 읽히지도 않고 깜빡임으로만 보이므로, 짧은 것은 이웃에 붙인다.
+  // (한 장에 안 들어가게 되는 합치기는 하지 않는다 — 그러면 다시 글자가 잘린다.)
+  if (chunks.length > 1) {
+    const minUnits = Math.max(6, maxUnits * 0.45);
+    const fits = (s) => visualWidth(s) <= maxUnits * maxLines;
+    const merged = [];
+    for (const c of chunks) {
+      const prev = merged[merged.length - 1];
+      const tooShort = visualWidth(c) < minUnits;
+      if (prev && tooShort && fits(`${prev} ${c}`)) merged[merged.length - 1] = `${prev} ${c}`;
+      else merged.push(c);
+    }
+    // 첫 조각이 짧으면 뒤에 붙인다(앞에 붙일 것이 없으므로).
+    if (merged.length > 1 && visualWidth(merged[0]) < minUnits && fits(`${merged[0]} ${merged[1]}`)) {
+      merged.splice(0, 2, `${merged[0]} ${merged[1]}`);
+    }
+    chunks = merged;
+  }
+
   if (chunks.length <= 1) return chunks.map((t) => ({ start, end, text: t }));
   const widths = chunks.map(visualWidth);
   const total = widths.reduce((a, b) => a + b, 0) || 1;
+  // 자막 장이 바뀔 때 앞 장을 아주 살짝 먼저 거둔다. 끝시각과 다음 시작시각이 같으면
+  // 플레이어에 따라 두 장이 한 프레임 겹쳐 보이거나 전환이 끊긴 것처럼 읽힌다.
+  const GAP = 0.08;
   let cursor = start;
   return chunks.map((text_, i) => {
     const from = cursor;
-    cursor = i === chunks.length - 1 ? end : from + (end - start) * (widths[i] / total);
-    return { start: from, end: cursor, text: text_ };
+    const last = i === chunks.length - 1;
+    cursor = last ? end : from + (end - start) * (widths[i] / total);
+    return { start: from, end: last ? end : Math.max(from + 0.1, cursor - GAP), text: text_ };
   });
 }
 
@@ -173,9 +197,17 @@ export function assColour(hex, alpha = 0) {
 }
 
 function styleLine(name, s) {
+  // BorderStyle 4 = 문단 전체에 판 하나(libass 확장, 판 색은 BackColour에서 읽는다).
+  // 3 = 줄마다 판 — 여러 줄이면 반투명 판이 겹쳐 이중으로 어두운 띠가 생기므로 쓰지 않는다.
+  // 1 = 판 없이 글자에 테두리만. 판을 뺄 때는 OutlineColour 가 판 색이 아니라 테두리 색이
+  // 되므로 검정으로 돌리고, 테두리를 두껍게(+그림자) 줘야 밝은 배경에서 글자가 안 뭉개진다.
+  // 판 색은 OutlineColour(3용)·BackColour(4용) 양쪽에 넣어 어느 스타일이든 같게 나온다.
+  const boxless = s.borderStyle === 1;
+  const border = boxless ? (s.outlineColour ?? '&H00000000') : (s.box ?? '&H8C1A1005');
+  const back = boxless ? '&H00000000' : (s.box ?? '&H8C1A1005');
   return (
     `Style: ${name},${s.font},${s.size},${s.primary ?? '&H00FFFFFF'},&H000000FF,` +
-    `${s.box ?? '&H8C1A1005'},&H00000000,${s.bold === false ? 0 : -1},0,0,0,100,100,` +
+    `${border},${back},${s.bold === false ? 0 : -1},0,0,0,100,100,` +
     `${s.spacing ?? 0},0,${s.borderStyle ?? 3},${s.outline ?? 4},${s.shadow ?? 0},${s.alignment ?? 2},` +
     `${s.marginL ?? s.marginH ?? 60},${s.marginR ?? s.marginH ?? 60},${s.marginV ?? 60},1`
   );

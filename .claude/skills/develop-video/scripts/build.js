@@ -10,10 +10,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { composeVariant } from './lib/compose.js';
-import { preflight, reportPreflight } from './lib/preflight.js';
+import { preflight, reportPreflight, scanBlankFrames } from './lib/preflight.js';
 import { recordTake } from './lib/record.js';
 import { resolveVoice, synthesizeScenes } from './lib/tts.js';
-import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, secs, videoDirs } from './lib/util.js';
+import { AD_DIR, OUT_DIR, ensureVideoDirs, loadEnv, lockVideoDir, parseArgs, readJson, run, secs, videoDirs } from './lib/util.js';
 
 // 조치 방법이 메시지에 다 들어 있는 오류(util.js 의 expected)는 스택 없이 그것만 찍는다.
 // 스택을 함께 찍으면 "무엇을 설치하라"는 두 줄이 프레임 사이에 파묻혀 안 읽힌다.
@@ -34,7 +34,15 @@ for (const { file, count } of loadEnv()) {
 
 const args = parseArgs();
 const only = args.only ?? 'all';
-const configFile = path.resolve(args.scenes ?? path.join(AD_DIR, 'scenes.json'));
+// 대본은 --scenes 가 우선이고, 없으면 --project 로 projects/<id>/scenes.json 을 찾는다.
+// 영상 한 편의 입력물(대본·전용 모션·facts)은 projects/<id>/ 한 폴더에 모은다 —
+// 대본이 tools/video 직속에 평평하게 쌓이면 영상 수만큼 무한히 늘어난다.
+const projectScenes = args.project && !args.scenes
+  ? path.join(AD_DIR, 'projects', String(args.project), 'scenes.json')
+  : null;
+const configFile = path.resolve(
+  args.scenes ?? (projectScenes && fs.existsSync(projectScenes) ? projectScenes : path.join(AD_DIR, 'scenes.json'))
+);
 const config = readJson(configFile);
 
 const baseUrl = (args['base-url'] ?? config.baseUrl).replace(/\/$/, '');
@@ -47,6 +55,9 @@ const voice = {
   ...(args.voice ? { voice: args.voice } : {}),
 };
 const render = config.render ?? {};
+// 전용 모션 템플릿(한 영상에서만 쓰는 것)은 대본 옆에 둔다. compose 가 대본 폴더를 먼저
+// 뒤지고 없으면 공용 motion/ 으로 내려가므로, 공용 폴더가 영상별 파일로 어질러지지 않는다.
+if (render.motion) render.motion.projectDir = path.dirname(configFile);
 
 // 영상 한 편 = out/<id>/ 한 폴더. id는 --project > scenes.json의 "id" > 대본 파일 이름 순으로 정한다
 // (scenes.json → default, scenes.promo.json → promo). 여러 편을 만들어도 서로 덮어쓰지 않는다.
@@ -183,6 +194,17 @@ for (const variant of variants) {
   process.stdout.write(
     `  ✓ ${path.relative(process.cwd(), result.file)}  ${secs(result.duration)}  ${variant.label ?? ''}\n`
   );
+  // 완성본에 빈 화면(전환 공백)이 남았는지 바로 재 본다. 눈으로 프레임을 뽑기 전에는
+  // 안 보이는 결함이고, 사람이 지나치면 그대로 나간다 — 실제로 두 번 통과했다.
+  const blanks = await scanBlankFrames(result.file, { run });
+  if (blanks.length) {
+    const total = blanks.reduce((a, b) => a + b.duration, 0);
+    process.stdout.write(
+      `    ⚠ 빈 화면 ${blanks.length}곳 · 합계 ${total.toFixed(1)}s — 가장 긴 곳 ` +
+        blanks.sort((a, b) => b.duration - a.duration).slice(0, 3)
+          .map((b) => `${b.start.toFixed(1)}s(${b.duration.toFixed(1)}s)`).join(', ') + '\n'
+    );
+  }
 }
 process.stdout.write(
   `\n완료 — ${path.relative(process.cwd(), dirs.root)}\n` +

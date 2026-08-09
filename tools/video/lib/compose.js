@@ -105,7 +105,10 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       marginR: subMarginR,
       marginV: Math.round(height * (variant.subtitleMargin ?? config.subtitleMargin ?? 0.07)),
       primary: config.subtitleColour ? assColour(config.subtitleColour) : undefined,
-      borderStyle: subtitleBoxless ? 1 : 3,
+      // 4 = 문단 전체에 판 하나(libass 확장). 3(줄마다 판)은 한글 자막이 2줄을 넘으면
+      // 반투명 판끼리 겹쳐 이중으로 어두운 띠가 생기고 윗줄 글자를 침범한다 — ai-lecture
+      // 3줄 자막에서 실제로 걸렸다.
+      borderStyle: subtitleBoxless ? 1 : 4,
       box: config.subtitleBoxColour ?? assColour(config.background ?? '#0B1020', 0x8c),
       outlineColour: assColour(config.subtitleOutlineColour ?? '#000000'),
       // 판 없는 자막은 테두리를 두르지 않는다 — 0.016(9:16에서 17px)은 글자가 검정

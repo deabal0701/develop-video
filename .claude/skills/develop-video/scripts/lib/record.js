@@ -99,6 +99,22 @@ async function doAction(page, action, baseUrl) {
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     await page.evaluate(CURSOR_BOOTSTRAP);
     await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    // networkidle 만으로는 부족하다 — SPA 는 라우트를 갈아끼운 뒤 프레임워크가 화면을 그릴
+    // 때까지 **흰 배경**을 그대로 노출한다. 녹화본에서는 이게 전환마다 0.7~1.5초짜리
+    // 흰 점멸로 남아 홍보영상에서는 버그처럼 보인다. 그래서 화면에 실제로 뭔가 그려질
+    // 때까지 기다린다: 본문에 글자가 생기고, 연속 두 프레임이 같아질 때까지.
+    await page
+      .waitForFunction(
+        () => {
+          const t = document.body?.innerText?.trim() ?? '';
+          if (t.length < 40) return false; // 아직 빈 화면
+          // 로딩 스켈레톤·스피너가 남아 있으면 아직이다
+          return !document.querySelector('.el-loading-mask, .is-loading, [class*="skeleton"]');
+        },
+        { timeout: 8000 }
+      )
+      .catch(() => {});
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
     return;
   }
   if (action.wait !== undefined) return sleep(action.wait * 1000);
@@ -191,8 +207,13 @@ export async function recordTake(scenes, config, dirs, { headed = false, baseUrl
     leadIn = (takeStart - pageCreatedAt) / 1000;
 
     for (const scene of scenes) {
-      const sceneStart = Date.now();
-      const start = (sceneStart - takeStart) / 1000;
+      let sceneStart = Date.now();
+      let start = (sceneStart - takeStart) / 1000;
+      // 씬 경계를 **화면 전환이 끝난 뒤**로 잡는다. 앞에서 시각을 찍으면 goto 가 도는 동안의
+      // 흰 화면(SPA 가 새 라우트를 그리기 전 빈 배경)이 씬 앞머리에 그대로 들어간다 —
+      // 실측 18개 전환에서 12.75초, 최장 2.75초가 이렇게 섞여 있었다. 대기를 아무리 늘려도
+      // "기다린 시간"이 씬 안에 남으므로 대기가 아니라 **경계**를 옮겨야 한다.
+      let opened = false;
       for (const action of scene.actions ?? []) {
         // optional: 백엔드·AI가 붙지 않은 환경에서도 촬영이 끊기지 않게 한다.
         try {
@@ -200,6 +221,13 @@ export async function recordTake(scenes, config, dirs, { headed = false, baseUrl
         } catch (error) {
           if (!action.optional) throw error;
           process.stdout.write(`    (건너뜀) ${Object.keys(action)[0]}: ${error.message.split('\n')[0]}\n`);
+        }
+        // 첫 goto 가 끝난 직후로 경계를 다시 잡는다. 그 뒤의 조작(type·scroll 등)은
+        // 보여 줘야 하는 내용이므로 포함하고, 전환 공백만 앞으로 밀어낸다.
+        if (!opened && action.goto !== undefined) {
+          opened = true;
+          sceneStart = Date.now();
+          start = (sceneStart - takeStart) / 1000;
         }
       }
       const targetMs = (scene.audioDuration + (scene.hold ?? 0.6)) * 1000;

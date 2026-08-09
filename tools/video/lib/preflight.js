@@ -105,6 +105,18 @@ export function preflight({ config, motionDir, videoRoot, audioDurations = {} })
     say('warn', '(render)', 'watermark.text 가 비었다 — 표기 없이 나간다');
   }
 
+  // ── 6. 모션 전용 영상의 wipe 켜짐 — 흰 점멸이 남는다 ─────────────────────
+  // 템플릿의 wipe(마지막 흰 면)는 밝은 앱 화면으로 이어질 때를 위한 것이다. 화면 씬이
+  // 없는 영상(scenes 빈 배열)은 모든 전환이 모션→모션이므로 wipe 가 켜진 클립마다
+  // 흰 프레임이 남는다 — cloud-lecture 에서 6곳이 실제로 그렇게 나갔다.
+  if (!(config.scenes ?? []).length) {
+    for (const clip of clips) {
+      if (clip.file && (clip.params?.wipe ?? 'on') !== 'off') {
+        say('warn', clip.id, '모션 전용 영상인데 wipe 가 켜져 있다 — 흰 점멸이 남는다. params 에 "wipe":"off"');
+      }
+    }
+  }
+
   return found;
 }
 

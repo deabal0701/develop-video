@@ -4,7 +4,7 @@
 // 오디오는 씬 길이에 맞춰 무음을 덧댄(apad) 뒤 이어 붙이므로 영상과 프레임 단위로 맞는다.
 //
 // 화면에 얹는 글자는 5종이고 전부 하나의 ASS 파일에 스타일만 달리해 들어간다.
-//   Sub   자막(CC)            하단 중앙 — 내레이션이 있으면 **항상** 굽는다(끄는 스위치 없음)
+//   Sub   자막(CC)            하단 중앙 — 기본은 항상 굽는다. subtitles:false 로만 끈다(.srt 는 그대로 나감)
 //   Cap   상단 헤드라인        상단 중앙 — 소리 없이 보는 시청자용
 //   Badge 강조 뱃지            헤드라인 바로 아래
 //   Mark  로고 워터마크        기본 오른쪽 위 — 판때기 없이, 첫 프레임부터 끝까지 계속
@@ -16,6 +16,16 @@ import { assColour, timedCues, writeAss, writeSrt } from './overlay.js';
 import { buildPresenterTrack } from './presenter.js';
 import { motionClipsFor, renderMotionClip } from './motion.js';
 import { renderMediaClip } from './media.js';
+
+// 모션 템플릿은 대본 폴더(전용) → 공용 motion/ 순으로 찾는다. 한 영상에서만 쓰는 전용
+// 템플릿(한강 단면도 등)을 projects/<id>/ 에 대본과 같이 두기 위한 것. projectDir 는
+// build.js 가 대본 파일 위치로 채워 준다 — 전용 템플릿은 공용 _base.css·_params.js 를
+// `../../motion/` 상대 경로로 참조해야 한다(프레임 굽기가 file:// 로 열기 때문).
+function resolveMotionFile(motion, name) {
+  const local = motion.projectDir && path.join(motion.projectDir, name);
+  if (local && fs.existsSync(local)) return local;
+  return path.join(motion.dir ?? 'motion', name);
+}
 
 // 씬 오디오를 각자 목표 길이만큼 무음으로 늘린 뒤 하나로 이어 붙인다.
 async function buildNarration(segments, file) {
@@ -58,6 +68,7 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
 
   const subSizeForBand = Math.round(base * (variant.subtitleScale ?? config.subtitleScale ?? 0.05));
   const subMarginV = Math.round(height * (variant.subtitleMargin ?? config.subtitleMargin ?? 0.07));
+  const subtitleBoxless = (variant.subtitleBox ?? config.subtitleBox) === false;
 
   // 인물이 자막대와 세로로 겹치면 자막이 그 위에 그려진다(ass가 overlay 뒤에 온다).
   // 그럴 때만 인물 쪽 여백을 넓혀 자막을 반대쪽으로 밀어낸다. 정렬 키워드가 아니라 실제
@@ -84,6 +95,8 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
   const endUrlSize = Math.round(base * 0.035);
 
   return {
+    // subtitleBox: false 로 글자 뒤 판을 없앤다. 판이 사라지면 배경이 그대로 비치므로
+    // 테두리를 두 배로 키우고 그림자를 넣어 밝은 화면에서도 흰 글자가 읽히게 한다.
     Sub: {
       font,
       size: subSize,
@@ -91,8 +104,19 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       marginL: subMarginL,
       marginR: subMarginR,
       marginV: Math.round(height * (variant.subtitleMargin ?? config.subtitleMargin ?? 0.07)),
+      primary: config.subtitleColour ? assColour(config.subtitleColour) : undefined,
+      // 4 = 문단 전체에 판 하나(libass 확장). 3(줄마다 판)은 한글 자막이 2줄을 넘으면
+      // 반투명 판끼리 겹쳐 이중으로 어두운 띠가 생기고 윗줄 글자를 침범한다 — ai-lecture
+      // 3줄 자막에서 실제로 걸렸다.
+      borderStyle: subtitleBoxless ? 1 : 4,
       box: config.subtitleBoxColour ?? assColour(config.background ?? '#0B1020', 0x8c),
-      outline: Math.round(base * 0.008),
+      outlineColour: assColour(config.subtitleOutlineColour ?? '#000000'),
+      // 판 없는 자막은 테두리를 두르지 않는다 — 0.016(9:16에서 17px)은 글자가 검정
+      // 덩어리로 뭉쳤고, 0.006 으로 줄여도 윤곽선이 지저분하다. 대신 그림자만 남긴다.
+      // 그림자는 글자를 감싸지 않고 아래로만 떨어져 흰 글자가 밝은 하늘에서도 떠 보인다.
+      // 완전히 지우려면 subtitleOutline: 0 · subtitleShadow: 0 을 준다.
+      outline: Math.round(base * (variant.subtitleOutline ?? config.subtitleOutline ?? (subtitleBoxless ? 0 : 0.008))),
+      shadow: Math.round(base * (variant.subtitleShadow ?? config.subtitleShadow ?? (subtitleBoxless ? 0.004 : 0))),
       maxUnits: fit(subSize, subMarginL, subMarginR),
       maxLines: 3, // 넘치는 분량은 잘리지 않는다 — timedCues가 여러 장으로 나눈다
     },
@@ -148,8 +172,14 @@ export function buildStyles(width, height, config, variant, presenterTrack) {
       primary: assColour(config.watermarkColour ?? '#FFFFFF', 0x1a),
       box: assColour(config.watermarkEdge ?? config.background ?? '#0B1020'), // 판이 아니라 글자 테두리 색
       borderStyle: 1,
-      outline: Math.max(1, Math.round(base * 0.001)),
-      shadow: Math.max(2, Math.round(base * 0.002)),
+      // 그림자(BackColour)는 libass 가 검정 고정이라, 밝은 앱 화면에서는 글자 아래로
+      // 검은 얼룩이 깔린다. 그림자를 0 으로 끄고 테두리로만 읽히게 하려면 테두리를
+      // 두껍게 줄 수 있어야 하므로 watermarkOutline 으로 연다(기본값은 종전과 같다).
+      outline: Math.max(1, Math.round(base * (config.watermarkOutline ?? 0.001))),
+      // 그림자 0.002(9:16에서 2px)는 밝은 B롤 위에서 워터마크를 못 살린다 — 금색 파티클
+      // 화면에서 거의 사라졌다. 0.004 로 키우면 어두운 배경에서 지저분해지지 않으면서
+      // 밝은 배경에서도 글자 윤곽이 남는다.
+      shadow: Math.max(2, Math.round(base * (config.watermarkShadow ?? 0.004))),
       bold: false,
       maxUnits: units(markSize),
       maxLines: 1,
@@ -263,6 +293,7 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
       ? await renderMediaClip({
           file: clip.video,
           start: clip.videoStart ?? 0,
+          shade: clip.shade ?? 0,
           duration: clip.duration,
           width: motionWidth,
           height: motionHeight,
@@ -272,7 +303,7 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
           force: config.motionForce,
         })
       : await renderMotionClip({
-          file: path.join(config.motion.dir ?? 'motion', clip.file),
+          file: resolveMotionFile(config.motion, clip.file),
           duration: clip.duration,
           width: motionWidth,
           height: motionHeight,
@@ -352,9 +383,12 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
         styles.Sub.maxUnits,
         styles.Sub.maxLines
       );
+      // subtitles: false 는 **화면에 굽는 것만** 끈다. cues 는 그대로 쌓여 .srt 사이드카로 나가므로
+      // 유튜브에 올릴 때 자막을 따로 붙일 수 있다. 기본값은 켬 — 끄는 것은 명시적 선택이다.
+      const burnSubs = (variant.subtitles ?? config.subtitles) !== false;
       for (const part of parts) {
         cues.push(part);
-        events.push({ style: 'Sub', ...part });
+        if (burnSubs) events.push({ style: 'Sub', ...part });
       }
     }
     if (s.caption && variant.captions !== false) {
