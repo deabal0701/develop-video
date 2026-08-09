@@ -1,0 +1,228 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>prompt terrain</title>
+<!-- 1장 — 프롬프트는 부탁이 아니라 조건이다. 같은 요청이라도 앞에 무엇을 놓느냐에 따라
+     다음 토큰의 확률 지형이 달라진다(1강 회수). 좌: 제로샷(지시만) / 우: 퓨샷(예시를 붙임).
+     아래 막대 지형이 좌우로 다르게 서서 "확률이 쏠린다"를 그림이 진다.
+
+     params: t1(우측 예시 등장) · t2(지형 변화) · tn(하단 문구) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+          --t1: 14s; --t2: 26s; --tn: 40s; }
+
+  .stage { padding: 0 7%; gap: 3vh; }
+
+  .head {
+    font-size: 4.2vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .cols { display: flex; gap: 3.4vh; width: 100%; }
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8vh;
+    padding: 2.6vh 2.4vh 2.2vh;
+    border-radius: 2vh;
+    background: #0c1322;
+    border: 0.2vh solid #222f4e;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .col.left { animation-delay: 0.3s; }
+  .col.right { animation-delay: calc(var(--t1) - 0.5s); }
+
+  .label { font-size: 2.7vh; font-weight: 800; }
+  .left .label { color: #8ea0c8; }
+  .right .label { color: var(--brand-soft); }
+  .label .term {
+    display: inline-block;
+    margin-left: 1vh;
+    padding: 0.3vh 1vh;
+    border-radius: 0.6vh;
+    background: color-mix(in srgb, var(--brand) 16%, transparent);
+    border: 0.14vh solid #3a4a78;
+    font-family: var(--mono);
+    font-size: 1.8vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    vertical-align: middle;
+  }
+
+  /* 입력 상자 — 지시 한 줄 vs 예시 두 줄 + 지시 */
+  .box {
+    min-height: 15vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9vh;
+    padding: 1.6vh 1.8vh;
+    border-radius: 1.1vh;
+    background: #111a2e;
+    border: 0.18vh solid #2c3a60;
+    text-align: left;
+    font-size: 2.2vh;
+    font-weight: 600;
+    color: #dfe6f6;
+    line-height: 1.4;
+  }
+  .box .ex {
+    padding: 0.7vh 1vh;
+    border-radius: 0.6vh;
+    background: color-mix(in srgb, var(--brand) 15%, transparent);
+    border-left: 0.32vh solid var(--brand);
+    font-size: 2vh;
+    color: #cfd9f2;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.45s;
+  }
+  .box .ex.e1 { animation-delay: var(--t1); }
+  .box .ex.e2 { animation-delay: calc(var(--t1) + 0.5s); }
+  .box .ask { font-weight: 700; }
+
+  /* 확률 지형 — 막대가 서로 다르게 쏠린다 */
+  .terrain {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.8vh;
+    flex: none;
+    height: 12vh;
+    min-height: 12vh;
+    margin-top: auto;
+    padding-top: 1vh;
+  }
+  .bar {
+    flex: 1;
+    height: 100%;
+    border-radius: 0.5vh 0.5vh 0 0;
+    background: linear-gradient(180deg, var(--brand), #24345e);
+    transform-origin: bottom center;
+    transform: scaleY(var(--h0, 0.3));
+    animation-duration: 0.8s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .left .bar { opacity: 0.55; }
+  /* 우측만 t2 에 지형이 한쪽으로 쏠린다 */
+  .right .bar.animated {
+    animation-name: reshape;
+    animation-delay: var(--t2);
+  }
+  @keyframes reshape { from { transform: scaleY(var(--h0, 0.3)); } to { transform: scaleY(var(--h1, 0.3)); } }
+
+  .cap { font-size: 1.9vh; font-weight: 600; color: #6d7ea6; }
+
+  .note {
+    font-size: 2.7vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+
+  /* 용어 주석 — SKILL.md '용어 주석' 절. templates/termnote.css 를 복사한 것.
+     공용 _base.css 는 수정하지 않는다(기존 회차 렌더가 바뀐다). 등장 시각은 tterm params. */
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: var(--tterm, 6s);
+  }
+  .termnote b {
+    font-family: var(--mono, ui-monospace, Menlo, monospace);
+    font-size: 2.3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+    letter-spacing: 0.01em;
+  }
+  .termnote .en {
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: #8ea0c8;
+  }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+  .termnote { position: absolute; left: 0; right: 0; top: 3%; margin: 0 auto; width: fit-content; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="termnote animated"><b>few-shot</b><span class="en">퓨샷</span><span class="ko">예시를 몇 개 함께 주는 방식 — 예시 없이 지시만 주면 zero-shot(제로샷)</span></div>
+
+  <div class="head">같은 요청, <b>앞에 무엇을 놓느냐</b></div>
+
+  <div class="cols">
+    <div class="col left animated">
+      <div class="label">예시 없이<span class="term">zero-shot</span></div>
+      <div class="box">
+        <span class="ask">주간 보고 형식으로 정리해 줘.</span>
+      </div>
+      <div class="terrain">
+        <span class="bar" style="--h0:0.45"></span>
+        <span class="bar" style="--h0:0.55"></span>
+        <span class="bar" style="--h0:0.4"></span>
+        <span class="bar" style="--h0:0.6"></span>
+        <span class="bar" style="--h0:0.5"></span>
+        <span class="bar" style="--h0:0.42"></span>
+      </div>
+      <div class="cap">다음에 올 말의 후보가 넓게 퍼진다</div>
+    </div>
+
+    <div class="col right animated">
+      <div class="label">예시를 붙이면<span class="term">few-shot</span></div>
+      <div class="box">
+        <span class="ex e1 animated">지난주: ■ 진행 ■ 이슈 ■ 다음 주</span>
+        <span class="ex e2 animated">지지난주: ■ 진행 ■ 이슈 ■ 다음 주</span>
+        <span class="ask">이번 주도 같은 형식으로.</span>
+      </div>
+      <div class="terrain">
+        <span class="bar animated" style="--h0:0.45;--h1:0.16"></span>
+        <span class="bar animated" style="--h0:0.55;--h1:0.22"></span>
+        <span class="bar animated" style="--h0:0.4;--h1:1"></span>
+        <span class="bar animated" style="--h0:0.6;--h1:0.2"></span>
+        <span class="bar animated" style="--h0:0.5;--h1:0.14"></span>
+        <span class="bar animated" style="--h0:0.42;--h1:0.12"></span>
+      </div>
+      <div class="cap">한 방향으로 확률이 쏠린다</div>
+    </div>
+  </div>
+
+  <div class="note animated">형식은 설명보다 견본이 빠르다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), tn: q.get('tn'), tterm: q.get('tterm') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

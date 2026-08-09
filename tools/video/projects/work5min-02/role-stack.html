@@ -1,0 +1,133 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>role stack</title>
+<!-- 3장 — 규칙을 어디에 두느냐. API 는 통짜 텍스트가 아니라 역할이 붙은 메시지 목록을 보낸다.
+     system(신입에게 건네는 업무 매뉴얼 — 한 번 정해 두고 계속 적용) 위에
+     user(그날그날의 지시)가 쌓인다. 구조·계층 기법(cloud-layers 결).
+
+     params: t1(system) · t2(user 1) · t3(user 2) · tn(하단 문구) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+          --t1: 10s; --t2: 20s; --t3: 26s; --tn: 38s; }
+
+  .stage { padding: 0 13%; gap: 3vh; }
+
+  .head {
+    font-size: 4.2vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .stack { display: flex; flex-direction: column; gap: 1.8vh; width: 100%; }
+
+  .msg {
+    display: flex;
+    align-items: center;
+    gap: 2.4vh;
+    padding: 2.4vh 3vh;
+    border-radius: 1.6vh;
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+  }
+  /* system — 바닥에 깔리는 규칙판. 눈에 띄게 다른 층으로 그린다 */
+  .msg.sys {
+    background: linear-gradient(#152040, #101832);
+    border: 0.24vh solid var(--brand);
+    animation-delay: var(--t1);
+  }
+  .msg.usr {
+    background: #0e1526;
+    border: 0.2vh solid #2c3a60;
+  }
+  .msg.u1 { animation-delay: var(--t2); }
+  .msg.u2 { animation-delay: var(--t3); }
+
+  .role {
+    flex: none;
+    width: 13vh;
+    padding: 0.7vh 0;
+    border-radius: 0.8vh;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 2.1vh;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  .sys .role { background: var(--brand); color: #fff; }
+  .usr .role { background: #24304f; color: #a9b8dd; }
+
+  .content { font-size: 2.7vh; font-weight: 600; color: #dfe6f6; line-height: 1.45; }
+  .content b { color: var(--brand-soft); font-weight: 800; }
+  .content small { display: block; margin-top: 0.5vh; font-size: 2vh; color: #8ea0c8; font-weight: 600; }
+
+  /* system 이 계속 적용된다는 표시 — 아래로 뻗는 세로선 */
+  .rail {
+    position: absolute;
+    left: 12.6%;
+    top: 44%;
+    width: 0.4vh;
+    height: 26vh;
+    border-radius: 0.3vh;
+    background: linear-gradient(180deg, var(--brand), transparent);
+    transform-origin: top center;
+    transform: scaleY(0);
+    animation-name: railgrow;
+    animation-duration: 0.7s;
+    animation-delay: calc(var(--t2) - 0.3s);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes railgrow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+  .note {
+    font-size: 2.7vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head">규칙은 <b>맨 앞에 한 번</b>, 지시는 그때그때</div>
+
+  <span class="rail animated"></span>
+
+  <div class="stack">
+    <div class="msg sys animated">
+      <span class="role">system</span>
+      <span class="content">너는 우리 팀 주간 보고를 쓰는 사람이다. 항상 <b>세 줄</b>로, 숫자를 앞에.<small>신입에게 처음 건네는 업무 매뉴얼 — 한 번 정해 두면 계속 적용된다</small></span>
+    </div>
+    <div class="msg usr u1 animated">
+      <span class="role">user</span>
+      <span class="content">이번 주 영업팀 실적 정리해 줘.<small>그날그날의 지시</small></span>
+    </div>
+    <div class="msg usr u2 animated">
+      <span class="role">user</span>
+      <span class="content">이번엔 개발팀으로.<small>매뉴얼은 그대로, 지시만 바뀐다</small></span>
+    </div>
+  </div>
+
+  <div class="note animated">챗봇 창에서는 맨 처음 한 줄이 그 자리를 대신한다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tn: q.get('tn') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>
