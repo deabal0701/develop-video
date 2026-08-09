@@ -1,0 +1,161 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>형식은 보여준다</title>
+<!-- 2장 도식 — 형용사 더미(약함) vs 예전 문서 한 장(강함).
+     기법: 상태 변화 — 왼쪽 형용사들이 흐려지고, 오른쪽 예전 문서가 놓이자
+     아래 초안의 문장 결이 그쪽으로 맞춰진다(닮아가는 것이 보인다).
+     params: t1(형용사 더미) · t2(예전 문서) · tterm(퓨샷 주석) · t3(결과 문장) · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 8%; gap: 0; }
+
+  .vs {
+    display: flex;
+    gap: 3vh;
+    width: 100%;
+    align-items: stretch;
+    margin-bottom: 3vh;
+  }
+  .col {
+    flex: 1;
+    padding: 2.6vh 2.4vh;
+    border-radius: 1.2vh;
+    text-align: left;
+  }
+  .col-h {
+    font-size: 2.1vh;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.8vh;
+  }
+
+  /* 왼쪽 — 형용사 더미. 쌓이지만 흐리다 */
+  .weak { background: #12151e; border: 0.18vh solid #262c3c; }
+  .weak .col-h { color: #6d7791; }
+  .adj {
+    display: inline-block;
+    padding: 0.8vh 1.4vh;
+    margin: 0 0.6vh 0.8vh 0;
+    border-radius: 0.7vh;
+    background: #1c2130;
+    color: #7b8497;
+    font-size: 2.1vh;
+    font-weight: 700;
+  }
+  .weak-note {
+    margin-top: 1.4vh;
+    font-size: 2vh;
+    font-weight: 700;
+    color: #8d7070;
+  }
+
+  /* 오른쪽 — 예전 문서 한 장 */
+  .strong {
+    background: color-mix(in srgb, var(--brand) 11%, transparent);
+    border: 0.22vh solid var(--brand);
+  }
+  .strong .col-h { color: var(--brand-soft); }
+  .doc {
+    padding: 1.8vh;
+    border-radius: 0.8vh;
+    background: #0d1017;
+    font-size: 2.05vh;
+    line-height: 1.6;
+    color: #c9d0df;
+  }
+  .doc b { color: #fff; }
+  .strong-note {
+    margin-top: 1.4vh;
+    font-size: 2vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+  }
+
+  /* 아래 — 결과 */
+  .out {
+    width: 100%;
+    padding: 2.2vh 2.8vh;
+    border-radius: 1.2vh;
+    background: #10131c;
+    border-left: 0.45vh solid var(--brand);
+    text-align: left;
+    font-size: 2.5vh;
+    line-height: 1.55;
+    color: #eef0f6;
+  }
+  .out .tag {
+    display: block;
+    font-size: 1.9vh;
+    font-weight: 800;
+    color: #7d879e;
+    margin-bottom: 0.8vh;
+    letter-spacing: 0.03em;
+  }
+
+  .termnote {
+    position: absolute;
+    top: 4vh;
+    right: 5vh;
+    max-width: 40vh;
+    padding: 1.6vh 2vh;
+    border-radius: 1vh;
+    background: rgb(10 13 20 / 0.9);
+    border: 0.16vh solid color-mix(in srgb, var(--brand) 40%, transparent);
+    text-align: left;
+  }
+  .termnote .abbr { font-size: 2.3vh; font-weight: 800; color: var(--brand-soft); }
+  .termnote .full { font-size: 1.8vh; font-weight: 600; color: #97a0b6; margin-top: 0.3vh; }
+  .termnote .desc { font-size: 1.9vh; font-weight: 600; color: #d6dae6; margin-top: 0.8vh; line-height: 1.4; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="vs">
+    <div class="col weak animated" id="c-weak">
+      <div class="col-h">말로 설명하기</div>
+      <span class="adj">정중하게</span><span class="adj">깔끔하게</span><span class="adj">간결하게</span><span class="adj">따뜻하게</span>
+      <div class="weak-note">기준이 사람마다 다르다</div>
+    </div>
+
+    <div class="col strong animated" id="c-strong">
+      <div class="col-h">예전 문서 한 장 붙이기</div>
+      <div class="doc">
+        팀원 여러분, <b>지난달 워크숍</b> 안내드립니다.<br>
+        일정은 <b>3월 14일 오후 2시</b>입니다.<br>
+        참석 여부를 <b>금요일까지</b> 알려 주세요.
+      </div>
+      <div class="strong-note">"이 톤과 형식으로"</div>
+    </div>
+  </div>
+
+  <div class="out animated" id="out">
+    <span class="tag">결과 — 문장 결이 예전 문서를 닮는다</span>
+    팀원 여러분, 이번 주 <b>금요일 저녁 7시</b> 회식 안내드립니다.
+  </div>
+</div>
+
+<div class="termnote animated" id="term">
+  <div class="abbr">퓨샷</div>
+  <div class="full">few-shot</div>
+  <div class="desc">예시 몇 개를 같이 주는 것 — 설명보다 실물이 빠르다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검(preflight)이 q.get('이름') 리터럴로 파라미터를 세므로 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tterm: q.get('tterm') };
+  const at = (k, d) => { const v = parseFloat(P[k]); return Number.isFinite(v) ? v : d; };
+  const set = (el, delay, name = 'fadeUp', dur = '0.5s') => {
+    el.style.animationName = name;
+    el.style.animationDuration = dur;
+    el.style.animationDelay = `${delay}s`;
+  };
+  set(document.getElementById('c-weak'), at('t1', 8));
+  set(document.getElementById('c-strong'), at('t2', 20));
+  set(document.getElementById('term'), at('tterm', 32));
+  set(document.getElementById('out'), at('t3', 45));
+</script>

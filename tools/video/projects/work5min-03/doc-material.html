@@ -1,0 +1,144 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>재료 네 가지</title>
+<!-- 1장 도식 — 빈 상자 네 개(목적·읽는 사람·조건·분량)에 카드가 하나씩 꽂힌다.
+     기법: 상태 변화(빈 칸이 채워진다). 소리를 꺼도 "채워지는 것"이 보이는 것이 합격선.
+     params: t1(요청만 있는 상태) · t2~t5(네 재료 등장) · tterm(용어 주석) · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 8%; gap: 0; }
+
+  .ask {
+    font-size: 2.7vh;
+    font-weight: 700;
+    padding: 1.6vh 2.6vh;
+    border-radius: 1vh;
+    background: #171b26;
+    border: 0.18vh solid #2a3040;
+    color: #aab3c7;
+    margin-bottom: 3.4vh;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+  .ask b { color: #fff; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.8vh;
+    width: 100%;
+  }
+  .box {
+    padding: 2.4vh 1.8vh;
+    border-radius: 1.2vh;
+    border: 0.22vh dashed #333b50;
+    background: #10131c;
+    min-height: 17vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .label {
+    font-size: 2.1vh;
+    font-weight: 800;
+    color: #6d7791;
+    margin-bottom: 1.4vh;
+  }
+  .fill {
+    font-size: 2.3vh;
+    font-weight: 700;
+    line-height: 1.45;
+    color: #eef0f6;
+  }
+  /* 채워진 상자 — 테두리가 실선 브랜드색으로 바뀐다 */
+  .box.on {
+    border-style: solid;
+    border-color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+  }
+
+  /* 용어 주석 — 상단(하단은 자막 자리) */
+  .termnote {
+    position: absolute;
+    top: 4vh;
+    right: 5vh;
+    max-width: 40vh;
+    padding: 1.6vh 2vh;
+    border-radius: 1vh;
+    background: rgb(10 13 20 / 0.9);
+    border: 0.16vh solid color-mix(in srgb, var(--brand) 40%, transparent);
+    text-align: left;
+  }
+  .termnote .abbr { font-size: 2.3vh; font-weight: 800; color: var(--brand-soft); }
+  .termnote .full { font-size: 1.8vh; font-weight: 600; color: #97a0b6; margin-top: 0.3vh; }
+  .termnote .desc { font-size: 1.9vh; font-weight: 600; color: #d6dae6; margin-top: 0.8vh; line-height: 1.4; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="ask animated">"회식 공지 메일 써 줘" <b>— 이것만 주면?</b></div>
+
+  <div class="grid">
+    <div class="box animated" id="b1">
+      <div class="label">목적</div>
+      <div class="fill" id="f1">참석 인원 파악</div>
+    </div>
+    <div class="box animated" id="b2">
+      <div class="label">읽는 사람</div>
+      <div class="fill" id="f2">우리 팀 12명</div>
+    </div>
+    <div class="box animated" id="b3">
+      <div class="label">조건</div>
+      <div class="fill" id="f3">금 19시 · 회사 앞<br>수요일까지 회신</div>
+    </div>
+    <div class="box animated" id="b4">
+      <div class="label">분량</div>
+      <div class="fill" id="f4">5줄 이내</div>
+    </div>
+  </div>
+</div>
+
+<div class="termnote animated" id="term">
+  <div class="abbr">컨텍스트</div>
+  <div class="full">context</div>
+  <div class="desc">건네는 배경 재료 — 목적·독자·조건·분량</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), t4: q.get('t4'), t5: q.get('t5'), tterm: q.get('tterm') };
+  const at = (k, d) => { const v = parseFloat(P[k]); return Number.isFinite(v) ? v : d; };
+
+  // 네 상자는 처음엔 비어 있고(라벨만), 차례로 채워진다
+  [1, 2, 3, 4].forEach((i) => {
+    const f = document.getElementById(`f${i}`);
+    const b = document.getElementById(`b${i}`);
+    const d = at(`t${i + 1}`, 10 + i * 5);
+    f.style.opacity = 0;
+    f.style.animationName = 'fadeUp';
+    f.style.animationDuration = '0.45s';
+    f.style.animationDelay = `${d}s`;
+    f.style.animationFillMode = 'both';
+    f.style.animationPlayState = 'paused';
+    f.classList.add('animated');
+    // 테두리가 실선으로 바뀌는 것도 같은 시각에
+    b.style.animationName = 'boxOn';
+    b.style.animationDuration = '0.45s';
+    b.style.animationDelay = `${d}s`;
+  });
+  const st = document.createElement('style');
+  st.textContent = `@keyframes boxOn{
+    from{border-color:#333b50;background:#10131c;border-style:dashed}
+    to{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent);border-style:solid}}`;
+  document.head.appendChild(st);
+
+  const term = document.getElementById('term');
+  term.style.animationName = 'fadeUp';
+  term.style.animationDuration = '0.5s';
+  term.style.animationDelay = `${at('tterm', 50)}s`;
+</script>
