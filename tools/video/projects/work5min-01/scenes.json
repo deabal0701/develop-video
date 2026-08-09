@@ -1,5 +1,5 @@
 {
-  "_읽어보기": "직장인 5분 개념강좌 1강 — LLM이란 무엇인가(챗GPT의 심장). 컨셉은 '저장된 답은 없다'(.claude/debate-logs/work5min-01-concept.md) — 채팅 답변 타이핑이 문장 한가운데('내일 뵙')서 얼어붙고, 미리 써둔 답을 찾아오는 게 아니라 한 단어씩 만드는 중이라는 반전. 엔딩에서 시청자가 다음 단어를 스스로 예측하게 해 회수한다. 앱 화면·B롤 0개, 전용 도식 6장은 이 폴더. 구성표 plan.md · 수치 근거 facts.md(GPT-3 1,750억/3,000억, arXiv:2005.14165). voice·render 는 ../work5min/course.json 상속(강좌 고정 — 바꾸지 않는다).",
+  "_읽어보기": "직장인 5분 개념강좌 1강 — LLM이란 무엇인가(챗GPT의 심장). 컨셉은 '저장된 답은 없다'(.claude/debate-logs/work5min-01-concept.md) — 채팅 답변 타이핑이 문장 한가운데('내일 뵙')서 얼어붙고, 미리 써둔 답을 찾아오는 게 아니라 한 단어씩 만드는 중이라는 반전. 엔딩에서 시청자가 다음 단어를 스스로 예측하게 해 회수한다. 앱 화면 0개 · 인트로 B롤 1개(ai-create, 2초) + 같은 시각 프레임을 bg/ai-create.jpg 로 뽑아 타이틀 카드 배경으로 쓴다(videoStart 3s 와 일치). 전용 도식 6장은 이 폴더. 구성표 plan.md · 수치 근거 facts.md(GPT-3 1,750억/3,000억, arXiv:2005.14165). voice·render 는 ../work5min/course.json 상속(강좌 고정 — 바꾸지 않는다).",
   "id": "work5min-01",
   "baseUrl": "http://localhost:9999",
   "capture": {
@@ -35,27 +35,24 @@
           "id": "broll",
           "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
           "videoStart": 3,
-          "shade": 0.45,
-          "duration": 4.5,
-          "before": "end",
-          "caption": "LLM이란 무엇인가",
-          "badge": {
-            "text": "1강",
-            "at": 0.5
-          }
+          "shade": 0.35,
+          "duration": 2.0,
+          "before": "end"
         },
         {
           "id": "title",
           "file": "../work5min/course-intro.html",
-          "duration": 3.5,
+          "duration": 4.0,
           "before": "end",
           "narration": "1강, 챗지피티의 심장, 엘엘엠입니다.",
           "params": {
+            "src": "../work5min-01/bg/ai-create.jpg",
             "kicker": "직장인 5분 개념강좌",
             "num": "1강",
             "title": "LLM이란 무엇인가",
             "subtitle": "챗GPT의 심장",
-            "wipe": "off"
+            "wipe": "off",
+            "shade": "0.55"
           }
         },
         {

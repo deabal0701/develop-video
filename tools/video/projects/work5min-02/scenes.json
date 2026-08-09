@@ -1,5 +1,5 @@
 {
-  "_읽어보기": "직장인 5분 개념강좌 2강 — 프롬프트, 왜 질문이 절반인가. 컨셉은 '17.7 대 78.7'(.claude/debate-logs/work5min-02-concept.md) — 같은 모델·같은 문제인데 프롬프트 한 줄 차이로 정답률이 4.4배. 훅에서 그 한 줄까지 즉시 공개하고 미스터리를 '어떻게 4배인가'로 옮긴다. 엔딩에서 오른쪽 프롬프트 줄을 비워 시청자가 세 손잡이 중 무엇을 넣을지 고르게 회수. 앱 화면·B롤 0개, 전용 도식 6장은 이 폴더. 구성표 plan.md · 수치 근거 facts.md(Kojima et al. 2022 arXiv:2205.11916 + 저자 공개 코드 프롬프트 원문 + 파생 계산 4.45배). voice·render 는 ../work5min/course.json 상속(강좌 고정 — 바꾸지 않는다).",
+  "_읽어보기": "직장인 5분 개념강좌 2강 — 프롬프트, 왜 질문이 절반인가. 컨셉은 '17.7 대 78.7'(.claude/debate-logs/work5min-02-concept.md) — 같은 모델·같은 문제인데 프롬프트 한 줄 차이로 정답률이 4.4배. 훅에서 그 한 줄까지 즉시 공개하고 미스터리를 '어떻게 4배인가'로 옮긴다. 엔딩에서 오른쪽 프롬프트 줄을 비워 시청자가 세 손잡이 중 무엇을 넣을지 고르게 회수. 앱 화면 0개 · 인트로 B롤 1개(ai-typing, 2초) + 같은 시각 프레임을 bg/ai-typing.jpg 로 뽑아 타이틀 카드 배경으로 쓴다(videoStart 2s 와 일치). 밝은 손 클로즈업이라 카드 shade 는 0.68. 전용 도식 6장은 이 폴더. 구성표 plan.md · 수치 근거 facts.md(Kojima et al. 2022 arXiv:2205.11916 + 저자 공개 코드 프롬프트 원문 + 파생 계산 4.45배). voice·render 는 ../work5min/course.json 상속(강좌 고정 — 바꾸지 않는다).",
   "id": "work5min-02",
   "baseUrl": "http://localhost:9999",
   "capture": {
@@ -35,27 +35,24 @@
           "id": "broll",
           "video": "../../.claude/skills/develop-video/assets/broll/ai-typing.mp4",
           "videoStart": 2,
-          "shade": 0.45,
-          "duration": 4.5,
-          "before": "end",
-          "caption": "프롬프트, 왜 질문이 절반인가",
-          "badge": {
-            "text": "2강",
-            "at": 0.5
-          }
+          "shade": 0.35,
+          "duration": 2.0,
+          "before": "end"
         },
         {
           "id": "title",
           "file": "../work5min/course-intro.html",
-          "duration": 3.5,
+          "duration": 4.0,
           "before": "end",
           "narration": "2강, 프롬프트, 왜 질문이 절반인가.",
           "params": {
+            "src": "../work5min-02/bg/ai-typing.jpg",
             "kicker": "직장인 5분 개념강좌",
             "num": "2강",
             "title": "프롬프트, 왜 질문이 절반인가",
             "subtitle": "확률 지형을 바꾸는 손잡이",
-            "wipe": "off"
+            "wipe": "off",
+            "shade": "0.68"
           }
         },
         {

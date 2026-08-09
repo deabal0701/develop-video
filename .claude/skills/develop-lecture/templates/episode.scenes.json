@@ -1,18 +1,19 @@
 {
   "_읽어보기": "회차 골격 — B롤(실사 2초, 무내레이션) → 타이틀 카드(4초, **같은 소재의 정지 프레임 위에** 제목이 얹혀 이어진다) → 훅(본론의 문) → 시그니처 스팅어(3초 고정) → 약속(오늘 얻어갈 것 = 목차) → 챕터×N(카드+도식) → 정리 → 아웃트로(한 줄 각인 + 인사, 다음 강 예고 금지). **회차는 독립이다 — 앞 회차 참조 금지, 필요한 배경은 promise 에서 한 문장으로 다시 세운다.** 5분 개념강좌: 내레이션 약 1,850자, 완성본 4:40~5:20 (초안 직후 --only tts 로 실측). voice·render 는 course.json 을 그대로 복사한다. 대괄호를 전부 실제 값으로 채우고, 구성표(plan.md)를 먼저 만든 뒤 대본을 쓴다 — develop-video 5단계 규약 그대로.",
-
   "id": "[강좌id]-[NN]",
   "baseUrl": "http://localhost:9999",
-  "capture": { "width": 1920, "height": 1080 },
-
-  "voice": { "_": "[course.json 의 voice 블록을 통째로 복사]" },
-
+  "capture": {
+    "width": 1920,
+    "height": 1080
+  },
+  "voice": {
+    "_": "[course.json 의 voice 블록을 통째로 복사]"
+  },
   "render": {
     "fps": 30,
     "crf": 19,
     "preset": "medium",
     "_": "[course.json 의 render 블록(색·자막·워터마크·BGM)을 여기에 통째로 복사]",
-
     "motion": {
       "dir": "motion",
       "clips": [
@@ -31,9 +32,9 @@
           "duration": 4.0,
           "before": "end",
           "narration": "[한 문장 — 인사 없이 바로 주제 선언. 예: 'N강, 오늘은 ___를 봅니다.']",
-          "_": "앞 B롤과 **같은 소재의 정지 프레임** 위에 제목이 얹힌다 — 실사가 그대로 멈추며 제목이 올라오는 것처럼 이어져 컷이 갈리지 않는다. 프레임 뽑기: ffmpeg -y -ss <videoStart> -i <B롤>.mp4 -frames:v 1 -vf scale=1920:-1 bg/<파일>.jpg",
+          "_": "앞 B롤과 **같은 소재의 정지 프레임** 위에 제목이 얹힌다 — 실사가 그대로 멈추며 제목이 올라오는 것처럼 이어져 컷이 갈리지 않는다. 프레임 뽑기(videoStart 와 같은 시각): ffmpeg -y -ss <videoStart> -i <B롤>.mp4 -frames:v 1 -vf scale=1920:-1 bg/<파일>.jpg . **src 는 course-intro.html 기준 상대 경로다** — 카드가 projects/<강좌id>/ 에 있으므로 회차 폴더의 bg/ 를 가리키려면 ../<강좌id>-<NN>/bg/ 로 올라가야 한다. 'bg/…' 로 주면 오류 없이 배경만 조용히 빠진다(검은 화면). 빌드 뒤 타이틀 프레임을 눈으로 확인한다.",
           "params": {
-            "src": "bg/[B롤과 같은 파일명].jpg",
+            "src": "../[강좌id]-[NN]/bg/[B롤과 같은 파일명].jpg",
             "kicker": "[강좌명]",
             "num": "[N]강",
             "title": "[회차 제목]",
@@ -48,7 +49,9 @@
           "duration": 4.0,
           "before": "end",
           "narration": "[반전을 재해석하는 첫 문장 — 정답 라벨을 반전 전에 말하지 않는다]",
-          "params": { "wipe": "off" }
+          "params": {
+            "wipe": "off"
+          }
         },
         {
           "id": "stinger",
@@ -68,7 +71,9 @@
           "duration": 4.0,
           "before": "end",
           "narration": "[훅이 연 궁금증을 약속으로 받는다 — '오늘 ___, ___, ___ 세 가지를 가져갑니다.']",
-          "params": { "wipe": "off" }
+          "params": {
+            "wipe": "off"
+          }
         },
         {
           "id": "ch1",
@@ -76,7 +81,12 @@
           "duration": 2.2,
           "before": "end",
           "narration": "[챕터 진입 한 문장]",
-          "params": { "num": "1", "title": "[챕터 제목]", "progress": "[진행률]", "wipe": "off" }
+          "params": {
+            "num": "1",
+            "title": "[챕터 제목]",
+            "progress": "[진행률]",
+            "wipe": "off"
+          }
         },
         {
           "id": "s1",
@@ -84,7 +94,9 @@
           "duration": 4.5,
           "before": "end",
           "narration": "[본문]",
-          "params": { "wipe": "off" }
+          "params": {
+            "wipe": "off"
+          }
         },
         {
           "id": "recap",
@@ -92,7 +104,9 @@
           "duration": 5.0,
           "before": "end",
           "narration": "[정리]",
-          "params": { "wipe": "off" }
+          "params": {
+            "wipe": "off"
+          }
         },
         {
           "id": "outro",
@@ -100,15 +114,21 @@
           "duration": 5.0,
           "before": "end",
           "narration": "[회차의 한 줄 각인 + 인사 — 다음 강 예고는 넣지 않는다(수시로 바뀐다). 시리즈 연결은 재생목록·종료화면·설명란이 맡는다]",
-          "params": { "title": "[한 줄 각인]", "subtitle": "[강좌명] · [N]강", "wipe": "off" }
+          "params": {
+            "title": "[한 줄 각인]",
+            "subtitle": "[강좌명] · [N]강",
+            "wipe": "off"
+          }
         }
       ]
     }
   },
-
   "scenes": [],
-
   "variants": [
-    { "id": "[강좌id]-[NN]-16x9", "width": 1920, "height": 1080 }
+    {
+      "id": "[강좌id]-[NN]-16x9",
+      "width": 1920,
+      "height": 1080
+    }
   ]
 }

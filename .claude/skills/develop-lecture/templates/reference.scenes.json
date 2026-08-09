@@ -46,7 +46,7 @@
           "before": "end",
           "narration": "1강, 챗지피티의 심장, 엘엘엠입니다.",
           "params": {
-            "src": "bg/ai-create.jpg",
+            "src": "../[표본 id]/bg/ai-create.jpg",
             "kicker": "직장인 5분 개념강좌",
             "num": "1강",
             "title": "LLM이란 무엇인가",
@@ -54,7 +54,7 @@
             "shade": "0.55",
             "wipe": "off"
           },
-          "_": "앞 B롤과 같은 시각의 프레임을 src 로 받는다 — videoStart 와 어긋나면 배경이 튄다"
+          "_": "앞 B롤과 같은 시각의 프레임을 src 로 받는다 — videoStart 와 어긋나면 배경이 튄다. src 는 course-intro.html(projects/<강좌id>/) 기준 상대 경로라 이 대본이 놓인 폴더의 bg/ 를 가리키려면 ../<이 폴더>/bg/ 로 올라가야 한다."
         },
         {
           "id": "stinger",
