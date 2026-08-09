@@ -1,0 +1,43 @@
+{
+  "_읽어보기": "강좌 정체성 — 한 번 채우면 시리즈 내내 고정된다. 회차 scenes.json 의 voice·render 는 여기 값을 그대로 복사한다(SKILL.md 의 일관성 검사가 어긋남을 잡는다). 이 파일은 참조용이라 빌드에 직접 쓰이지 않는다 — 사람이 읽고 복사하는 원본이다.",
+
+  "course": "work5min",
+  "title": "직장인 5분 개념강좌",
+  "audience": "주제어를 들어는 봤지만 설명은 못 하는 직장인(비개발 직군 포함). 과녁은 '회의·미팅에서 흐름을 놓치지 않고 한마디 보탤 수 있는 수준' — 그 이상(내부 구조·수식·논문 계보)은 이 강좌의 몫이 아니다. 용어는 정확하게(회차당 3~4개, 회의에서 실제로 오가는 말만), 설명은 회의 언어로. SKILL.md '깊이' 절 참조.",
+  "_회차독립": "모든 회차는 그 편 하나로 완결된다 — 어느 편을 먼저 봐도 되고, '1강에서 배웠듯이' 같은 앞 회차 참조는 쓰지 않는다. 필요한 배경은 promise 구간에서 한 문장으로 다시 세운다. 회차 번호는 정렬용이지 수강 순서가 아니다(SKILL.md '회차는 독립이다' 절).",
+  "tagline": "개념 하나를, 5분에",
+  "_인트로메모": "시그니처 인트로는 course-stinger.html — 3초 고정, 내레이션 없음, 회차마다 동일. 훅 뒤·타이틀 카드 앞에 놓는다. brandline=강좌명, tagline=위 값.",
+  "episodeLength": "5분 (약 1,850자 — 초당 6.4자)",
+
+  "episodes": [
+    { "n": 1, "id": "work5min-01", "title": "LLM이란 무엇인가 — 챗GPT의 심장" },
+    { "n": 2, "id": "work5min-02", "title": "프롬프트, 왜 질문이 절반인가" },
+    { "n": 3, "id": "work5min-03", "title": "챗GPT로 문서 작성 잘하는 법" },
+    { "n": 4, "id": "work5min-04", "title": "할루시네이션은 왜 생길까? — AI 답변 검증하는 법" },
+    { "n": 5, "id": "work5min-05", "title": "RAG란 무엇인가 — AI에게 사내 문서를 읽히는 법" },
+    { "n": 6, "id": "work5min-06", "title": "AI 에이전트란 무엇인가?" },
+    { "n": 7, "id": "work5min-07", "title": "바이브 코딩이란 — 말로 만드는 소프트웨어" }
+  ],
+  "_커리큘럼메모": "회차 주제의 원천은 tools/video/lecture-plan.md 의 '우선 제작 30강 로드맵' — ⬜ 중 선수지식 순서대로 집는다. 위 episodes 는 로드맵 1~7번(AI 카테고리 구간)을 옮긴 것이고, 8번부터는 경제 카테고리로 이어진다.",
+
+  "_목소리메모": "선희 +8% — 같은 문단 A/B 실측으로 페이스를 맞춘 값(≈6.4자/초). 시리즈 도중에 바꾸지 않는다.",
+  "voice": {
+    "provider": "edge",
+    "lang": "ko",
+    "gender": "female",
+    "rate": "+8%"
+  },
+
+  "render": {
+    "background": "#070b14",
+    "brand": "#3E63DD",
+    "brandText": "#93A4F5",
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.065,
+    "watermark": { "text": "직장인 5분 개념강좌" },
+    "watermarkAlign": 9,
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.08,
+    "bgmDucking": true
+  }
+}

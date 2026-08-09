@@ -286,6 +286,11 @@ export async function composeVariant({ variant, take, scenes, endCard, config, d
     id: clip.id,
     duration: clip.duration,
     narration: clip.narration ?? '', // 모션 구간의 말도 자막으로 나간다(구간별 끄기 없음)
+    // 헤드라인·뱃지도 씬과 똑같이 받는다 — 스톡 영상(B롤) 위에 글자를 얹을 때 쓴다.
+    // 판이 없어 밝거나 무늬가 복잡한 소재에서는 읽히지 않으니, 그럴 때는 프레임을 뽑아
+    // 카드 배경으로 까는 쪽을 쓴다(develop-lecture 의 오프닝이 그 방식이다).
+    caption: clip.caption,
+    badge: clip.badge,
     audioFile: clip.audioFile,
     // 소스 두 갈래 — video는 내려받은 스톡 클립(ffmpeg 정규화), file은 HTML 템플릿(프레임 굽기).
     // 어느 쪽이든 "그 구간 길이의 mp4"가 나오므로 뒤 단계는 차이를 모른다.
