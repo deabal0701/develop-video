@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>정리</title>
+<!-- 정리 도식 — 배운 것이 내레이션 순서로 쌓인다.
+     스킬 규약: recap 은 용어로 잠근다 — 일상어 풀이와 정식 용어를 병기한다.
+     개발자 대상이라 용어 칸에 "구현할 때 무엇을 뜻하는가"를 넣는다.
+     params: t1·t2·t3 · tn · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 11%; gap: 0; }
+  .row {
+    display: flex; align-items: center; gap: 2.4vh; width: 100%;
+    padding: 2vh 2.6vh; margin-bottom: 1.6vh;
+    border-radius: 1.2vh;
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+    border-left: 0.45vh solid var(--brand);
+    text-align: left;
+  }
+  .n {
+    flex: none; width: 4.6vh; height: 4.6vh; border-radius: 999px;
+    background: var(--brand); color: #04100e;
+    font-size: 2.2vh; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .body { flex: 1; }
+  .plain { font-size: 2.75vh; font-weight: 700; line-height: 1.3; }
+  .term {
+    display: inline-block; margin-top: 0.7vh;
+    padding: 0.4vh 1.2vh; border-radius: 0.6vh;
+    background: color-mix(in srgb, var(--brand) 26%, transparent);
+    font-size: 1.95vh; font-weight: 700; color: var(--brand-soft);
+  }
+  .close {
+    margin-top: 2.6vh; font-size: 3.3vh; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .close span { color: var(--brand-soft); }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="row animated" id="r1">
+    <span class="n">1</span>
+    <span class="body">
+      <span class="plain">총지급액 − 비과세 = 계산의 기준</span>
+      <span class="term">과세대상 급여 — 총액에 곱하면 틀린다</span>
+    </span>
+  </div>
+  <div class="row animated" id="r2">
+    <span class="n">2</span>
+    <span class="body">
+      <span class="plain">장기요양은 급여가 아니라 건강보험료에 곱한다</span>
+      <span class="term">요율은 상수 금지 — 적용일 이력 테이블</span>
+    </span>
+  </div>
+  <div class="row animated" id="r3">
+    <span class="n">3</span>
+    <span class="body">
+      <span class="plain">매달의 소득세는 임시값이다</span>
+      <span class="term">원천징수(간이세액표 조회) → 연말정산</span>
+    </span>
+  </div>
+
+  <div class="close animated" id="close">급여는 <span>빼기의 순서</span>다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tn: q.get('tn') };
+  const at = (k, d) => { const v = parseFloat(P[k]); return Number.isFinite(v) ? v : d; };
+  [['r1', at('t1', 2)], ['r2', at('t2', 8)], ['r3', at('t3', 13)], ['close', at('tn', 17)]]
+    .forEach(([id, d]) => {
+      const el = document.getElementById(id);
+      el.style.animationName = 'fadeUp';
+      el.style.animationDuration = '0.5s';
+      el.style.animationDelay = `${d}s`;
+    });
+</script>

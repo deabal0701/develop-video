@@ -1,0 +1,142 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>같은 연봉, 다른 실수령액</title>
+<!-- 훅·회수 겸용 — 연봉이 같은 두 사람의 실수령액이 어긋난다.
+     phase 로 세 번 쓴다:
+       gap    훅 — 두 금액만. 무내레이션, 시청자가 "왜 다르지" 를 먼저 느낀다
+       reveal 훅 해설 — 차액에 물음표가 붙는다
+       solved 회수 — 비과세 항목이 드러나며 원인이 밝혀진다
+     기법: 상태 변화(하나에 기법 하나 — 스킬 규약).
+     params: phase · t1 · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 10%; gap: 0; }
+
+  .same {
+    font-size: 2.5vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    padding: 1.2vh 2.4vh;
+    border-radius: 3vh;
+    border: 0.2vh solid color-mix(in srgb, var(--brand) 50%, transparent);
+    margin-bottom: 3.6vh;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+
+  .pair { display: flex; gap: 3.4vh; width: 100%; }
+  .card {
+    flex: 1;
+    padding: 2.8vh 2.6vh;
+    border-radius: 1.4vh;
+    background: #0d1917;
+    border: 0.18vh solid #1e3330;
+    text-align: left;
+  }
+  .who { font-size: 2.4vh; font-weight: 800; color: #d6e4e1; margin-bottom: 0.6vh; }
+  .role { font-size: 1.9vh; font-weight: 600; color: #6f8a85; margin-bottom: 2.2vh; }
+
+  .line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 2.15vh;
+    font-weight: 700;
+    color: #93a8a4;
+    padding: 0.7vh 0;
+  }
+  .line b { color: #d6e4e1; font-weight: 700; }
+  /* 비과세 줄 — solved 에서만 강조된다 */
+  .taxfree { color: #6f8a85; }
+  .taxfree.on { color: var(--brand-soft); }
+  .taxfree.on b { color: var(--brand-soft); }
+
+  .net {
+    margin-top: 2vh;
+    padding-top: 1.6vh;
+    border-top: 0.16vh solid #1e3330;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .net .lbl { font-size: 2vh; font-weight: 700; color: #6f8a85; }
+  .net .amt { font-size: 3.6vh; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+
+  .diff {
+    margin-top: 3vh;
+    font-size: 2.6vh;
+    font-weight: 800;
+    color: #ffb4b4;
+    padding: 1.2vh 2.6vh;
+    border-radius: 1vh;
+    background: rgb(120 40 40 / 0.35);
+  }
+  .diff.ok { color: var(--brand-soft); background: color-mix(in srgb, var(--brand) 22%, transparent); }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="same animated">두 사람 모두 — 연봉 5,000만 원</div>
+
+  <div class="pair">
+    <div class="card">
+      <div class="who">이서연</div>
+      <div class="role">입사 3년 차</div>
+      <div class="line"><span>월 총지급액</span><b>4,166,660</b></div>
+      <div class="line taxfree" id="tf1"><span>비과세 (식대·자가운전)</span><b>−400,000</b></div>
+      <div class="line"><span>공제 합계</span><b>−612,300</b></div>
+      <div class="net"><span class="lbl">실지급액</span><span class="amt">3,554,360</span></div>
+    </div>
+
+    <div class="card">
+      <div class="who">박도현</div>
+      <div class="role">입사 3년 차</div>
+      <div class="line"><span>월 총지급액</span><b>4,166,660</b></div>
+      <div class="line taxfree" id="tf2"><span>비과세 없음</span><b>0</b></div>
+      <div class="line"><span>공제 합계</span><b>−681,900</b></div>
+      <div class="net"><span class="lbl">실지급액</span><span class="amt">3,484,760</span></div>
+    </div>
+  </div>
+
+  <div class="diff animated" id="diff">차이 69,600원 — 왜?</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { phase: q.get('phase'), t1: q.get('t1') };
+  const phase = P.phase || 'gap';
+  const t1 = parseFloat(P.t1);
+  const diff = document.getElementById('diff');
+
+  if (phase === 'gap') {
+    diff.style.display = 'none';
+  } else if (phase === 'reveal') {
+    diff.style.animationName = 'fadeUp';
+    diff.style.animationDuration = '0.5s';
+    diff.style.animationDelay = `${Number.isFinite(t1) ? t1 : 3}s`;
+  } else {
+    // solved — 비과세 줄이 켜지고 차액 라벨이 답으로 바뀐다
+    diff.textContent = '차이 69,600원 — 비과세가 갈랐다';
+    diff.classList.add('ok');
+    diff.style.animationName = 'fadeUp';
+    diff.style.animationDuration = '0.5s';
+    diff.style.animationDelay = `${Number.isFinite(t1) ? t1 : 3}s`;
+    const st = document.createElement('style');
+    st.textContent = '@keyframes lightUp{from{color:#6f8a85}to{color:var(--brand-soft)}}';
+    document.head.appendChild(st);
+    ['tf1', 'tf2'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.classList.add('on', 'animated');
+      el.style.animationName = 'lightUp';
+      el.style.animationDuration = '0.4s';
+      el.style.animationDelay = `${(Number.isFinite(t1) ? t1 : 3) - 2 + i * 0.4}s`;
+      el.style.animationFillMode = 'both';
+      el.style.animationPlayState = 'paused';
+    });
+  }
+</script>

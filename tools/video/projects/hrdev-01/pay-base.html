@@ -1,0 +1,108 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>무엇에 곱하는가</title>
+<!-- 2장 도식 — 대부분은 과세대상 급여에 곱하지만 장기요양은 건강보험료에 곱한다.
+     기법: 데이터 흐름(화살표가 한 칸 더 건너간다 — 이동이 보인다).
+     틀린 경로는 붉게 X 로 남겨 대비시킨다.
+     params: t1(기준 노드) · t2(일반 공제) · t3(장기요양 2단계) · t4(틀린 경로) · t5(요율 이력) · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 7%; gap: 0; }
+
+  .flow { position: relative; width: 100%; margin-bottom: 2.6vh; }
+
+  .node {
+    display: inline-flex; flex-direction: column; align-items: center;
+    padding: 1.6vh 2vh; border-radius: 1vh;
+    background: #0d1917; border: 0.2vh solid #24403b;
+    font-size: 2.1vh; font-weight: 700; color: #cfe2de;
+    min-width: 18vh;
+  }
+  .node .sub { font-size: 1.75vh; font-weight: 600; color: #7d9a95; }
+  .node.base { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 16%, transparent); }
+  .node.hi { border-color: var(--brand); color: #fff; }
+
+  .rowline { display: flex; align-items: center; justify-content: center; gap: 1.6vh; margin-bottom: 2vh; }
+  .arrow {
+    width: 6vh; height: 0.3vh; background: var(--brand-soft);
+    transform-origin: left center; position: relative;
+  }
+  .arrow::after {
+    content: ''; position: absolute; right: -0.2vh; top: -0.55vh;
+    border-left: 1.1vh solid var(--brand-soft);
+    border-top: 0.7vh solid transparent; border-bottom: 0.7vh solid transparent;
+  }
+  @keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .rate { font-size: 2vh; font-weight: 800; color: var(--brand-soft); }
+
+  /* 틀린 경로 */
+  .wrong {
+    width: 100%; margin-top: 0.6vh; padding: 1.6vh 2.2vh; border-radius: 1vh;
+    background: rgb(120 40 40 / 0.25); border-left: 0.45vh solid #d97b7b;
+    text-align: left; font-size: 2.2vh; font-weight: 700; color: #ffc0c0;
+  }
+  .wrong b { color: #fff; }
+
+  .hint {
+    width: 100%; margin-top: 2vh; padding: 1.8vh 2.2vh; border-radius: 1vh;
+    background: color-mix(in srgb, var(--brand) 13%, transparent);
+    border-left: 0.45vh solid var(--brand);
+    text-align: left; font-size: 2.2vh; font-weight: 700; color: #dcece9; line-height: 1.5;
+  }
+  .hint em { font-style: normal; color: var(--brand-soft); }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <!-- 일반 공제 — 과세대상 급여에 바로 곱한다 -->
+  <div class="rowline animated" id="a1">
+    <span class="node base">과세대상 급여<span class="sub">계산의 기준</span></span>
+    <span class="arrow animated" id="ar1"></span>
+    <span class="node" id="n-normal">국민연금 · 건강보험 · 고용보험<span class="sub">요율을 바로 곱한다</span></span>
+  </div>
+
+  <!-- 장기요양 — 건강보험료에 곱한다(한 칸 더) -->
+  <div class="rowline animated" id="a2">
+    <span class="node">건강보험료<span class="sub">이미 계산된 금액</span></span>
+    <span class="arrow animated" id="ar2"></span>
+    <span class="node hi">장기요양보험료<span class="sub">건강보험료 × 13.14%</span></span>
+  </div>
+
+  <div class="wrong animated" id="a3">
+    ✕ 흔한 버그 — <b>급여 × 13.14%</b> 로 곱하면 금액이 열 배 넘게 틀어진다
+  </div>
+
+  <div class="hint animated" id="a4">
+    <em>요율은 해마다 바뀐다</em> — 상수로 박지 말고 <em>적용 시작일을 가진 이력 테이블</em>에 두고
+    급여 월로 조회한다. 소급 정정 요청이 반드시 들어온다.
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), t4: q.get('t4'), t5: q.get('t5') };
+  const at = (k, d) => { const v = parseFloat(P[k]); return Number.isFinite(v) ? v : d; };
+
+  const t1 = at('t1', 5), t2 = at('t2', 15), t3 = at('t3', 25), t4 = at('t4', 36), t5 = at('t5', 52);
+
+  [['a1', t1], ['a2', t3], ['a3', t4], ['a4', t5]].forEach(([id, d]) => {
+    const el = document.getElementById(id);
+    el.style.animationName = 'fadeUp';
+    el.style.animationDuration = '0.5s';
+    el.style.animationDelay = `${d}s`;
+  });
+  // 화살표는 자란다 — 이동이 보이는 것이 이 도식의 핵심
+  [['ar1', t2], ['ar2', t3 + 1.2]].forEach(([id, d]) => {
+    const el = document.getElementById(id);
+    el.style.animationName = 'growX';
+    el.style.animationDuration = '0.55s';
+    el.style.animationDelay = `${d}s`;
+    el.style.animationTimingFunction = 'cubic-bezier(0.2,0.7,0.2,1)';
+  });
+</script>
