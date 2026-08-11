@@ -40,7 +40,7 @@ const probeDuration = (file) => {
 /**
  * @returns {{level:'error'|'warn', clip:string, msg:string}[]}
  */
-export function preflight({ config, motionDir, videoRoot, audioDurations = {} }) {
+export function preflight({ config, motionDir, videoRoot, audioDurations = {}, videoId = null }) {
   const found = [];
   const clips = config.render?.motion?.clips ?? [];
   const say = (level, clip, msg) => found.push({ level, clip, msg });
@@ -113,6 +113,25 @@ export function preflight({ config, motionDir, videoRoot, audioDurations = {} })
     for (const clip of clips) {
       if (clip.file && (clip.params?.wipe ?? 'on') !== 'off') {
         say('warn', clip.id, '모션 전용 영상인데 wipe 가 켜져 있다 — 흰 점멸이 남는다. params 에 "wipe":"off"');
+      }
+    }
+  }
+
+  // ── 7. presenter·voice.dir 이 영상 id 로 안 갈렸다 ────────────────────────
+  // out/ 은 영상별로 자동으로 갈리지만 presenter/ 는 **입력**이라 그렇지 않다. dir 을 비워 두면
+  // 이제 presenter/<영상 id>/ 로 알아서 갈리는데(presenter.js·tts.js), 손으로 지정하면 다시
+  // 겹칠 수 있다. 겹치면 씬 id 가 같은 다른 영상의 촬영분·녹음을 **말없이 집어 간다** —
+  // 합성은 그대로 성공하므로 재생해 보기 전에는 모른다.
+  if (videoId) {
+    const manual = [
+      ['presenter.dir', config.presenter?.enabled ? config.presenter?.dir : null],
+      ['voice.dir', config.voice?.provider === 'file' ? config.voice?.dir : null],
+    ];
+    for (const [name, dir] of manual) {
+      if (dir && !dir.split(/[\\/]+/).includes(videoId)) {
+        say('warn', '(presenter)',
+          `${name} 이 "${dir}" — 영상 id(${videoId})로 안 갈렸다. 씬 id 가 같은 다른 영상의 ` +
+          `파일을 집어 갈 수 있다. dir 을 아예 빼면 presenter/${videoId}/ 로 자동으로 갈린다`);
       }
     }
   }

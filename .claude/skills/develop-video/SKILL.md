@@ -651,16 +651,19 @@ node tools/video/check-tts.js --sample-voices 5 --sample-text "오늘은 로그�
 양쪽으로** 쓰인다.
 
 ```json
-"voice":     { "provider": "file", "dir": "presenter/<영상 id>", "fallback": "edge" },
-"presenter": { "enabled": true, "dir": "presenter/<영상 id>",
+"voice":     { "provider": "file", "fallback": "edge" },
+"presenter": { "enabled": true,
                "size": 0.22, "align": "bottom-right",
                "zoom": 0.6, "focusX": 0.4, "focusY": 0.05 }
 ```
 
-**`dir`을 영상 id로 갈라 두는 것이 중요하다.** 여기는 산출물(`out/<영상 id>/`)과 달리 **영상별로
-자동으로 나뉘지 않는 유일한 경로**다. 기본값(`presenter`)을 그대로 쓰면 저장소의 모든 영상이 한
-폴더를 씬 id만으로 뒤지므로, 두 영상에 `intro` 씬이 있으면 **뒤에 만든 영상이 앞 영상의 녹음을
-말없이 집어 간다**(합성은 그대로 성공한다 — 재생해 보기 전에는 모른다).
+**`dir`은 쓰지 않는다 — 영상 id로 자동으로 갈린다.** 비워 두면 `presenter/<영상 id>/`를 본다.
+예전에는 기본값이 `presenter/` 통짜라 저장소의 모든 영상이 한 폴더를 씬 id만으로 뒤졌고, 두
+영상에 `intro` 씬이 있으면 **뒤에 만든 영상이 앞 영상의 촬영분을 말없이 집어 갔다**(합성은 그대로
+성공한다 — 재생해 보기 전에는 모른다). 지금은 `out/<영상 id>/`처럼 입력도 자동으로 갈린다.
+
+굳이 `dir`을 지정하면 그 값이 그대로 쓰이는데, 영상 id가 경로에 없으면 0단계 사전 점검이
+경고한다 — 여러 영상이 한 폴더를 공유하는 상태를 굽기 전에 알려 준다.
 
 `zoom`·`focus*`는 **거의 항상 조정이 필요하다** — 얼굴은 보통 화면 위쪽에 있어서 그냥 가운데를
 자르면 원 안이 책상·가슴으로 찬다. 말하지 않는 컷은 사진(png/jpg)도 되며 느린 줌이 걸린다.

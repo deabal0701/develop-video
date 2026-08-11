@@ -445,9 +445,11 @@ export async function synthesizeScenes(scenes, voiceConfig, dirs, { force = fals
 
   // file 제공자: 직접 녹음/촬영한 파일을 그대로 쓴다. 없는 씬은 fallback으로 합성해
   // 일부만 먼저 찍어 두고 나머지는 TTS로 메우는 식의 제작이 가능하다.
+  // dir 을 안 주면 영상 id 로 갈린 폴더를 쓴다 — presenter/ 를 통째로 쓰면 씬 id 가 같은
+  // 다른 영상의 녹음을 집어 간다(presenter.js 의 같은 주석 참조).
   const voiceDir = voiceConfig.dir
     ? path.resolve(AD_DIR, voiceConfig.dir)
-    : path.join(AD_DIR, 'presenter');
+    : path.join(AD_DIR, 'presenter', dirs.id);
 
   const results = [];
   for (const scene of scenes) {

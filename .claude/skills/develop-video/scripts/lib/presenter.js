@@ -72,7 +72,10 @@ function alignPosition(align, { width, height, size, marginX, marginY }) {
  * @param tail 엔드카드 등 인물이 나오지 않는 꼬리 길이(초)
  */
 export async function buildPresenterTrack({ segments, tail, presenter, variant, fps, dirs, id }) {
-  const dir = path.resolve(AD_DIR, presenter.dir ?? 'presenter');
+  // 기본값을 영상 id 로 갈라 둔다. presenter/ 를 통째로 쓰면 두 영상에 같은 씬 id(intro 등)가
+  // 있을 때 **뒤 영상이 앞 영상의 촬영분을 말없이 집어 간다** — 합성은 그대로 성공하므로
+  // 재생해 보기 전에는 모른다. out/ 과 달리 여기는 자동으로 안 갈리던 유일한 경로였다.
+  const dir = path.resolve(AD_DIR, presenter.dir ?? path.join('presenter', dirs.id));
   const only = presenter.scenes ? new Set(presenter.scenes) : null;
 
   // 프레이밍은 씬마다 다르다 — 테이크·소재가 바뀌면 얼굴 위치가 달라지므로 씬별로 덮어쓴다.

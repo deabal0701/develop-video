@@ -101,6 +101,7 @@ if (!args['skip-preflight']) {
     motionDir: path.resolve(AD_DIR, config.render?.motion?.dir ?? 'motion'),
     videoRoot: AD_DIR,
     audioDurations,
+    videoId: dirs.id,
   });
   if (reportPreflight(found)) {
     process.stdout.write('\n대본을 고친 뒤 다시 실행하세요 (무시하려면 --skip-preflight).\n');
