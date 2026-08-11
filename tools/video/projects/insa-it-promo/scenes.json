@@ -1,0 +1,515 @@
+{
+  "_읽어보기": "insa-IT(인사잇) 5분 홍보영상. 실화면 녹화 + 챕터 모션. 톤=유쾌한 해설. 수치 출처는 facts.md.",
+  "id": "insa-it-promo",
+  "baseUrl": "http://161.33.226.214:38080",
+  "capture": {
+    "width": 1920,
+    "height": 1080,
+    "storageState": ""
+  },
+  "voice": {
+    "provider": "edge",
+    "lang": "ko",
+    "gender": "female",
+    "rate": "+6%"
+  },
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#0B1020",
+    "brand": "#0D9BDB",
+    "brandText": "#7FD3F5",
+    "subtitleScale": 0.045,
+    "subtitleMargin": 0.07,
+    "captionScale": 0.072,
+    "captionMargin": 0.05,
+    "badgeScale": 0.034,
+    "subtitles": false,
+    "watermark": {
+      "text": "insa-IT"
+    },
+    "watermarkAlign": 9,
+    "watermarkColour": "#0D9BDB",
+    "watermarkEdge": "#FFFFFF",
+    "watermarkScale": 0.024,
+    "watermarkShadow": 0,
+    "watermarkOutline": 0.0028,
+    "watermarkMargin": 0.028,
+    "watermarkMarginH": 0.012,
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "hook1",
+          "file": "chapter.html",
+          "duration": 2.6,
+          "before": "s1",
+          "narration": "이 인사 시스템, 몇 년이나 됐을까요? 정답은 13년입니다.",
+          "params": {
+            "num": "13",
+            "title": "13년",
+            "subtitle": "그동안 회사를 여기까지 끌고 온 시스템",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "hook2",
+          "file": "chapter.html",
+          "duration": 3.0,
+          "before": "s1",
+          "narration": "미워할 수가 없죠. 그런데 이 13년이, 이제는 발목을 잡기 시작했습니다.",
+          "params": {
+            "num": "13",
+            "title": "13년",
+            "strike": "1",
+            "subtitle": "미워할 수는 없지만, 이제는 발목을 잡는",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "stat-jsp",
+          "file": "stat.html",
+          "duration": 3.4,
+          "before": "s1",
+          "narration": "화면이 삼천육백열네 개. 줄 수로는 백오십육만 줄입니다. 네, 세어 봤습니다.",
+          "params": {
+            "value": "3,614",
+            "unit": "개",
+            "title": "JSP 화면 · 약 156만 라인",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "stat-endpoint",
+          "file": "stat.html",
+          "duration": 3.6,
+          "before": "s1",
+          "narration": "그런데 이 많은 화면이 드나드는 문은, 딱 한 개였습니다. 그 문 뒤에 서비스 정의 육천이백여섯 건이 줄을 서 있었고요.",
+          "params": {
+            "value": "1",
+            "unit": "개",
+            "title": "HTTP 엔드포인트 — 그 뒤에 서비스 6,206건",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "stat-table",
+          "file": "stat.html",
+          "duration": 3.2,
+          "before": "s1",
+          "narration": "테이블은 천육백스물아홉 개인데, 그중 육백여덟 개는 텅 비어 있었습니다.",
+          "params": {
+            "value": "608",
+            "unit": "개",
+            "title": "1,629개 테이블 중, 비어 있던 것",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "intro",
+          "file": "intro.html",
+          "duration": 3.2,
+          "before": "s1",
+          "narration": "그래서 옮기지 않고, 새로 지었습니다. 인사잇입니다.",
+          "params": {
+            "title": "insa-IT",
+            "subtitle": "HR을 가장 똑똑하게 — 인사이트를 주는 업무공간",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5"
+          }
+        },
+        {
+          "id": "ch1",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "s2",
+          "narration": "먼저, 매일 아침 열게 되는 화면부터 보시죠.",
+          "params": {
+            "num": "1",
+            "title": "매일 여는 화면",
+            "subtitle": "홈 · 조직도 · 구성원",
+            "progress": "20",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5"
+          }
+        },
+        {
+          "id": "ch2",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "s5",
+          "narration": "두 번째, 인사팀이 실제로 일하는 화면입니다.",
+          "params": {
+            "num": "2",
+            "title": "인사팀이 일하는 화면",
+            "subtitle": "인사정보 · 발령 · 근태",
+            "progress": "45",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5"
+          }
+        },
+        {
+          "id": "ch3",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "s8",
+          "narration": "세 번째, 휴가와 급여. 직원들이 제일 예민하게 보는 두 가지죠.",
+          "params": {
+            "num": "3",
+            "title": "휴가, 그리고 급여",
+            "subtitle": "가장 예민한 두 가지",
+            "progress": "68",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5"
+          }
+        },
+        {
+          "id": "ch4",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "s10",
+          "narration": "마지막, 회사에 맞게 바꿔 쓰는 부분입니다. 설정과 멀티테넌시.",
+          "params": {
+            "num": "4",
+            "title": "회사에 맞게 바꿔 쓰기",
+            "subtitle": "설정 · 근무기준 · 멀티테넌시",
+            "progress": "88",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5"
+          }
+        },
+        {
+          "id": "stat-goal",
+          "file": "stat.html",
+          "duration": 3.6,
+          "before": "s12",
+          "narration": "그래서 목표는 이렇습니다. 새 고객사를 여는 데 4주가 걸리던 것을, 사흘로. 이건 실적이 아니라 목표치입니다.",
+          "params": {
+            "value": "3",
+            "unit": "일",
+            "title": "온보딩 목표 — 4주에서 3일로 (목표치)",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 4.2,
+          "before": "end",
+          "narration": "13년을 버텨 준 시스템 위에, 다음 13년을 올립니다. 인사잇이었습니다.",
+          "params": {
+            "title": "insa-IT",
+            "subtitle": "HR을 가장 똑똑하게, 인사이트를 주는 업무공간",
+            "cta": "지금 데모에서 직접 눌러 보세요",
+            "url": "insa-IT · 화이트 정보통신",
+            "brand": "#0D9BDB",
+            "brandSoft": "#7FD3F5",
+            "wipe": "off"
+          }
+        }
+      ]
+    },
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.11,
+    "bgmDucking": true,
+    "syncOffset": 0
+  },
+  "variants": [
+    {
+      "id": "promo-5m-16x9",
+      "label": "홍보 5분 (16:9)",
+      "width": 1920,
+      "height": 1080,
+      "captions": false
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "narration": "시작은 로그인입니다. 아이디와 비밀번호. 소셜 로그인도 붙어 있고요. 여기까지는 평범하죠.",
+      "hold": 0.8,
+      "actions": [
+        {
+          "goto": "/login"
+        },
+        {
+          "wait": 1.6
+        },
+        {
+          "type": "input[placeholder=\"아이디를 입력하세요.\"]",
+          "text": "hradmin",
+          "delay": 90,
+          "optional": true
+        },
+        {
+          "wait": 0.4
+        },
+        {
+          "type": "input[type=password]",
+          "text": "hradmin",
+          "delay": 90,
+          "optional": true
+        },
+        {
+          "wait": 0.6
+        },
+        {
+          "click": "button:has-text(\"로그인\")",
+          "optional": true
+        },
+        {
+          "wait": 2.5
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "narration": "그리고 이게 들어오자마자 보이는 홈입니다. 공지, 결재 알림, 이번 주 일정. 오른쪽 도넛은 남은 연차인데, 14일 남았네요. 부럽습니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/"
+        },
+        {
+          "wait": 3.0
+        },
+        {
+          "wait": 1.5
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "narration": "조직도는 트리로 펼쳐집니다. 본부 아래 팀, 팀 아래 인원수까지 한눈에 들어오죠. 총 스물세 명짜리 회사입니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/orm/org-chart"
+        },
+        {
+          "wait": 3.2
+        },
+        {
+          "hover": "text=경영지원본부",
+          "optional": true
+        },
+        {
+          "wait": 1.4
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "narration": "구성원 목록입니다. 재직 상태, 소속, 입사일, 직위, 직책. 열여덟 개 컬럼이 한 화면에 들어가는데도 답답하지 않죠. 상용 그리드를 걷어내고 오픈소스로 새로 짠 결과입니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/phm/member-all"
+        },
+        {
+          "wait": 2.6
+        },
+        {
+          "scroll": 260,
+          "duration": 1.8
+        },
+        {
+          "wait": 1.0
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "narration": "개인 인사정보는 카드로 흩어 놨습니다. 근로자 정보, 발령, 학력, 경력, 자격, 어학. 예전 같으면 탭을 여덟 번 눌러야 했을 것들이죠.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/phm/info-personal"
+        },
+        {
+          "wait": 2.6
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "narration": "발령은 한 건씩 내는 게 아니라 품의 단위로 묶습니다. 2026년 7월 정기 발령, 대상자 2명, 미처리. 이렇게 묶어 두고 한 번에 실행합니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/cam/order-reg"
+        },
+        {
+          "wait": 3.4
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s6b",
+      "narration": "발령이 쌓이면 내역이 됩니다. 언제 어떤 발령이 났는지 남고, 조직 히스토리와도 이어집니다. 인사에서 기록이 남는다는 건 생각보다 큰 일이죠.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/cam/order-list"
+        },
+        {
+          "wait": 2.8
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "narration": "근태는 날짜별로 이렇게 쌓입니다. 출근 여덟 시 오십오 분, 퇴근 여섯 시 오 분. PC로 찍었는지 모바일로 찍었는지, 본사인지 외근지인지까지 남고, 지각과 조퇴는 따로 표시됩니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/dts/work-commute-mng"
+        },
+        {
+          "wait": 3.0
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "narration": "휴가는 관리자 입장에서 이렇게 보입니다. 사람마다 발생 연차, 사용 연차, 남은 일수가 한 줄로 정리됩니다. 이런 표를 상용 그리드 없이 오픈소스로 그렸습니다.",
+      "hold": 1.2,
+      "actions": [
+        {
+          "goto": "/dts/leave-usage-mng"
+        },
+        {
+          "wait": 3.2
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "narration": "급여는 항목부터 정의합니다. 기본급, 식대, 직책수당. 열다섯 개 항목마다 과세인지, 통상임금에 넣을지를 따로 잡습니다. 다만 정직하게 말씀드리면, 급여는 화면까지 나왔고 실제 계산 연동은 다음 단계 과제입니다.",
+      "hold": 1.2,
+      "actions": [
+        {
+          "goto": "/pay/item-setting"
+        },
+        {
+          "wait": 2.8
+        },
+        {
+          "scroll": 300,
+          "duration": 1.8
+        },
+        {
+          "wait": 1.0
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "narration": "환경설정입니다. 한국어, 영어, 중국어, 일본어. 글자 크기도 세 단계. 아래 컬러 테마를 초록으로 바꾸면 회사 전체 화면 색이 같이 바뀝니다. 코드를 안 고치고 화면에서 바꾸는 것들이죠.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/env/basic"
+        },
+        {
+          "wait": 3.0
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s10b",
+      "narration": "근무 기준도 마찬가지입니다. 고정근무제 스물네 명, 코어타임 열 시부터 세 시까지인 선택근무제 여덟 명, 생산 교대근무제 열두 명. 회사 안에 근무 형태가 섞여 있어도 그룹으로 나눠 관리하고, 오른쪽 스위치로 켜고 끕니다.",
+      "hold": 1.0,
+      "actions": [
+        {
+          "goto": "/env/work-group"
+        },
+        {
+          "wait": 2.8
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "narration": "새 구성원을 들이는 것도 화면에서 끝납니다. 이름과 이메일을 넣고 초대 메일을 보내면, 초대 대기 중인지 발송이 끝났는지 제출을 마쳤는지가 상태로 따라붙습니다.",
+      "hold": 1.2,
+      "actions": [
+        {
+          "goto": "/phm/member-invite"
+        },
+        {
+          "wait": 3.0
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "narration": "구조를 보시죠. 맨 위가 회사, 그 아래 본부, 또 그 아래 팀. 조직이 바뀐 이력까지 날짜로 남습니다. 회사가 여럿이어도 이 구조를 한 시스템이 통째로 받습니다. 비결은 간단해요. 로그인할 때 받은 토큰에 회사 식별자를 심어 두고, 모든 조회에 그 조건을 자동으로 붙입니다.",
+      "hold": 1.2,
+      "actions": [
+        {
+          "goto": "/orm/org-history"
+        },
+        {
+          "wait": 3.0
+        },
+        {
+          "wait": 1.2
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "narration": "정리하면 이렇습니다. 화면은 Vue로 새로 그렸고, 뒤는 표준 스프링과 REST로 바꿨고, 상용 그리드는 오픈소스로 갈아탔습니다. 옮긴 게 아니라, 다시 지은 겁니다.",
+      "hold": 1.4,
+      "actions": [
+        {
+          "goto": "/"
+        },
+        {
+          "wait": 2.6
+        },
+        {
+          "wait": 1.4
+        }
+      ]
+    }
+  ]
+}

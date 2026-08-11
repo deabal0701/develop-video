@@ -1,0 +1,237 @@
+{
+  "_읽어보기": "AI 입문 강의 (약 8분). 찍을 앱 화면이 없는 개념 강의라 scenes 를 비우고 타이포 모션 + 스톡 B롤로만 구성한다. B롤 5개는 아직 받지 않았다 — assets/fetch.js 로 받은 뒤에 빌드한다(아래 _소재메모). B롤 없이 먼저 돌려 보려면 video 클립들을 잠시 빼면 된다.",
+
+  "id": "ai-lecture",
+  "baseUrl": "http://localhost:3000",
+  "capture": { "width": 1920, "height": 1080 },
+
+  "_목소리메모": "ElevenLabs premade 'Daniel' (Steady Broadcaster · onwK4e9ZLuTAKqWW03F9). 선택 근거: 같은 채널의 api-lecture 가 Daniel 로 한국어 합성을 이미 검증했고(커밋 94cab6f), 방송 진행자 톤이 강의에 맞으며, 시리즈 목소리가 일관된다. 라이브러리 목소리(Taehyung)는 무료 플랜에서 API 사용 불가. 초안은 --provider edge 로 돌려 글자 과금을 아끼고, 대본 확정 후 eleven 으로 최종본을 뽑는다. strict 를 켜 둔 이유: 폴백이 조용히 edge 로 내려가면 납품본 목소리가 바뀐 줄 모르고 넘어가기 때문.",
+
+  "voice": {
+    "provider": "eleven",
+    "lang": "ko",
+    "gender": "male",
+    "voice": "Daniel",
+    "model": "eleven_multilingual_v2",
+    "stability": 0.5,
+    "similarity": 0.75,
+    "strict": true
+  },
+
+  "_소재메모": "B롤 7개는 Mixkit 에서 받아 assets/broll/ 에 있다 (CATALOG.md 에 출처·라이선스 기록). 내레이션 길이를 각 클립 실측 길이에 맞춰 나눠 두었으므로, 문장을 늘리면 마지막 프레임이 얼어붙는다 — 늘릴 때는 클립 길이를 먼저 확인할 것. BGM 은 mixkit-623 채택(8분에 루프 이음새 1번).",
+
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#0B1020",
+    "brand": "#7C5CFF",
+    "brandText": "#C3B5FD",
+
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.065,
+
+    "watermark": { "text": "AI 한눈에 이해하기" },
+    "watermarkAlign": 9,
+
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.08,
+    "bgmDucking": true,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "intro",
+          "file": "intro.html",
+          "duration": 3.2,
+          "before": "end",
+          "narration": "챗지피티, 제미나이, 클로드, 큐원. 뉴스마다 AI 이야기가 쏟아지는데, 이름이 너무 많아 오히려 헷갈리시죠. 오늘 이 영상 하나로 정리해 드립니다. 어떤 회사가 어떤 AI를 만들었고, 지금 어디까지 왔는지. 8분이면 전체 그림이 잡힙니다.",
+          "params": { "title": "AI", "subtitle": "8분 만에 전체 그림 잡기", "wipe": "off" }
+        },
+        {
+          "id": "b-datacenter",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-datacenter.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "지금 이 순간에도, 세계 곳곳의 거대한 데이터센터에서 AI가 만들어지고 있습니다. 이 경쟁의 지도를 지금부터 그려 보겠습니다."
+        },
+        {
+          "id": "ch1",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "첫 번째. 요즘 말하는 AI가 도대체 무엇인지, 한 문장으로 정리하고 시작합니다.",
+          "params": { "num": "1", "title": "AI 란 무엇인가", "progress": "12", "wipe": "off" }
+        },
+        {
+          "id": "b-typing",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-typing.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "인공지능은 사람처럼 배우고 판단하도록 만든 컴퓨터 프로그램입니다. 챗지피티 같은 대화형 AI는 그중에서도 대규모 언어 모델이라 부릅니다."
+        },
+        {
+          "id": "b-code",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-code.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "원리는 의외로 단순합니다. 인터넷의 방대한 글을 읽고, 다음에 올 말을 예측하도록 훈련시킨 겁니다. 그런데 이 단순한 훈련을 엄청난 규모로 키우자, 번역과 요약, 심지어 코딩까지 해내는 능력이 저절로 생겨났습니다."
+        },
+        {
+          "id": "s1",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "2022년 11월, 오픈에이아이가 챗지피티를 공개합니다. 출시 두 달 만에 사용자 1억 명. 당시 역사상 가장 빨리 퍼진 서비스였습니다. 온 세상이 AI를 이야기하기 시작한 출발점입니다.",
+          "params": { "value": "1억", "unit": "명", "title": "챗GPT — 출시 두 달 만에", "wipe": "off" }
+        },
+        {
+          "id": "ch2",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "두 번째. 그렇다면 AI는 어떤 길을 걸어 여기까지 왔을까요.",
+          "params": { "num": "2", "title": "어떻게 여기까지 왔나", "progress": "25", "wipe": "off" }
+        },
+        {
+          "id": "s2",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "출발점은 2017년입니다. 구글 연구팀이 트랜스포머라는 새로운 방식을 논문으로 발표했고, 지금의 AI는 거의 전부 이 기술 위에 서 있습니다. 오픈에이아이는 이것을 키워 지피티 시리즈를 만들었고, 2022년 챗지피티로 세상을 놀라게 했습니다. 그 뒤로는 매년이 도약입니다. 글만 다루던 AI가 이제 그림을 그리고, 영상을 만들고, 사람과 목소리로 대화합니다.",
+          "params": { "value": "2017", "unit": "년", "title": "모든 것의 시작 — 구글 트랜스포머 논문", "wipe": "off" }
+        },
+        {
+          "id": "ch3",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "세 번째. 이제 회사별로 봅니다. 먼저, 이 판을 연 오픈에이아이.",
+          "params": { "num": "3", "title": "오픈AI — 챗GPT 의 주인공", "progress": "40", "wipe": "off" }
+        },
+        {
+          "id": "s3",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "오픈에이아이는 2015년, 인류에게 이로운 AI를 만들겠다며 세워진 회사입니다. 챗지피티와 그 두뇌인 지피티 시리즈로 유명하죠. 지피티3, 지피티4를 거쳐 2025년 지피티5까지 왔습니다. 글만이 아닙니다. 그림을 그리는 달리, 영상을 만드는 소라까지. 이 분야의 유행을 앞장서 이끄는 회사입니다.",
+          "params": { "value": "GPT-5", "unit": "", "title": "챗GPT 의 최신 두뇌 · 2025", "wipe": "off" }
+        },
+        {
+          "id": "ch4",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "네 번째. 검색의 제왕, 구글입니다.",
+          "params": { "num": "4", "title": "구글 — 제미나이", "progress": "52", "wipe": "off" }
+        },
+        {
+          "id": "s4",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "사실 구글은 이 모든 것의 원조입니다. 트랜스포머를 만든 곳이 바로 구글 연구팀이니까요. 챗지피티에 자극받은 구글은 2023년 말 제미나이를 내놓았습니다. 검색과 지메일, 안드로이드 폰에까지 자연스럽게 스며드는 것이 강점이고, 그림을 그리는 이매진, 소리까지 넣어 영상을 만드는 비오도 구글 작품입니다.",
+          "params": { "value": "3", "unit": "종", "title": "제미나이 · 이매진 · 비오", "wipe": "off" }
+        },
+        {
+          "id": "ch5",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "다섯 번째. 클로드를 만든 앤스로픽입니다.",
+          "params": { "num": "5", "title": "앤스로픽 — 클로드", "progress": "64", "wipe": "off" }
+        },
+        {
+          "id": "s5",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "앤스로픽은 2021년, 오픈에이아이 출신 연구자들이 나와서 세운 회사입니다. AI는 강력한 만큼 안전해야 한다는 철학을 앞세우고, 대화형 AI 클로드를 만듭니다. 클로드는 긴 글을 읽고 쓰는 일과 코딩에 강해서, 특히 개발자들 사이에서 인기가 높습니다.",
+          "params": { "value": "2021", "unit": "년", "title": "오픈AI 출신들이 세운 회사", "wipe": "off" }
+        },
+        {
+          "id": "ch6",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "여섯 번째. 무서운 속도로 따라붙은 중국입니다.",
+          "params": { "num": "6", "title": "중국의 추격 — 알리바바 · 문샷", "progress": "76", "wipe": "off" }
+        },
+        {
+          "id": "b-city",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-city.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "전자상거래 거인 알리바바는 큐원이라는 모델을 만들어 무료로 공개했습니다. 속을 다 공개해 누구나 내려받아 고쳐 쓰게 하는 오픈소스 방식인데, 큐원은 전 세계 개발자들이 가장 많이 쓰는 모델 중 하나가 됐습니다."
+        },
+        {
+          "id": "b-city2",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-city2.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "신생 기업 문샷이 만든 키미는, 아주 긴 문서를 통째로 읽어 내는 능력으로 이름을 알렸습니다."
+        },
+        {
+          "id": "s6",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "그리고 2025년 1월에는 딥시크라는 회사가 훨씬 적은 비용으로 최상위급 모델을 내놓아, 미국 기술주가 출렁일 만큼 충격을 줬습니다. 중국은 이제 추격자가 아니라 경쟁자입니다.",
+          "params": { "value": "2025", "unit": "년 1월", "title": "딥시크 쇼크 — 미국 증시를 흔들다", "wipe": "off" }
+        },
+        {
+          "id": "ch7",
+          "file": "chapter.html",
+          "duration": 2.4,
+          "before": "end",
+          "narration": "일곱 번째. 글을 넘어, 그림과 영상입니다.",
+          "params": { "num": "7", "title": "그림 그리고 영상까지", "progress": "88", "wipe": "off" }
+        },
+        {
+          "id": "b-create",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "문장 한 줄을 쓰면 그림이 나옵니다. 오픈에이아이의 달리, 그림 실력으로 유명한 미드저니, 그리고 오픈소스라서 누구나 무료로 쓰는 스테이블 디퓨전이 대표 주자입니다."
+        },
+        {
+          "id": "b-film",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-film.mp4",
+          "videoStart": 5,
+          "before": "end",
+          "duration": 4.0,
+          "narration": "영상은 지금 가장 뜨거운 전쟁터입니다. 오픈에이아이의 소라, 소리까지 함께 만들어 내는 구글의 비오, 영화 제작 도구로 자리 잡은 런웨이, 그리고 중국의 클링까지. 문장 몇 줄로 짧은 영화를 만드는 시대가 이미 왔습니다."
+        },
+        {
+          "id": "sum",
+          "file": "stat.html",
+          "duration": 3.0,
+          "before": "end",
+          "narration": "정리합니다. 오픈에이아이의 챗지피티, 구글의 제미나이, 앤스로픽의 클로드, 알리바바의 큐원, 문샷의 키미. 회사와 대표 모델, 이 다섯 쌍만 기억하면 AI 뉴스가 들리기 시작합니다.",
+          "params": { "value": "5", "unit": "곳", "title": "오픈AI · 구글 · 앤스로픽 · 알리바바 · 문샷", "wipe": "off" }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 3.4,
+          "before": "end",
+          "narration": "어느 AI가 제일 좋을까요? 정답은, 직접 써 보는 겁니다. 전부 무료로 시작할 수 있고, 쓰다 보면 나에게 맞는 것이 보입니다. 다음 영상에서는 이 AI들을 일상에서 활용하는 방법을 다뤄 보겠습니다. 시청해 주셔서 감사합니다.",
+          "params": { "title": "AI 한눈에 이해하기", "subtitle": "가장 빠른 공부는 직접 써 보는 것", "cta": "다음 편 — AI 활용법", "wipe": "off" }
+        }
+      ]
+    }
+  },
+
+  "variants": [
+    { "id": "ai-lecture-16x9", "label": "강의 (16:9)", "width": 1920, "height": 1080, "captions": false }
+  ],
+
+  "scenes": []
+}

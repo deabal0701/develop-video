@@ -1,0 +1,297 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>llm training</title>
+<!-- 3장 — 예습(사전학습). 왼쪽 글 더미(웹·책·백과)가 모델 상자로 흘러 들어가고,
+     모델은 빈칸 맞히기를 한다 — 틀리면(✗) 다이얼이 돌아가고 다시 맞힌다(✓).
+     아래에 검증된 수치 두 장이 선다: 3,000억 토큰 · 1,750억 파라미터
+     (facts.md — arXiv:2005.14165, "챗지피티의 원형 GPT-3 기준" 시점 한정 필수).
+     params: t1(빈칸 문제) · t2(다이얼 조정) · t3(수치1) · t4(수치2) · tn(한계 문구) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #05070d; --t1: 8s; --t2: 15s; --t3: 33s; --t4: 38s; --tn: 50s; }
+
+  .stage { padding: 0 9%; gap: 3.4vh; }
+
+  .head {
+    font-size: 4.4vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  /* ── 위: 글 더미 → 모델 상자 흐름 + 빈칸 문제 ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 3vh;
+    width: 100%;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 0.3s;
+  }
+
+  .sources { flex: none; width: 22vh; text-align: center; }
+  .stackbox { position: relative; height: 15vh; }
+  .src {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: 13vh;
+    padding: 1.1vh 0;
+    border-radius: 0.9vh;
+    background: #131c30;
+    border: 0.2vh solid #2b3a5e;
+    font-size: 1.9vh;
+    font-weight: 700;
+    color: #8ea0c8;
+  }
+  .src.s1 { top: 0; }
+  .src.s2 { top: 5.2vh; }
+  .src.s3 { top: 10.4vh; }
+  .sources .cap { margin-top: 1.2vh; font-size: 1.9vh; font-weight: 600; color: #55648a; }
+
+  /* 흘러가는 글 조각 — 고정 지연 무한 반복이라 스크럽 렌더에도 결정적이다 */
+  .pipe { position: relative; flex: 1; height: 15vh; }
+  .chip {
+    position: absolute;
+    top: 6.4vh;
+    left: 0;
+    width: 4.6vh;
+    height: 2.2vh;
+    border-radius: 0.5vh;
+    background: color-mix(in srgb, var(--brand) 40%, #131c30);
+    border: 0.16vh solid #33416a;
+    opacity: 0;
+    animation-name: chipflow;
+    animation-duration: 2.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  @keyframes chipflow {
+    0%   { opacity: 0; transform: translateX(0); }
+    12%  { opacity: 1; }
+    82%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(30vh); }
+  }
+  .chip.f1 { animation-delay: 0.6s; top: 4.6vh; }
+  .chip.f2 { animation-delay: 1.3s; top: 7.6vh; }
+  .chip.f3 { animation-delay: 2.0s; top: 6.0vh; }
+  .chip.f4 { animation-delay: 2.7s; top: 8.6vh; }
+
+  /* 모델 상자 + 다이얼 */
+  .model {
+    flex: none;
+    width: 30vh;
+    padding: 2.4vh 2vh 2vh;
+    border-radius: 1.8vh;
+    background: #0e1526;
+    border: 0.24vh solid var(--brand);
+    box-shadow: 0 0 4vh color-mix(in srgb, var(--brand) 30%, transparent);
+  }
+  .model .name { font-size: 2.6vh; font-weight: 800; color: var(--brand-soft); }
+  .dials { display: flex; justify-content: center; gap: 1.8vh; margin-top: 1.6vh; }
+  .dial {
+    position: relative;
+    width: 5vh;
+    height: 5vh;
+    border-radius: 50%;
+    background: #131c30;
+    border: 0.2vh solid #33416a;
+  }
+  .dial i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.4vh;
+    height: 1.9vh;
+    margin-left: -0.2vh;
+    border-radius: 0.3vh;
+    background: var(--brand-soft);
+    transform-origin: 50% 0;
+    transform: rotate(150deg);
+  }
+  .dial i.animated {
+    animation-name: dialturn;
+    animation-duration: 0.7s;
+    animation-delay: var(--t2);
+    animation-timing-function: cubic-bezier(0.3, 0.8, 0.3, 1);
+  }
+  .dial.d2 i.animated { animation-delay: calc(var(--t2) + 0.15s); }
+  .dial.d3 i.animated { animation-delay: calc(var(--t2) + 0.3s); }
+  @keyframes dialturn { from { transform: rotate(150deg); } to { transform: rotate(255deg); } }
+  .model .cap { margin-top: 1.4vh; font-size: 1.9vh; font-weight: 600; color: #55648a; }
+
+  /* ── 가운데: 빈칸 맞히기 문제 ── */
+  .quiz {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.6vh;
+    font-size: 3.6vh;
+    font-weight: 700;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--t1);
+  }
+  .blank {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 12vh;
+    height: 5.6vh;
+    border-radius: 0.9vh;
+    background: #131c30;
+    border: 0.2vh dashed #4a5b8c;
+  }
+  .guess { position: absolute; font-size: 3.2vh; font-weight: 800; opacity: 0; }
+  .guess.no {
+    color: #f4586a;
+    animation-name: guessfail;
+    animation-duration: 1.6s;
+    animation-delay: calc(var(--t1) + 1.1s);
+  }
+  @keyframes guessfail {
+    0%   { opacity: 0; transform: translateY(1.6vh); }
+    18%  { opacity: 1; transform: translateY(0); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .guess.ok {
+    color: #7fe3a8;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t2) + 0.9s);
+  }
+  .mark { font-size: 3.2vh; font-weight: 800; opacity: 0; }
+  .mark.x {
+    color: #f4586a;
+    animation-name: guessfail;
+    animation-duration: 1.6s;
+    animation-delay: calc(var(--t1) + 1.3s);
+  }
+  .mark.o {
+    color: #7fe3a8;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t2) + 1.1s);
+  }
+
+  /* ── 아래: 검증된 수치 두 장 ── */
+  .stats {
+    display: flex;
+    gap: 3.6vh;
+    justify-content: center;
+    width: 100%;
+  }
+  .stat {
+    flex: none;
+    width: 36vh;
+    padding: 2.4vh 2vh 2vh;
+    border-radius: 1.8vh;
+    background: #0e1526;
+    border: 0.2vh solid #24304f;
+    opacity: 0;
+    animation-name: statin;
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .stat.k1 { animation-delay: var(--t3); }
+  .stat.k2 { animation-delay: var(--t4); }
+  @keyframes statin {
+    from { opacity: 0; transform: translateY(3vh) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .stat .v { font-size: 6.2vh; font-weight: 800; letter-spacing: -0.02em; color: var(--brand-soft); }
+  .stat .l { margin-top: 0.8vh; font-size: 2.3vh; font-weight: 700; color: #cfd9f2; }
+  .basis {
+    margin-top: 0.6vh;
+    font-size: 2.0vh;
+    font-weight: 600;
+    color: #55648a;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t4) + 0.6s);
+  }
+
+  .note {
+    font-size: 2.8vh;
+    font-weight: 700;
+    color: #f0b64a;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated">예습 — 방대한 글로 한 <b>빈칸 맞히기</b></div>
+
+  <div class="flow animated">
+    <div class="sources">
+      <div class="stackbox">
+        <div class="src s1">웹 문서</div>
+        <div class="src s2">책</div>
+        <div class="src s3">백과사전</div>
+      </div>
+      <div class="cap">사람이 쓴 글</div>
+    </div>
+    <div class="pipe">
+      <span class="chip f1 animated"></span>
+      <span class="chip f2 animated"></span>
+      <span class="chip f3 animated"></span>
+      <span class="chip f4 animated"></span>
+    </div>
+    <div class="model">
+      <div class="name">모델</div>
+      <div class="dials">
+        <span class="dial d1"><i class="animated"></i></span>
+        <span class="dial d2"><i class="animated"></i></span>
+        <span class="dial d3"><i class="animated"></i></span>
+      </div>
+      <div class="cap">틀리면, 다이얼을 조금 돌린다</div>
+    </div>
+  </div>
+
+  <div class="quiz animated">
+    <span>구름이 잔뜩 끼면, 곧</span>
+    <span class="blank"><span class="guess no animated">눈</span><span class="guess ok animated">비</span></span>
+    <span>가 온다</span>
+    <span class="mark x animated">✗</span>
+    <span class="mark o animated">✓</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat k1 animated">
+      <div class="v">3,000억</div>
+      <div class="l">학습한 단어 조각(토큰)</div>
+    </div>
+    <div class="stat k2 animated">
+      <div class="v">1,750억</div>
+      <div class="l">조정한 다이얼(파라미터)</div>
+    </div>
+  </div>
+  <div class="basis animated">챗GPT의 원형, GPT-3 기준 · OpenAI 논문(2020)</div>
+
+  <div class="note animated">단, 그럴듯함을 만들 뿐 — 참·거짓을 확인하는 장치는 아니다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), t4: q.get('t4'), tn: q.get('tn') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

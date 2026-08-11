@@ -29,7 +29,7 @@ node assets/fetch.js list
 
 | 파일 | 길이 | 출처 | 라이선스 | 용도 메모 |
 |---|---|---|---|---|
-| `bgm/mixkit-623.mp3` | 4:49 | https://assets.mixkit.co/music/623/623.mp3 ([corporate 태그](https://mixkit.co/free-stock-music/tag/corporate/)) | Mixkit Free License | 후보 — 들어 보고 정할 것 |
+| `bgm/mixkit-623.mp3` | 4:49 | https://assets.mixkit.co/music/623/623.mp3 ([corporate 태그](https://mixkit.co/free-stock-music/tag/corporate/)) | Mixkit Free License | ai-lecture 채택 — 8분 강의에 루프 이음새 1번, 중간 에너지(-11.6dB) |
 | `bgm/mixkit-132.mp3` | 2:07 | https://assets.mixkit.co/music/132/132.mp3 (동일) | Mixkit Free License | 후보 |
 | `bgm/mixkit-471.mp3` | 1:39 | https://assets.mixkit.co/music/471/471.mp3 (동일) | Mixkit Free License | 후보 |
 
@@ -60,6 +60,10 @@ node assets/fetch.js list
 | `photo/lion-rest.jpg` | https://www.pexels.com/photo/4179460/ | Pexels License | 볕 아래 쉬는 사자 |
 | `photo/old-rope.jpg` | https://www.pexels.com/photo/27644254/ | Pexels License | 낡은 로프 클로즈업 |
 | `photo/boat-person.jpg` | https://www.pexels.com/photo/2080960/ | Pexels License | 새벽 분홍 바다의 작은 배 실루엣 |
+| `photo/hangang-dusk.jpg` | https://www.pexels.com/photo/15375820/ | Pexels License | 해질녘 한강·서울 스카이라인 (O-seop Sim). 한강 쇼츠 인트로용 |
+| `photo/hangang-aerial.jpg` | https://www.pexels.com/photo/34554596/ | Pexels License | 한강·다리 항공샷 (Chhabiraj Adhikari). 강폭·둔치 위치 설명용 |
+| `photo/hangang-cloudy.jpg` | https://www.pexels.com/photo/19222549/ | Pexels License | 흐린 하늘 아래 한강과 다리 (Muneeb Babar). 장마·먹구름 톤 |
+| `photo/hangang-mapo.jpg` | https://www.pexels.com/photo/25244824/ | Pexels License | 석양의 마포대교와 열차 (Mocchi NO). 마무리 컷 |
 
 ## 받아 둔 B롤 영상 (클립 `video`)
 
@@ -67,6 +71,13 @@ node assets/fetch.js list
 |---|---|---|---|---|
 | `broll/road-drone.mp4` | 33초 · 1280×720 | https://www.pexels.com/video/3571264/ | Pexels License | 해변 파도 드론 샷 — 반복·회복 은유. 얼굴 없음 |
 | `broll/shark-swim.mp4` | 4.9초 · 1920×1080 | https://www.pexels.com/video/7997336/ | Pexels License | 물속 상어 유영 |
+| `broll/ai-datacenter.mp4` | 14.3초 · 1280×720 | https://mixkit.co/free-stock-video/bluish-data-center-hallway-23282/ | Mixkit Free License | 파란 서버룸 복도 — AI 학습 인프라 은유. 얼굴 없음 |
+| `broll/ai-typing.mp4` | 14.2초 · 1920×1080 | https://mixkit.co/free-stock-video/close-up-shot-of-a-person-typing-on-a-laptop-1808/ | Mixkit Free License | 노트북 타이핑 손 클로즈업. 얼굴 없음 |
+| `broll/ai-code.mp4` | 29초 · 1280×720 | https://mixkit.co/free-stock-video/computational-digital-codes-14596/ | Mixkit Free License | 초록 헥스 코드 화면 — 학습·코딩 은유 |
+| `broll/ai-city.mp4` | 24.2초 · 1920×1080 | https://mixkit.co/free-stock-video/aerial-landscape-of-a-city-at-night-41542/ | Mixkit Free License | 야경 도시 드론 (다리·고층빌딩) |
+| `broll/ai-city2.mp4` | 12초 · 1920×1080 | https://mixkit.co/free-stock-video/great-strip-of-a-big-city-at-night-41159/ | Mixkit Free License | 야간 도심 대로 |
+| `broll/ai-create.mp4` | 15초 · 1280×720 | https://mixkit.co/free-stock-video/golden-particles-rising-in-a-digital-world-14154/ | Mixkit Free License | 골드 파티클 추상 — 생성 AI 은유 |
+| `broll/ai-film.mp4` | 43.3초 · 1280×720 | https://mixkit.co/free-stock-video/color-correction-close-up-of-the-process-47208/ | Mixkit Free License | 색보정 작업 화면 클로즈업 — 영상 제작 은유. 얼굴 없음 |
 
 인물 클립은 `zoom`·`focusX`·`focusY` 값을 함께 적어 두면 다음에 그대로 쓸 수 있다.
 얼굴은 보통 화면 위쪽에 있어서 기본값(가운데)으로 자르면 원 안이 책상·가슴으로 찬다.

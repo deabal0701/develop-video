@@ -1,0 +1,320 @@
+{
+  "_읽어보기": "초보자를 위한 유튜브 사용법(시청자 편) 5분 강의. 실제 유튜브를 녹화하면 약관·저작권 문제가 되므로 site/ 에 같은 구조의 화면을 직접 그려 두고 Playwright 가 그 위에서 실제로 클릭·입력·강조하며 촬영한다. 촬영 전에 `python3 -m http.server 5199` 를 site/ 에서 띄운다.",
+
+  "id": "youtube-guide",
+  "baseUrl": "http://localhost:5199",
+
+  "capture": { "width": 1920, "height": 1080 },
+
+  "voice": {
+    "provider": "azure",
+    "lang": "ko",
+    "gender": "female",
+    "voice": "ko-KR-SunHiNeural",
+    "rate": "+4%",
+    "pitch": "+0Hz"
+  },
+
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#0F0F0F",
+    "brand": "#FF0033",
+    "brandText": "#FFAFBD",
+
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.06,
+
+    "_워터마크메모": "기본 자리(우상단, 9)는 이 화면에서 알림 종·계정 아이콘을 덮는다. 그 둘은 6장에서 직접 가리키며 설명하는 대상이라 비켜 줄 수 없다. 좌하단은 사이드바 아래 빈 자리이고, 자막은 가운데 정렬이라 겹치지 않는다.",
+    "watermark": { "text": "왕초보 유튜브 사용법" },
+    "watermarkAlign": 1,
+    "watermarkMargin": 0.045,
+    "watermarkMarginH": 0.028,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "intro",
+          "file": "intro.html",
+          "duration": 3.0,
+          "before": "s1",
+          "narration": "유튜브, 어디를 눌러야 할지 막막하셨나요? 처음 쓰는 분을 위해, 검색부터 구독과 저장까지 차근차근 알려 드리겠습니다.",
+          "params": { "title": "왕초보 유튜브 사용법", "subtitle": "보는 사람을 위한 기본기 여섯 가지" }
+        },
+        {
+          "id": "ch1",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s1",
+          "params": { "num": "1", "title": "첫 화면 익히기", "subtitle": "무엇이 어디에 있는지", "progress": "16" }
+        },
+        {
+          "id": "ch2",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s2",
+          "params": { "num": "2", "title": "검색해서 찾기", "subtitle": "보고 싶은 것을 직접", "progress": "33" }
+        },
+        {
+          "id": "ch3",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s3",
+          "params": { "num": "3", "title": "재생 화면 다루기", "subtitle": "자막 · 속도 · 화질", "progress": "50" }
+        },
+        {
+          "id": "ch4",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s4",
+          "params": { "num": "4", "title": "구독과 알림", "subtitle": "다시 찾지 않아도 되게", "progress": "66" }
+        },
+        {
+          "id": "ch5",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s5",
+          "params": { "num": "5", "title": "좋아요와 저장", "subtitle": "나중에 다시 보려면", "progress": "83" }
+        },
+        {
+          "id": "ch6",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "s6",
+          "params": { "num": "6", "title": "계정과 안전하게 쓰기", "subtitle": "기록 · 제한 모드", "progress": "100" }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 3.4,
+          "before": "end",
+          "narration": "정리해 볼까요. 찾을 때는 검색, 다시 보고 싶은 채널은 구독, 나중에 볼 영상은 저장. 이 세 가지면 충분합니다. 천천히 눌러 보세요. 잘못 눌러도 고장 나지 않습니다.",
+          "params": {
+            "_url메모": "이 줄은 워터마크와 같은 문구라 화면에서 한 번 더 겹쳐 보인다. 지우면 더 깔끔한데, 지우려면 이 대본으로 `--only compose` 를 한 번 더 돌려야 한다(모션 클립 재렌더 + 5분 재인코딩).",
+            "title": "천천히, 눌러 보면서",
+            "subtitle": "검색 · 구독 · 저장 세 가지면 충분합니다",
+            "url": "왕초보 유튜브 사용법",
+            "wipe": "off"
+          }
+        }
+      ]
+    },
+
+    "bgm": "",
+    "syncOffset": 0
+  },
+
+  "variants": [
+    {
+      "id": "youtube-guide-16x9",
+      "label": "왕초보 유튜브 사용법 (16:9)",
+      "width": 1920,
+      "height": 1080,
+      "captions": false,
+      "presenter": false
+    }
+  ],
+
+  "scenes": [
+    {
+      "id": "s1",
+      "narration": "유튜브를 열면 이런 첫 화면이 나옵니다. 화면은 크게 세 부분입니다. 맨 위 가로줄, 왼쪽 세로 메뉴, 그리고 가운데 영상 목록이에요. 왼쪽 메뉴부터 보겠습니다. 집 모양은 홈, 그 아래는 짧은 영상만 모아 둔 쇼츠, 그다음은 내가 구독한 채널의 새 영상이 모이는 구독입니다. 그 아래에는 내가 본 영상과 저장해 둔 영상이 들어 있습니다. 가운데 목록 위에 줄지어 있는 이 단추들은 주제별 모아 보기입니다. 요리를 누르면 요리 영상만 보여 줍니다. 마음에 드는 것이 없으면 아래로 내려 보세요. 내가 본 영상을 바탕으로 계속 새로 추천해 줍니다.",
+      "hold": 1.2,
+      "actions": [
+        { "goto": "/index.html" },
+        { "wait": 4.5 },
+        { "highlight": "#header", "duration": 2.2 },
+        { "wait": 1.3 },
+        { "highlight": "#sidebar", "duration": 2.2 },
+        { "wait": 1.3 },
+        { "highlight": "#main", "duration": 2.4 },
+        { "wait": 4.5 },
+        { "highlight": "#nav-home", "duration": 1.4 },
+        { "wait": 1.1 },
+        { "highlight": "#nav-shorts", "duration": 1.6 },
+        { "wait": 2.9 },
+        { "highlight": "#nav-subs", "duration": 2.6 },
+        { "wait": 4.7 },
+        { "highlight": "#nav-history", "duration": 1.8 },
+        { "wait": 1.6 },
+        { "highlight": "#nav-later", "duration": 2.0 },
+        { "wait": 2.9 },
+        { "highlight": "#chips", "duration": 2.6 },
+        { "wait": 5.4 },
+        { "click": "#chip-cook", "optional": true },
+        { "wait": 2.5 },
+        { "click": "#chip-all", "optional": true },
+        { "scroll": 660, "duration": 2.2 },
+        { "wait": 1.6 },
+        { "scroll": 900, "duration": 2.0 },
+        { "wait": 1.0 }
+      ]
+    },
+    {
+      "id": "s2",
+      "narration": "이번에는 보고 싶은 것을 직접 찾아보겠습니다. 맨 위 검색창을 누르고, 찾고 싶은 말을 그대로 적으면 됩니다. 어려운 낱말을 몰라도 됩니다. 문장으로 적어도 잘 찾아 줍니다. 글자를 넣으면 아래에 추천 검색어가 뜹니다. 비슷한 말이 떠오르지 않을 때 눌러 쓰면 편합니다. 엔터를 누르면 결과가 나옵니다. 결과가 너무 많다 싶으면 왼쪽 위 필터를 눌러 보세요. 업로드 날짜, 영상 길이, 자막이 있는 영상처럼 조건을 걸 수 있습니다. 사분 미만을 고르면 짧은 영상만, 업로드 날짜순으로 바꾸면 최신 영상부터 보여 줍니다.",
+      "hold": 1.2,
+      "actions": [
+        { "goto": "/index.html" },
+        { "wait": 2.8 },
+        { "highlight": "#search-input", "duration": 2.4 },
+        { "wait": 1.7 },
+        { "type": "#search-input", "text": "아침 스트레칭", "delay": 190 },
+        { "wait": 6.7 },
+        { "highlight": "#suggest", "duration": 2.6 },
+        { "wait": 7.7 },
+        { "press": "Enter" },
+        { "wait": 2.6 },
+        { "highlight": "#btn-filter", "duration": 2.0 },
+        { "wait": 0.6 },
+        { "click": "#btn-filter", "optional": true },
+        { "wait": 2.85 },
+        { "highlight": "#filter-panel", "duration": 3.0 },
+        { "wait": 5.7 },
+        { "click": "#f-short", "optional": true },
+        { "wait": 1.9 },
+        { "click": "#f-new", "optional": true },
+        { "wait": 1.5 },
+        { "scroll": 420, "duration": 1.6 }
+      ]
+    },
+    {
+      "id": "s3",
+      "narration": "이제 영상 하나를 열어 보겠습니다. 제목이나 그림을 누르면 재생 화면으로 넘어갑니다. 화면 아래쪽 이 줄이 조작 막대입니다. 왼쪽 첫 단추가 재생과 일시정지예요. 키보드 스페이스바로도 똑같이 됩니다. 빨간 막대는 지금 어디쯤 보고 있는지를 나타냅니다. 보고 싶은 부분을 바로 누르면 그 자리로 건너뜁니다. 씨씨라고 적힌 단추는 자막입니다. 소리를 켜기 어려운 곳에 있거나 말이 빠를 때 켜 두면 좋습니다. 톱니바퀴는 설정입니다. 재생 속도를 바꾸면 설명이 느리게 느껴질 때는 조금 빠르게, 어려울 때는 느리게 볼 수 있습니다. 화질도 여기서 바꿉니다. 영상이 자꾸 끊긴다면 숫자가 낮은 쪽으로 내려 보세요. 맨 오른쪽 단추는 전체화면입니다.",
+      "hold": 1.2,
+      "actions": [
+        { "wait": 2.1 },
+        { "click": "a.row-card", "optional": true },
+        { "wait": 4.2 },
+        { "highlight": "#controls", "duration": 2.6 },
+        { "wait": 2.9 },
+        { "highlight": "#pc-play", "duration": 2.2 },
+        { "wait": 2.1 },
+        { "click": "#pc-play", "optional": true },
+        { "wait": 2.0 },
+        { "click": "#pc-play", "optional": true },
+        { "wait": 0.4 },
+        { "highlight": "#progress", "duration": 2.6 },
+        { "wait": 3.1 },
+        { "click": "#progress", "optional": true },
+        { "wait": 4.2 },
+        { "highlight": "#pc-cc", "duration": 2.0 },
+        { "wait": 0.5 },
+        { "click": "#pc-cc", "optional": true },
+        { "wait": 7.2 },
+        { "highlight": "#pc-settings", "duration": 2.0 },
+        { "wait": 0.5 },
+        { "click": "#pc-settings", "optional": true },
+        { "wait": 0.3 },
+        { "highlight": "#set-speed", "duration": 2.0 },
+        { "wait": 1.0 },
+        { "click": "#set-speed", "optional": true },
+        { "wait": 1.6 },
+        { "click": "#sp-125", "optional": true },
+        { "wait": 3.6 },
+        { "highlight": "#set-quality", "duration": 2.0 },
+        { "wait": 1.0 },
+        { "click": "#set-quality", "optional": true },
+        { "wait": 1.6 },
+        { "click": "#q-480", "optional": true },
+        { "wait": 0.6 },
+        { "click": "#pc-settings", "optional": true },
+        { "highlight": "#pc-full", "duration": 2.4 },
+        { "wait": 2.0 }
+      ]
+    },
+    {
+      "id": "s4",
+      "narration": "마음에 드는 채널을 만났다면 구독을 눌러 두세요. 구독은 무료입니다. 돈이 나가지 않고, 채널 이름을 다시 검색할 필요도 없어집니다. 구독을 누르면 옆에 종 모양이 하나 생깁니다. 이것이 알림 설정이에요. 전체를 고르면 새 영상이 올라올 때마다 알려 주고, 없음으로 두면 알림 없이 구독만 유지됩니다. 알림이 너무 자주 온다면 여기서 끄시면 됩니다. 구독한 채널의 새 영상은 왼쪽 메뉴의 구독에 모입니다. 홈 화면의 추천과 달리, 여기에는 내가 고른 채널의 영상만 시간순으로 쌓입니다.",
+      "hold": 1.2,
+      "actions": [
+        { "wait": 0.8 },
+        { "highlight": "#btn-subscribe", "duration": 2.6 },
+        { "wait": 9.7 },
+        { "click": "#btn-subscribe", "optional": true },
+        { "wait": 5.1 },
+        { "highlight": "#btn-bell", "duration": 2.4 },
+        { "wait": 2.9 },
+        { "click": "#btn-bell", "optional": true },
+        { "wait": 0.3 },
+        { "highlight": "#bell-menu", "duration": 2.6 },
+        { "wait": 2.2 },
+        { "click": "#bell-none", "optional": true },
+        { "wait": 2.0 },
+        { "click": "#btn-bell", "optional": true },
+        { "click": "#bell-all", "optional": true },
+        { "wait": 3.0 },
+        { "highlight": "#nav-subs", "duration": 2.2 },
+        { "wait": 0.4 },
+        { "click": "#nav-subs", "optional": true },
+        { "wait": 2.4 },
+        { "highlight": "#sub-channels", "duration": 2.4 },
+        { "wait": 1.2 },
+        { "scroll": 380, "duration": 2.0 }
+      ]
+    },
+    {
+      "id": "s5",
+      "narration": "영상이 도움이 되었다면 좋아요를 눌러 보세요. 만든 사람에게 힘이 되고, 나에게는 비슷한 영상이 더 추천됩니다. 지금은 시간이 없어 나중에 보고 싶다면 저장을 누릅니다. 나중에 볼 동영상에 담아 두면 언제든 다시 찾을 수 있습니다. 비슷한 영상을 여러 개 모으고 싶다면 새 재생목록 만들기를 고르세요. 아침 루틴, 요리처럼 이름을 붙여 두면 나만의 목록이 됩니다. 저장한 영상과 내가 만든 목록은 왼쪽 메뉴의 나에서 한눈에 볼 수 있습니다.",
+      "hold": 1.2,
+      "actions": [
+        { "goto": "/watch.html" },
+        { "wait": 0.2 },
+        { "highlight": "#btn-like", "duration": 2.2 },
+        { "wait": 1.4 },
+        { "click": "#btn-like", "optional": true },
+        { "wait": 4.4 },
+        { "highlight": "#btn-save", "duration": 2.0 },
+        { "wait": 0.6 },
+        { "click": "#btn-save", "optional": true },
+        { "wait": 3.5 },
+        { "highlight": "#save-later", "duration": 2.4 },
+        { "wait": 1.9 },
+        { "click": "#save-later", "optional": true },
+        { "wait": 2.2 },
+        { "highlight": "#save-new", "duration": 2.6 },
+        { "wait": 5.3 },
+        { "click": "#save-close", "optional": true },
+        { "wait": 3.2 },
+        { "click": "#nav-you", "optional": true },
+        { "wait": 2.2 },
+        { "highlight": "#head-later", "duration": 2.4 },
+        { "wait": 1.0 },
+        { "scroll": 540, "duration": 1.6 },
+        { "highlight": "#playlist-grid", "duration": 2.4 },
+        { "wait": 1.0 }
+      ]
+    },
+    {
+      "id": "s6",
+      "narration": "마지막으로 계정입니다. 오른쪽 위 동그란 사진을 누르면 계정 메뉴가 열립니다. 여기서 시청 기록을 관리할 수 있어요. 추천이 마음에 들지 않는다면 기록을 지우면 됩니다. 아이와 함께 쓰는 기기라면 제한 모드를 켜 두세요. 성인용으로 분류된 영상이 걸러집니다. 언어 설정도 이 메뉴에서 바꿉니다. 그리고 영상 앞에 광고가 나오면, 몇 초 뒤에 건너뛰기 단추가 생깁니다. 기다렸다가 누르시면 됩니다. 여기까지가 유튜브를 보는 데 필요한 전부입니다.",
+      "hold": 1.5,
+      "actions": [
+        { "scroll": 0, "duration": 1.2 },
+        { "wait": 0.5 },
+        { "highlight": "#avatar", "duration": 2.2 },
+        { "wait": 1.6 },
+        { "click": "#avatar", "optional": true },
+        { "wait": 1.8 },
+        { "highlight": "#account-menu", "duration": 2.8 },
+        { "wait": 3.0 },
+        { "highlight": "#acc-history", "duration": 2.6 },
+        { "wait": 4.1 },
+        { "highlight": "#acc-restricted", "duration": 2.6 },
+        { "wait": 2.4 },
+        { "click": "#acc-restricted", "optional": true },
+        { "wait": 4.0 },
+        { "highlight": "#acc-lang", "duration": 2.2 },
+        { "wait": 2.6 },
+        { "click": "#nav-home", "optional": true },
+        { "wait": 2.6 },
+        { "scroll": 520, "duration": 2.2 },
+        { "wait": 1.4 },
+        { "scroll": 0, "duration": 2.0 },
+        { "wait": 2.5 }
+      ]
+    }
+  ]
+}

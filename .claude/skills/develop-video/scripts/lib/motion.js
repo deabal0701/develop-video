@@ -60,7 +60,10 @@ export async function renderMotionClip({
   // duration 을 키에 넣는 이유: 보통은 wipeAt(= duration 에서 계산)이 질의에 섞여 들어가지만,
   // 대본이 params.wipeAt 을 직접 지정하면 그 고리가 끊긴다. 그러면 내레이션이 길어져 구간이
   // 늘어나도 예전 길이의 클립이 그대로 나와 뒤 구간 전체가 밀린다.
-  const key = JSON.stringify({ query, duration: Number(duration.toFixed(3)) });
+  // file 도 키에 넣는다: 같은 구간의 템플릿만 바꾸면(stat.html → 도식.html) 문구·길이가 그대로라
+  // 해시가 안 바뀌어 **예전 템플릿의 렌더가 그대로 재사용된다**. 합성은 성공하고 그 구간만
+  // 옛 화면으로 나오므로 프레임을 뽑기 전에는 모른다 — 실제로 한 번 겪었다.
+  const key = JSON.stringify({ file, query, duration: Number(duration.toFixed(3)) });
   const stamp = crypto.createHash('sha1').update(key).digest('hex').slice(0, 8);
   const output = path.join(ensureDir(dirs.motion), `${id}-${stamp}-${width}x${height}.mp4`);
   if (!force && isFresh(sourceFiles(source), output)) return output;

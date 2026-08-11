@@ -1,0 +1,161 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>prompt promise</title>
+<!-- 약속 — 오늘 쥐고 갈 손잡이 셋이 내레이션 순서로 서고 밑줄이 자란다.
+     1강 llm-promise 와 같은 골격(시리즈 일관성) + 용어 뱃지가 붙는 것만 다르다.
+     params: t1·t2·t3(항목 등장 s) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #05070d; --t1: 4s; --t2: 7s; --t3: 11s; }
+
+  .stage { padding: 0 15%; gap: 4.4vh; }
+
+  .head {
+    font-size: 4.6vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .items { display: flex; flex-direction: column; gap: 3.4vh; width: 100%; }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 3vh;
+    padding: 2.7vh 3.4vh;
+    border-radius: 2vh;
+    background: #0e1526;
+    border: 0.2vh solid #24304f;
+    text-align: left;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+  }
+  .item.i1 { animation-delay: var(--t1); }
+  .item.i2 { animation-delay: var(--t2); }
+  .item.i3 { animation-delay: var(--t3); }
+
+  .no {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 6.2vh;
+    height: 6.2vh;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--brand) 24%, transparent);
+    border: 0.24vh solid var(--brand);
+    font-size: 2.9vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+  }
+
+  .txt { position: relative; font-size: 3.6vh; font-weight: 700; padding-bottom: 1.3vh; }
+  .txt .term {
+    display: inline-block;
+    margin-left: 1.2vh;
+    padding: 0.4vh 1.2vh;
+    border-radius: 0.7vh;
+    background: color-mix(in srgb, var(--brand) 18%, transparent);
+    border: 0.16vh solid #3a4a78;
+    font-size: 2vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    vertical-align: middle;
+  }
+  .txt small { display: block; margin-top: 0.7vh; font-size: 2.2vh; font-weight: 600; color: #8ea0c8; }
+  .txt .ul {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0.45vh;
+    border-radius: 0.3vh;
+    background: var(--brand);
+    transform-origin: left center;
+    animation-name: grow;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .i1 .ul { animation-delay: calc(var(--t1) + 0.4s); }
+  .i2 .ul { animation-delay: calc(var(--t2) + 0.4s); }
+  .i3 .ul { animation-delay: calc(var(--t3) + 0.4s); }
+
+  /* 용어 주석 — SKILL.md '용어 주석' 절. templates/termnote.css 를 복사한 것.
+     공용 _base.css 는 수정하지 않는다(기존 회차 렌더가 바뀐다). 등장 시각은 tterm params. */
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: var(--tterm, 6s);
+  }
+  .termnote b {
+    font-family: var(--mono, ui-monospace, Menlo, monospace);
+    font-size: 2.3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+    letter-spacing: 0.01em;
+  }
+  .termnote .en {
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: #8ea0c8;
+  }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+  .termnote { position: absolute; left: 0; right: 0; top: 4%; margin: 0 auto; width: fit-content; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="termnote animated"><b>LLM</b><span class="en">Large Language Model</span><span class="ko">대규모 언어 모델 — 다음에 올 말을 확률로 골라 문장을 만드는 AI</span></div>
+
+  <div class="head animated">오늘 쥐고 갈 <b>손잡이 셋</b></div>
+
+  <div class="items">
+    <div class="item i1 animated">
+      <span class="no">1</span>
+      <span class="txt">조건을 좁힌다<span class="term">system / user</span><small>부탁이 아니라, 답이 나올 자리를 정하는 일</small><i class="ul animated"></i></span>
+    </div>
+    <div class="item i2 animated">
+      <span class="no">2</span>
+      <span class="txt">예시를 보여준다<span class="term">few-shot</span><small>형식은 설명보다 견본이 빠르다</small><i class="ul animated"></i></span>
+    </div>
+    <div class="item i3 animated">
+      <span class="no">3</span>
+      <span class="txt">과정을 쓰게 한다<span class="term">Chain-of-Thought</span><small>답만 묻지 않고, 생각을 펼치게</small><i class="ul animated"></i></span>
+    </div>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tterm: q.get('tterm') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

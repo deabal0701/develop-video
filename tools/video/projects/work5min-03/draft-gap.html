@@ -1,0 +1,182 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>초안 비교</title>
+<!-- 훅·회수 겸용 — 회식 공지 메일 초안 한 장.
+     phase 로 세 번 쓴다(work5min-02 의 score-gap.html 선례):
+       bad    훅 — 밋밋한 초안만. 무내레이션, 시청자가 "어딘가 허전한데" 를 먼저 느낀다
+       reveal 훅 해설 — 초안 왼쪽에 "재료: 없음" 이 뜨며 원인이 드러난다
+       fixed  회수 — 재료 세 줄이 앞에 붙고 초안이 살아난다
+
+     기법: 상태 변화(요소가 나타나고 바뀐다). 한 도식에 기법 하나 원칙.
+     params: phase · t1(재료 등장 시각) · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 9%; gap: 0; justify-content: center; }
+
+  .board {
+    display: flex;
+    gap: 3.2vh;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  /* 왼쪽 — 건넨 재료 */
+  .feed {
+    width: 33%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4vh;
+    padding: 2.6vh 2.4vh;
+    border-radius: 1.4vh;
+    border: 0.22vh dashed color-mix(in srgb, var(--brand) 45%, transparent);
+    background: color-mix(in srgb, var(--brand) 7%, transparent);
+    text-align: left;
+  }
+  .feed-h {
+    font-size: 2.1vh;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--brand-soft);
+  }
+  .empty {
+    margin-top: 1.4vh;
+    font-size: 2.5vh;
+    font-weight: 700;
+    color: #8b93a7;
+  }
+  .chip {
+    padding: 1.1vh 1.4vh;
+    border-radius: 0.8vh;
+    background: color-mix(in srgb, var(--brand) 26%, transparent);
+    border-left: 0.4vh solid var(--brand);
+    font-size: 2.1vh;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .chip b { color: var(--brand-soft); font-weight: 800; }
+
+  /* 오른쪽 — 초안 */
+  .draft {
+    flex: 1;
+    padding: 3vh 3.2vh;
+    border-radius: 1.4vh;
+    background: #10131c;
+    border: 0.18vh solid #232838;
+    text-align: left;
+  }
+  .draft-h {
+    font-size: 2vh;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #7d879e;
+    margin-bottom: 2vh;
+  }
+  .line {
+    height: 1.5vh;
+    border-radius: 0.4vh;
+    background: #2b3145;
+    margin-bottom: 1.5vh;
+  }
+  .line.short { width: 42%; }
+  .line.mid { width: 74%; }
+  .txt {
+    font-size: 2.5vh;
+    line-height: 1.62;
+    color: #c3cadb;
+    margin-bottom: 1.2vh;
+  }
+  .txt.dim { color: #6f7890; }
+  .txt b { color: #fff; font-weight: 700; }
+  .txt .mark { color: var(--brand-soft); font-weight: 700; }
+
+  /* 판정 라벨 */
+  .verdict {
+    margin-top: 2.4vh;
+    display: inline-block;
+    padding: 0.9vh 1.8vh;
+    border-radius: 0.8vh;
+    font-size: 2.1vh;
+    font-weight: 800;
+  }
+  .verdict.bad { background: rgb(120 40 40 / 0.5); color: #ffb4b4; }
+  .verdict.good { background: rgb(35 95 60 / 0.5); color: #9de8b9; }
+
+  .hidden { display: none; }
+  .fade { animation-name: fadeUp; animation-duration: 0.5s; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="board">
+    <div class="feed" id="feed">
+      <div class="feed-h">건넨 재료</div>
+      <div id="feed-body"></div>
+    </div>
+
+    <div class="draft">
+      <div class="draft-h">초안 — 회식 공지 메일</div>
+      <div id="draft-body"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const phase = q.get('phase') || 'bad';
+  const t1 = parseFloat(q.get('t1'));
+  const feed = document.getElementById('feed-body');
+  const draft = document.getElementById('draft-body');
+
+  const BAD = `
+    <p class="txt dim">항상 감사드립니다.</p>
+    <p class="txt dim">이번에 저희 팀에서 회식을 진행하고자 합니다.</p>
+    <p class="txt dim">많은 참여 부탁드립니다.</p>
+    <div class="line mid"></div>
+    <div class="line short"></div>`;
+
+  const GOOD = `
+    <p class="txt">팀원 여러분, <b>이번 주 금요일 저녁 7시</b> 회식 안내드립니다.</p>
+    <p class="txt">장소는 <b>회사 앞 식당</b>이고, 참석 여부를 <b>수요일까지</b> 회신해 주세요.</p>
+    <p class="txt"><span class="mark">인원 파악 후 예약</span>할 예정입니다.</p>`;
+
+  if (phase === 'bad') {
+    feed.innerHTML = '<div class="empty">없음</div>';
+    draft.innerHTML = BAD + '<div class="verdict bad">쓸 수 없는 초안</div>';
+  } else if (phase === 'reveal') {
+    // 재료가 비어 있다는 사실이 원인으로 드러난다 — 지연 뒤 '없음' 이 붉게 강조
+    feed.innerHTML = '<div class="empty" id="none">없음</div>';
+    draft.innerHTML = BAD + '<div class="verdict bad">쓸 수 없는 초안</div>';
+    if (Number.isFinite(t1)) {
+      const n = document.getElementById('none');
+      n.style.animationName = 'blame';
+      n.style.animationDuration = '0.6s';
+      n.style.animationDelay = `${t1}s`;
+      n.style.animationFillMode = 'both';
+      n.style.animationPlayState = 'paused';
+      n.classList.add('animated');
+      const st = document.createElement('style');
+      st.textContent = '@keyframes blame{from{color:#8b93a7;transform:scale(1)}to{color:#ff9d9d;transform:scale(1.12)}}';
+      document.head.appendChild(st);
+    }
+  } else {
+    // fixed — 재료 세 줄이 붙고 초안이 살아난다
+    feed.innerHTML = `
+      <div class="chip animated" id="c1"><b>목적</b> 참석 인원 파악</div>
+      <div class="chip animated" id="c2"><b>읽는 사람</b> 우리 팀 12명</div>
+      <div class="chip animated" id="c3"><b>조건</b> 금 19시 · 회사 앞 · 수요일 회신</div>`;
+    draft.innerHTML = GOOD + '<div class="verdict good">바로 보낼 수 있는 초안</div>';
+    const base = Number.isFinite(t1) ? t1 : 1;
+    ['c1', 'c2', 'c3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.style.animationName = 'fadeUp';
+      el.style.animationDuration = '0.45s';
+      el.style.animationDelay = `${base + i * 0.5}s`;
+      el.style.animationFillMode = 'both';
+      el.style.animationPlayState = 'paused';
+    });
+  }
+</script>

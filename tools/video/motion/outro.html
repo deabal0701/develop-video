@@ -34,6 +34,11 @@
         animation-timing-function: ease-out;
       }
 
+      /* 아래에 자막이 온다. 가운데 정렬 그대로 두면 CTA 알약이 자막과 같은 높이에
+         겹쳐 마지막 몇 초가 통째로 못 읽는 화면이 된다 — 실제로 걸렸다.
+         내용을 자막대 위로 밀어 올린다. 자막이 없는 마무리면 padY=0 으로 되돌린다. */
+      .stage { padding-bottom: var(--pad-y, 16vh); }
+
       /* CTA 알약 — 테두리가 그려지고 글자가 떠오른다 */
       .cta {
         margin-top: 1.6vh;

@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>오늘의 약속</title>
+<!-- 약속 도식 — 오늘 볼 세 가지. 개발자 대상이라 항목을 질문형으로 세운다.
+     params: t1·t2·t3 · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 13%; gap: 0; }
+  .head {
+    font-size: 3.3vh; font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 4vh;
+    animation-name: fadeUp; animation-duration: 0.5s;
+  }
+  .head span { color: var(--brand-soft); }
+  .row {
+    display: flex; align-items: center; gap: 2.4vh; width: 100%;
+    padding: 2.2vh 2.8vh; margin-bottom: 1.8vh;
+    border-radius: 1.2vh;
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+    border-left: 0.45vh solid var(--brand);
+    text-align: left;
+  }
+  .n {
+    flex: none; width: 5vh; height: 5vh; border-radius: 999px;
+    background: var(--brand); color: #04100e;
+    font-size: 2.4vh; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .t { font-size: 2.9vh; font-weight: 700; line-height: 1.3; }
+  .t em {
+    display: block; margin-top: 0.5vh;
+    font-size: 2vh; font-weight: 600; font-style: normal; color: #8fa8a3;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+  <div class="head animated">급여 계산에서 <span>버그가 나는 자리</span></div>
+
+  <div class="row animated" id="r1">
+    <span class="n">1</span>
+    <span class="t">빼기의 순서<em>무엇에서 빼는가 — 총액인가 과세대상인가</em></span>
+  </div>
+  <div class="row animated" id="r2">
+    <span class="n">2</span>
+    <span class="t">곱하는 대상<em>급여에 곱하나, 다른 보험료에 곱하나</em></span>
+  </div>
+  <div class="row animated" id="r3">
+    <span class="n">3</span>
+    <span class="t">확정값이 아니다<em>매달의 소득세는 나중에 정산된다</em></span>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3') };
+  ['t1', 't2', 't3'].forEach((k, i) => {
+    const d = parseFloat(P[k]);
+    const el = document.getElementById(`r${i + 1}`);
+    el.style.animationName = 'fadeUp';
+    el.style.animationDuration = '0.5s';
+    el.style.animationDelay = `${Number.isFinite(d) ? d : 1 + i * 3}s`;
+  });
+</script>

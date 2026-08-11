@@ -8,6 +8,10 @@
   const root = document.documentElement;
 
   const setVar = (name, value) => value && root.style.setProperty(name, value);
+  // padY: 내용을 자막대 위로 밀어 올린다(vh). 자막은 화면 아래에 구워지므로 가운데 정렬
+  // 템플릿은 문구가 자막과 같은 높이에서 겹친다 — outro 의 CTA 알약에서 실제로 걸렸다.
+  // 템플릿이 --pad-y 를 읽도록 되어 있어야 먹는다.
+  setVar('--pad-y', q.get('padY') && `${q.get('padY')}vh`);
   setVar('--brand', q.get('brand'));
   setVar('--brand-soft', q.get('brandSoft'));
   setVar('--bg', q.get('bg'));

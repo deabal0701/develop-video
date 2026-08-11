@@ -1,0 +1,330 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>chat freeze</title>
+<!-- 훅·회수 공용 — 무브랜드 채팅에서 답변이 타이핑되다 문장 한가운데("내일 뵙")서
+     얼어붙는다. 화면 탈색 + 커서만 깜빡임('렉'이 아니라 '시간 정지'로 읽히는 연출),
+     커서 뒤로 유령 후보 단어 3개가 확률 막대와 함께 떠오른다(막대 길이만, 숫자 없음,
+     '예시' 워터마크 — 미검증 수치 차단).
+
+     세 phase 를 params 로 갈라 세 클립에 쓴다:
+       phase=type    훅 1/2 (무내레이션 3s) — 티저 자막 + 타이핑 → 프리즈 순간까지
+       phase=frozen  훅 2/2 — 처음부터 얼어 있고, 푸시인 + t1 에 유령 후보판 등장
+       phase=resolve 엔딩 회수 — 후보판이 서 있고, t2 에 1순위가 선택돼 문장이 완성되고
+                     색이 돌아온다 (시청자가 방금 스스로 예측한 그 단어)
+
+     params: phase · t1(후보판 등장 s) · t2(선택·완성 s) · wipe=off
+     주의: `animation:` 단축 속성 금지. 가운데 정렬은 left/right:0 + text-align
+     (fadeUp 이 transform 을 덮는다). 채팅 UI 는 특정 서비스 배색·로고를 따라 그리지 않는다. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #05070d; --t1: 3.5s; --t2: 12s; }
+
+  .stage { padding: 0 12%; gap: 0; }
+
+  /* ── 프레임 0부터 서 있는 정적 티저 — 훅 무신호 구간 해소 ── */
+  .teaser {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 9%;
+    text-align: center;
+    font-size: 3.1vh;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #8ea0c8;
+  }
+  .teaser b { color: #c9d4ee; }
+  .ph-resolve .teaser { display: none; }
+
+  /* ── 채팅 창 ── */
+  .zoomwrap { width: 100%; }
+  .chat {
+    display: flex;
+    flex-direction: column;
+    gap: 3.2vh;
+    width: 96vh;
+    margin: 0 auto;
+    text-align: left;
+  }
+  .row { display: flex; gap: 1.8vh; align-items: flex-end; }
+  .row.user { justify-content: flex-end; }
+
+  .bubble {
+    max-width: 78vh;
+    padding: 2.4vh 3vh;
+    border-radius: 2.2vh;
+    font-size: 3.4vh;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .user .bubble {
+    background: #24304f;
+    border: 0.2vh solid #35446b;
+    border-bottom-right-radius: 0.6vh;
+    color: #dfe6f6;
+  }
+  .ai .bubble {
+    background: #10182b;
+    border: 0.2vh solid #263354;
+    border-bottom-left-radius: 0.6vh;
+    color: #eef2fc;
+    display: flex;
+    align-items: center;
+  }
+  .badge {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 5.6vh;
+    height: 5.6vh;
+    border-radius: 50%;
+    background: #1b2440;
+    border: 0.2vh solid #35446b;
+    font-size: 2.2vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+  }
+
+  /* ── 타이핑 — 폭이 글자수에 묶여 있어 문구는 박아 둔다 (rest-delete 선례) ── */
+  .typed {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 15em; /* 실측 14.98em — 넓게 잡으면 resolve 에서 완성 어절 앞에 공백이 남는다 */
+  }
+  .ph-type .typed.animated {
+    animation-name: typing;
+    animation-duration: 2.0s;
+    animation-delay: 0.3s;
+    animation-timing-function: steps(19, end);
+  }
+  @keyframes typing { from { width: 0em; } to { width: 15em; } }
+  /* frozen·resolve 는 멈춘 그 폭에서 시작한다 — 애니메이션 없이 글자 폭 그대로 */
+  .ph-frozen .typed, .ph-resolve .typed { width: auto; }
+
+  .done { opacity: 0; }
+  .ph-resolve .done.animated {
+    animation-name: fadeUp;
+    animation-duration: 0.45s;
+    animation-delay: calc(var(--t2) + 0.6s);
+  }
+
+  .cursor {
+    flex: none;
+    width: 0.45ch;
+    height: 4vh;
+    margin-left: 0.5vh;
+    background: #eef2fc;
+    animation-name: blink;
+    animation-duration: 0.55s;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(2, jump-none);
+  }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ── 프리즈 — 탈색·감광. 커서와 후보판은 오버레이 위에 남는다 ── */
+  .chatwrap { position: relative; }
+  .ph-type .chatwrap.animated {
+    animation-name: freeze;
+    animation-duration: 0.28s;
+    animation-delay: 2.45s;
+    animation-timing-function: ease-out;
+  }
+  @keyframes freeze {
+    from { filter: none; }
+    to   { filter: grayscale(0.9) brightness(0.62); }
+  }
+  .ph-frozen .chatwrap { filter: grayscale(0.9) brightness(0.62); }
+  .ph-resolve .chatwrap.animated {
+    filter: grayscale(0.9) brightness(0.62);
+    animation-name: unfreeze;
+    animation-duration: 0.7s;
+    animation-delay: calc(var(--t2) + 0.55s);
+    animation-timing-function: ease-out;
+  }
+  @keyframes unfreeze {
+    from { filter: grayscale(0.9) brightness(0.62); }
+    to   { filter: none; }
+  }
+
+  /* ── 푸시인 — 커서 쪽으로 (frozen 만) ── */
+  .ph-frozen .zoomwrap.animated {
+    transform-origin: 40% 62%;
+    animation-name: pushin;
+    animation-duration: 1.0s;
+    animation-delay: 0.4s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes pushin { from { transform: scale(1); } to { transform: scale(1.28); } }
+  .ph-resolve .zoomwrap { transform: scale(1.14); transform-origin: 40% 62%; }
+
+  /* ── 유령 후보판 — 막대 길이만, 숫자 없음, '예시' 워터마크 ── */
+  .cands {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 68%;
+    display: none;
+    justify-content: center;
+  }
+  .ph-frozen .cands, .ph-resolve .cands { display: flex; }
+  /* resolve 는 자막(하단 ~18%)이 3행을 가리지 않게 판을 올리고 살짝 줄인다 — 평가 지적 1 */
+  .ph-resolve .cands { top: 60%; }
+  .ph-resolve .panel { transform: scale(0.92); transform-origin: top center; }
+  .panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6vh;
+    padding: 2.6vh 3.2vh 2.2vh;
+    border-radius: 1.8vh;
+    background: rgb(13 19 36 / 0.92);
+    border: 0.2vh solid #2c3a60;
+    box-shadow: 0 1.8vh 5vh rgb(0 0 0 / 0.5);
+  }
+  .panel .ex {
+    position: absolute;
+    top: 1.2vh;
+    right: 1.6vh;
+    font-size: 1.7vh;
+    font-weight: 700;
+    color: #55648a;
+    letter-spacing: 0.08em;
+  }
+  .cand { display: flex; align-items: center; gap: 2vh; opacity: 0; }
+  .cand .w {
+    width: 16vh;
+    text-align: right;
+    font-size: 2.9vh;
+    font-weight: 700;
+    color: #cfd9f2;
+  }
+  .cand .bar {
+    width: 26vh;
+    height: 1.7vh;
+    border-radius: 1vh;
+    background: #1c2745;
+    overflow: hidden;
+  }
+  .cand .bar i {
+    display: block;
+    height: 100%;
+    border-radius: 1vh;
+    background: linear-gradient(90deg, var(--brand), #6b8bff);
+    transform-origin: left center;
+    transform: scaleX(var(--p, 0.5));
+  }
+  .cand.c2 .bar i { opacity: 0.55; }
+  .cand.c3 .bar i { opacity: 0.35; }
+
+  .ph-frozen .cand.animated, .ph-resolve .cand.animated {
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+  .ph-frozen .cand.c1.animated { animation-delay: var(--t1); }
+  .ph-frozen .cand.c2.animated { animation-delay: calc(var(--t1) + 0.35s); }
+  .ph-frozen .cand.c3.animated { animation-delay: calc(var(--t1) + 0.7s); }
+  .ph-resolve .cand.c1.animated { animation-delay: var(--t1); }
+  .ph-resolve .cand.c2.animated { animation-delay: calc(var(--t1) + 0.25s); }
+  .ph-resolve .cand.c3.animated { animation-delay: calc(var(--t1) + 0.5s); }
+
+  /* resolve — 1순위 선택 링 + 나머지 소등, 완성 뒤 판이 물러난다 */
+  .pick {
+    position: absolute;
+    inset: -0.8vh -1.2vh;
+    border-radius: 1.4vh;
+    border: 0.32vh solid #7fe3a8;
+    box-shadow: 0 0 2.4vh rgb(127 227 168 / 0.45);
+    opacity: 0;
+  }
+  .ph-resolve .pick.animated {
+    animation-name: pickin;
+    animation-duration: 0.4s;
+    animation-delay: var(--t2);
+  }
+  @keyframes pickin { from { opacity: 0; transform: scale(1.12); } to { opacity: 1; transform: scale(1); } }
+  .cand { position: relative; }
+  .ph-resolve .cand.c2 .w, .ph-resolve .cand.c2 .bar,
+  .ph-resolve .cand.c3 .w, .ph-resolve .cand.c3 .bar {
+    animation-name: dimout;
+    animation-duration: 0.4s;
+    animation-delay: var(--t2);
+    animation-fill-mode: both;
+  }
+  @keyframes dimout { from { opacity: 1; } to { opacity: 0.18; } }
+  .ph-resolve .panel.animated {
+    animation-name: panelout;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t2) + 1.3s);
+    animation-timing-function: ease-in;
+  }
+  @keyframes panelout { from { opacity: 1; } to { opacity: 0; } }
+
+  /* resolve — 전송 확인 한 줄 */
+  .sent {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 80%;
+    text-align: center;
+    font-size: 2.6vh;
+    font-weight: 700;
+    color: #7fe3a8;
+    opacity: 0;
+    display: none;
+  }
+  .ph-resolve .sent { display: block; }
+  .ph-resolve .sent.animated {
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t2) + 1.6s);
+  }
+</style>
+
+<div class="stage">
+  <div class="teaser">이 답장의 결말은, <b>어디에도 저장돼 있지 않다</b></div>
+
+  <div class="zoomwrap animated">
+    <div class="chatwrap animated">
+      <div class="chat">
+        <div class="row user">
+          <div class="bubble">퇴근 인사, 정중하게 써 줘</div>
+        </div>
+        <div class="row ai">
+          <div class="badge">AI</div>
+          <div class="bubble">
+            <span class="typed animated">오늘도 고생 많으셨습니다. 내일 뵙</span><span class="done animated">겠습니다.</span>
+            <span class="cursor animated"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cands">
+    <div class="panel animated">
+      <span class="ex">예시</span>
+      <div class="cand c1 animated"><span class="pick animated"></span><span class="w">겠습니다</span><span class="bar"><i style="--p:0.88"></i></span></div>
+      <div class="cand c2 animated"><span class="w animated">겠어요</span><span class="bar animated"><i style="--p:0.44"></i></span></div>
+      <div class="cand c3 animated"><span class="w animated">네요</span><span class="bar animated"><i style="--p:0.2"></i></span></div>
+    </div>
+  </div>
+
+  <div class="sent animated">✓ 전송됨</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  // phase 로 세 쓰임(type/frozen/resolve)을 가른다. 타이밍은 내레이션 발화 시각에 맞춰
+  // 클립마다 t1·t2(초)로 받는다. 리터럴 .get('…') — preflight 가 이 패턴으로 params 를 읽는다.
+  const q = new URLSearchParams(location.search);
+  const phase = q.get('phase') || 'type';
+  document.body.classList.add('ph-' + phase);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

@@ -1,0 +1,238 @@
+{
+  "_읽어보기": "직장인 5분 개념강좌 1강 — LLM이란 무엇인가(챗GPT의 심장). 컨셉은 '저장된 답은 없다'(.claude/debate-logs/work5min-01-concept.md) — 채팅 답변 타이핑이 문장 한가운데('내일 뵙')서 얼어붙고, 미리 써둔 답을 찾아오는 게 아니라 한 단어씩 만드는 중이라는 반전. 엔딩에서 시청자가 다음 단어를 스스로 예측하게 해 회수한다. 앱 화면 0개 · 인트로 B롤 1개(ai-create, 2초) + 같은 시각 프레임을 bg/ai-create.jpg 로 뽑아 타이틀 카드 배경으로 쓴다(videoStart 3s 와 일치). 전용 도식 6장은 이 폴더. 구성표 plan.md · 수치 근거 facts.md(GPT-3 1,750억/3,000억, arXiv:2005.14165). voice·render 는 ../work5min/course.json 상속(강좌 고정 — 바꾸지 않는다).",
+  "id": "work5min-01",
+  "baseUrl": "http://localhost:9999",
+  "capture": {
+    "width": 1920,
+    "height": 1080
+  },
+  "voice": {
+    "provider": "edge",
+    "lang": "ko",
+    "gender": "female",
+    "rate": "+8%"
+  },
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#070b14",
+    "brand": "#3E63DD",
+    "brandText": "#93A4F5",
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.065,
+    "watermark": {
+      "text": "직장인 5분 개념강좌"
+    },
+    "watermarkAlign": 9,
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.08,
+    "bgmDucking": true,
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "broll",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
+          "videoStart": 3,
+          "shade": 0.35,
+          "duration": 2.0,
+          "before": "end"
+        },
+        {
+          "id": "title",
+          "file": "../work5min/course-intro.html",
+          "duration": 4.0,
+          "before": "end",
+          "narration": "1강, 챗지피티의 심장, 엘엘엠입니다.",
+          "params": {
+            "src": "../work5min-01/bg/ai-create.jpg",
+            "kicker": "직장인 5분 개념강좌",
+            "num": "1강",
+            "title": "LLM이란 무엇인가",
+            "subtitle": "챗GPT의 심장",
+            "wipe": "off",
+            "shade": "0.55"
+          }
+        },
+        {
+          "id": "hook",
+          "file": "chat-freeze.html",
+          "duration": 3.0,
+          "before": "end",
+          "params": {
+            "phase": "type",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "hookline",
+          "file": "chat-freeze.html",
+          "duration": 4.0,
+          "before": "end",
+          "narration": "지금 이 순간, 이 문장이 어떻게 끝날지, 챗지피티 자신도 모릅니다. 어딘가 미리 써 둔 답을 찾아서 보여 주는 거라고 생각하기 쉽죠. 그런데 이 답은 지금, 한 단어씩 만들어지고 있는 중입니다.",
+          "params": {
+            "phase": "frozen",
+            "t1": "4.5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "stinger",
+          "file": "../work5min/course-stinger.html",
+          "duration": 3.0,
+          "before": "end",
+          "params": {
+            "brandline": "직장인 5분 개념강좌",
+            "tagline": "개념 하나를, 5분에",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "promise",
+          "file": "llm-promise.html",
+          "duration": 4.0,
+          "before": "end",
+          "narration": "오늘 세 가지를 가져갑니다. 챗지피티가 답을 만드는 진짜 방식, 그 심장인 다음 단어 맞히기, 그리고 그 감각을 만든 어마어마한 예습. 이 셋이면, 뉴스에 나오는 엘엘엠이 한 번에 읽힙니다.",
+          "params": {
+            "t1": "4.2",
+            "t2": "7.0",
+            "t3": "10.2",
+            "wipe": "off",
+            "tterm": "1.2"
+          }
+        },
+        {
+          "id": "ch1",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "narration": "먼저, 통념부터 뒤집습니다.",
+          "params": {
+            "num": "1",
+            "title": "찾는 게 아니라, 만든다",
+            "progress": "33",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "s1",
+          "file": "llm-search-vs.html",
+          "duration": 4.5,
+          "before": "end",
+          "narration": "우리는 챗지피티를 검색처럼 씁니다. 그래서 오해도 검색을 닮았죠. 어딘가 거대한 서랍에 답장이 미리 들어 있고, 질문하면 꺼내 온다는 그림입니다. 실제로 많은 분들이 챗지피티한테 물어봤어, 를 검색해 봤어, 와 같은 뜻으로 쓰죠. 검색 엔진은 정말 그렇게 일합니다. 이미 세상에 있는 문서를 찾아서 보여 주는 거니까요. 그런데 엘엘엠은 다릅니다. 완성된 답을 찾아오는 게 아니라, 여러분의 질문을 읽고 그 자리에서 답을 조립합니다. 단어 하나를 고르고, 그다음 단어를 고르고, 또 그다음을 고르고. 그래서 같은 질문을 두 번 하면, 답이 조금씩 달라집니다. 서랍에서 꺼낸 종이라면 매번 똑같아야 하는데 말이죠. 그럼 대체, 무엇을 기준으로 다음 단어를 고르는 걸까요?",
+          "params": {
+            "t1": "20",
+            "t2": "30",
+            "tn": "39",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch2",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "narration": "그 기준이, 심장입니다.",
+          "params": {
+            "num": "2",
+            "title": "심장 — 다음 단어 맞히기",
+            "progress": "67",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "s2",
+          "file": "llm-next-word.html",
+          "duration": 4.5,
+          "before": "end",
+          "narration": "엘엘엠의 정식 이름은 대규모 언어 모델. 하는 일은 딱 하나입니다. 지금까지의 글을 읽고, 다음에 올 단어 조각의 확률을 계산하는 것. 화면처럼 오늘도, 까지 쓰였다면, 다음 후보로 고생, 회의, 야근 같은 조각들이 저울에 오릅니다. 가장 그럴듯한 조각을 고르면, 문장이 한 칸 자랍니다. 그리고 똑같은 계산을 처음부터 다시 합니다. 이번엔 방금 고른 단어까지 포함해서요. 고르고, 붙이고, 다시 고르고. 이 단순한 동작을 쉼 없이 반복한 결과가, 여러분이 받는 그 긴 답장입니다. 휴대폰 자판 위의 다음 단어 추천과 같은 원리인데, 그 저울이 비교할 수 없이 크고 정교한 셈이죠. 번역도, 요약도, 보고서 초안도 전부 같은 동작입니다. 질문이 달라지면 확률이 달라지고, 확률이 달라지면 다음 단어가 달라질 뿐입니다.",
+          "params": {
+            "t1": "13",
+            "t2": "19.5",
+            "t3": "23.5",
+            "t4": "27.5",
+            "t5": "30.5",
+            "wipe": "off",
+            "t6": "43.5"
+          }
+        },
+        {
+          "id": "ch3",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "narration": "그 확률은, 어디서 왔을까요?",
+          "params": {
+            "num": "3",
+            "title": "예습 — 빈칸 맞히기의 규모",
+            "progress": "100",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "s3",
+          "file": "llm-training.html",
+          "duration": 4.5,
+          "before": "end",
+          "narration": "답은 예습입니다. 엘엘엠은 만들어질 때, 사람이 쓴 방대한 글로 빈칸 맞히기 연습을 합니다. 문장 뒷부분을 가려 놓고 맞혀 보고, 틀리면 안의 다이얼을 조금 돌려 다음엔 덜 틀리게 만들죠. 이 연습을 상상하기 어려운 규모로 반복합니다. 챗지피티의 원형인 지피티 쓰리 기준으로, 학습에 쓴 글이 약 삼천억 개의 단어 조각. 조정한 다이얼, 그러니까 파라미터가 천칠백오십억 개입니다. 웹 문서와 책, 백과사전을 통째로 읽으며 다음 단어의 감각을 익힌 겁니다. 그 예습 안에는 인사말도, 보고서 문장도, 뉴스 기사도 있었습니다. 무엇을 부탁해도 곧잘 흉내 내는 이유죠. 다만, 하나만 기억해 두세요. 이 방식은 그럴듯한 말을 만들 뿐, 참과 거짓을 확인하는 장치가 아닙니다. 그래서 답을 받아 쓸 때의 사실 확인은, 여러분의 몫으로 남습니다.",
+          "params": {
+            "t1": "6.5",
+            "t2": "11.5",
+            "t3": "22",
+            "t4": "27",
+            "tn": "49.5",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "recap",
+          "file": "llm-recap.html",
+          "duration": 5.0,
+          "before": "end",
+          "narration": "정리합니다. 엘엘엠은 저장된 답을 찾아오지 않습니다. 그 자리에서 만듭니다. 만드는 방법은 단 하나, 다음 단어 맞히기. 그리고 그 감각은, 방대한 글로 한 빈칸 맞히기 예습에서 왔습니다. 찾지 않고 만든다. 다음 단어를 고른다. 예습으로 배웠다. 이 세 문장이면, 엘엘엠의 심장은 다 본 겁니다.",
+          "params": {
+            "t1": "3.5",
+            "t2": "9",
+            "t3": "11.5",
+            "tn": "21",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "payoff",
+          "file": "chat-freeze.html",
+          "duration": 4.0,
+          "before": "end",
+          "narration": "자, 처음의 그 문장으로 돌아갑니다. 내일 뵙, 에서 멈춰 있었죠. 다음 단어, 여러분 머릿속에도 이미 떠올랐을 겁니다. 맞습니다, 겠습니다. 지금까지의 글을 보고, 가장 자연스러운 다음 조각을 고르는 것. 방금 여러분이 한 것, 그게 엘엘엠이 하는 일의 전부입니다. 다만 여러분은 뜻을 알고 골랐고, 엘엘엠은 확률로 고릅니다. 그 차이까지 챙기셨다면, 오늘 강의는 성공입니다.",
+          "params": {
+            "phase": "resolve",
+            "t1": "1.5",
+            "t2": "10",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 5.0,
+          "before": "end",
+          "narration": "챗지피티의 답은, 찾아온 게 아니라 방금 그 자리에서 한 단어씩 만들어진 문장입니다. 이것 하나만 알아도, 에이아이 뉴스가 다르게 보입니다. 직장인 5분 개념강좌 1강, 여기까지입니다. 고맙습니다.",
+          "params": {
+            "title": "답은, 만들어진다",
+            "subtitle": "직장인 5분 개념강좌 · 1강",
+            "wipe": "off"
+          }
+        }
+      ]
+    }
+  },
+  "scenes": [],
+  "variants": [
+    {
+      "id": "work5min-01-16x9",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

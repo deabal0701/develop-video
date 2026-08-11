@@ -1,0 +1,220 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>score gap</title>
+<!-- 훅·해설·회수 공용 — 같은 모델·같은 문제로 채점한 두 답안지. 왼쪽은 답을 바로 쓰게 한
+     프롬프트(17.7%), 오른쪽은 "단계별로 생각해 보자"를 먼저 붙인 프롬프트(78.7%).
+     두 프롬프트 문구는 창작이 아니라 Kojima et al. 2022 저자 공개 코드의 실제 템플릿을
+     우리말로 옮긴 것이다(facts.md).
+
+     phase 로 세 쓰임을 가른다:
+       open     훅(무내레이션 3s) — 프레임 0부터 두 프롬프트가 인쇄돼 있고, 점수가 차례로 뜬다
+       reveal   훅 해설 — 처음부터 두 점수가 서 있고, t1 에 시점·모델 각주가 붙는다
+       resolve  엔딩 회수 — 오른쪽 프롬프트 줄이 빈칸으로 돌아가고 t1 에 질문이 뜬다
+
+     params: phase · t1 · t2 · wipe=off
+     주의: `animation:` 단축 속성 금지. 가운데 정렬은 left/right:0 + text-align.
+     popIn 은 _base.css 에 없으므로 여기서 직접 정의한다(공용 파일 수정 금지 — 1강 렌더가 바뀐다). -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; --t1: 2s; --t2: 4s; }
+
+  .stage { padding: 0 7%; gap: 3.2vh; }
+
+  /* 프레임 0부터 서 있는 모순 예고 — 방법론 각주가 아니라 긴장 */
+  .head {
+    font-size: 3.6vh;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #cfd9f2;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .cards { display: flex; gap: 3.4vh; width: 100%; align-items: stretch; }
+
+  .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2.2vh;
+    padding: 3vh 2.8vh 2.6vh;
+    border-radius: 2.2vh;
+    background: #0c1322;
+    border: 0.2vh solid #222f4e;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .card.a { animation-delay: 0s; }
+  .card.b { animation-delay: 0.15s; }
+  /* 왼쪽은 채도만 낮춘다 — 탈색하면 '꺼짐·로딩중'으로 오독된다(1강 프리즈 교훈) */
+  .ph-open .card.a, .ph-reveal .card.a { filter: saturate(0.45); }
+
+  .tag {
+    align-self: center;
+    padding: 0.5vh 1.8vh;
+    border-radius: 2vh;
+    background: color-mix(in srgb, var(--brand) 16%, transparent);
+    border: 0.16vh solid #3a4a78;
+    font-size: 2.1vh;
+    font-weight: 700;
+    color: #8ea0c8;
+  }
+  .card.b .tag { color: var(--brand-soft); border-color: var(--brand); }
+
+  /* 인쇄된 프롬프트 줄 — 읽는 시간이 훅의 자산이다 */
+  .prompt {
+    min-height: 11vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.8vh 2vh;
+    border-radius: 1.2vh;
+    background: #111a2e;
+    border: 0.18vh dashed #35446b;
+    font-family: var(--mono);
+    font-size: 2.7vh;
+    font-weight: 700;
+    line-height: 1.45;
+    color: #dfe6f6;
+    text-align: center;
+  }
+  .card.b .prompt { border-color: var(--brand); color: #fff; }
+  .prompt .cot { color: var(--brand-soft); }
+  /* resolve — 오른쪽 프롬프트가 빈칸으로 돌아간다 */
+  .blankline { display: none; color: #55648a; }
+  /* 빈칸은 문자(▁)로 그리지 않는다 — 렌더 폰트에 없어 화면에서 사라진다(실측). 요소로 그린다 */
+  .blankline .slot {
+    display: inline-block;
+    width: 15ch;
+    height: 0.42vh;
+    margin-bottom: 0.9vh;
+    border-radius: 0.3vh;
+    background: var(--brand);
+    opacity: 0.85;
+  }
+  .ph-resolve .card.b .realline { display: none; }
+  .ph-resolve .card.b .blankline { display: inline; }
+
+  .score {
+    font-size: 8.6vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    opacity: 0;
+  }
+  .card.a .score { color: #5a6b8c; }
+  .card.b .score { color: var(--brand-soft); }
+  .ph-open .score.animated {
+    animation-name: popIn;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .ph-open .card.a .score.animated { animation-delay: 1.0s; }
+  .ph-open .card.b .score.animated { animation-delay: 2.0s; }
+  /* reveal·resolve 는 처음부터 서 있다 */
+  .ph-reveal .score, .ph-resolve .score { opacity: 1; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(1.14); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .slabel { font-size: 2.1vh; font-weight: 600; color: #6d7ea6; }
+
+  /* 두 숫자 사이 격차 — 파생 계산값(facts.md 등재) */
+  .gap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8vh;
+    flex: none;
+    width: 15vh;
+    opacity: 0;
+  }
+  .gap .x { font-size: 5.4vh; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+  .gap .c { font-size: 1.9vh; font-weight: 700; color: #6d7ea6; }
+  .ph-open .gap.animated {
+    animation-name: riseUp;
+    animation-duration: 0.5s;
+    animation-delay: 2.6s;
+  }
+  .ph-reveal .gap { opacity: 1; }
+  .ph-resolve .gap { display: none; }
+
+  /* 시점·모델 각주 — 잘라 써도 분리되지 않게 도식 안에 물리적으로 붙인다 */
+  .note {
+    font-size: 2.1vh;
+    font-weight: 600;
+    color: #55648a;
+    opacity: 0;
+  }
+  .ph-reveal .note.animated {
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: var(--t1);
+  }
+  .ph-open .note { display: none; }
+  .ph-resolve .note { display: none; }
+
+  /* resolve — 시청자에게 묻는 한 줄 */
+  .ask {
+    font-size: 3.3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+    opacity: 0;
+    display: none;
+  }
+  .ph-resolve .ask { display: block; }
+  .ph-resolve .ask.animated {
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+    animation-delay: var(--t1);
+  }
+
+  /* 회수 구간은 내레이션이 있어 자막과 겹칠 수 있다 — 선제적으로 올리고 줄인다 */
+  .ph-resolve .stage { gap: 2.6vh; }
+  .ph-resolve .cards { transform: scale(0.92); transform-origin: top center; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head">같은 모델. 같은 문제. <b>바뀐 건 한 줄.</b></div>
+
+  <div class="cards">
+    <div class="card a animated">
+      <span class="tag">A</span>
+      <div class="prompt">답은 —</div>
+      <div class="score animated">17.7%</div>
+      <div class="slabel">정답률</div>
+    </div>
+
+    <div class="gap animated">
+      <span class="x">4.4배</span>
+      <span class="c">78.7 ÷ 17.7</span>
+    </div>
+
+    <div class="card b animated">
+      <span class="tag">B</span>
+      <div class="prompt"><span class="realline"><span class="cot">단계별로 생각해 보자.</span><br>답은 —</span><span class="blankline"><span class="slot"></span><br>답은 —</span></div>
+      <div class="score animated">78.7%</div>
+      <div class="slabel">정답률</div>
+    </div>
+  </div>
+
+  <div class="note animated">2022년 코지마 연구진 · InstructGPT · 산술 문제(MultiArith) 기준</div>
+  <div class="ask animated">오늘 배운 세 손잡이 중, 무엇을 넣으시겠습니까?</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const phase = q.get('phase') || 'open';
+  document.body.classList.add('ph-' + phase);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

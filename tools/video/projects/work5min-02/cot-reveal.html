@@ -1,0 +1,228 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>cot reveal</title>
+<!-- 2장 — 왜 한 줄이 4배를 만드나(메커니즘). 위: 답 직행 — 문제 바로 뒤에서 답을 써야 하니
+     참고할 글이 문제뿐이다. 아래: 풀이 경유 — 풀이가 먼저 쓰이고, 답을 쓸 차례에는
+     그 풀이가 '앞에 놓인 글'이 되어 다음 토큰 확률이 달라진다(1강 회수).
+     오른쪽 막대 그래프가 17.7 vs 78.7 을 세운다. 시점·모델 각주는 도식 안에 물리적으로 붙인다.
+
+     params: t1(아래 경로) · t2(풀이 조각 등장) · t3(그래프) · tn(한계 문구) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+          --t1: 12s; --t2: 18s; --t3: 30s; --tn: 46s; }
+
+  .stage { padding: 0 6%; gap: 2.6vh; }
+
+  .head {
+    font-size: 4.2vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .body { display: flex; gap: 3.4vh; width: 100%; align-items: stretch; }
+  .paths { flex: 1.35; display: flex; flex-direction: column; gap: 2.2vh; }
+
+  .path {
+    display: flex;
+    align-items: center;
+    gap: 1.4vh;
+    padding: 2vh 2.2vh;
+    border-radius: 1.6vh;
+    background: #0c1322;
+    border: 0.2vh solid #222f4e;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+  }
+  .path.p1 { animation-delay: 0.3s; }
+  .path.p2 { animation-delay: var(--t1); border-color: var(--brand); }
+
+  .chip {
+    padding: 1.1vh 1.5vh;
+    border-radius: 0.9vh;
+    background: #17203a;
+    border: 0.18vh solid #35446b;
+    font-size: 2.1vh;
+    font-weight: 700;
+    color: #cfd9f2;
+    white-space: nowrap;
+  }
+  .chip.q { background: #1b2440; }
+  .chip.a { border-color: #4a5b8c; }
+  .chip.step {
+    background: color-mix(in srgb, var(--brand) 20%, transparent);
+    border-color: var(--brand);
+    color: #fff;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.4s;
+  }
+  .p2 .chip.s1 { animation-delay: var(--t2); }
+  .p2 .chip.s2 { animation-delay: calc(var(--t2) + 0.7s); }
+  .p2 .chip.s3 { animation-delay: calc(var(--t2) + 1.4s); }
+
+  .arrow { color: #55648a; font-size: 2.4vh; font-weight: 800; }
+
+  .plabel { font-size: 1.9vh; font-weight: 700; color: #6d7ea6; text-align: left; min-width: 12vh; }
+  .p2 .plabel { color: var(--brand-soft); }
+
+  /* 오른쪽 — 막대 그래프 */
+  .chart {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4vh;
+    padding: 2vh 2vh 0;
+    border-radius: 1.6vh;
+    background: #0c1322;
+    border: 0.2vh solid #222f4e;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+    animation-delay: var(--t3);
+  }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 1vh; height: 100%; justify-content: flex-end; }
+  .val { font-size: 3vh; font-weight: 800; }
+  .col.a .val { color: #5a6b8c; }
+  .col.b .val { color: var(--brand-soft); }
+  .stick {
+    width: 7vh;
+    border-radius: 0.6vh 0.6vh 0 0;
+    transform-origin: bottom center;
+    transform: scaleY(0);
+    animation-name: growUp;
+    animation-duration: 0.9s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .col.a .stick { height: 4.6vh; background: #3d4a6e; animation-delay: calc(var(--t3) + 0.4s); }
+  .col.b .stick { height: 20.5vh; background: linear-gradient(180deg, var(--brand), #2c3f7a); animation-delay: calc(var(--t3) + 0.9s); }
+  @keyframes growUp { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .cname { font-size: 1.9vh; font-weight: 700; color: #6d7ea6; }
+
+  .foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9vh;
+  }
+  .basis {
+    font-size: 2vh;
+    font-weight: 600;
+    color: #55648a;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: calc(var(--t3) + 1.4s);
+  }
+  .note {
+    font-size: 2.6vh;
+    font-weight: 700;
+    color: #f0b64a;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+
+  /* 용어 주석 — SKILL.md '용어 주석' 절. templates/termnote.css 를 복사한 것.
+     공용 _base.css 는 수정하지 않는다(기존 회차 렌더가 바뀐다). 등장 시각은 tterm params. */
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: var(--tterm, 6s);
+  }
+  .termnote b {
+    font-family: var(--mono, ui-monospace, Menlo, monospace);
+    font-size: 2.3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+    letter-spacing: 0.01em;
+  }
+  .termnote .en {
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: #8ea0c8;
+  }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+  .termnote { position: absolute; left: 0; right: 0; top: 3%; margin: 0 auto; width: fit-content; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="termnote animated"><b>CoT</b><span class="en">Chain-of-Thought</span><span class="ko">생각의 사슬 — 답만 내지 말고 중간 과정을 쓰게 하는 프롬프트 기법</span></div>
+
+  <div class="head">한 줄이 바꾼 것 — <b>답을 쓸 때 앞에 놓인 글</b></div>
+
+  <div class="body">
+    <div class="paths">
+      <div class="path p1 animated">
+        <span class="plabel">답 직행</span>
+        <span class="chip q">문제</span>
+        <span class="arrow">→</span>
+        <span class="chip a">답은 —</span>
+      </div>
+      <div class="path p2 animated">
+        <span class="plabel">풀이 경유<br>Chain-of-Thought</span>
+        <span class="chip q">문제</span>
+        <span class="arrow">→</span>
+        <span class="chip step s1 animated">단계 1</span>
+        <span class="chip step s2 animated">단계 2</span>
+        <span class="chip step s3 animated">단계 3</span>
+        <span class="arrow">→</span>
+        <span class="chip a">답은 —</span>
+      </div>
+    </div>
+
+    <div class="chart animated">
+      <div class="col a">
+        <span class="val">17.7%</span>
+        <span class="stick animated"></span>
+        <span class="cname">답 직행</span>
+      </div>
+      <div class="col b">
+        <span class="val">78.7%</span>
+        <span class="stick animated"></span>
+        <span class="cname">풀이 경유</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="basis animated">2022년 코지마 연구진 · InstructGPT · 산술 문제(MultiArith) 기준</div>
+    <div class="note animated">단, 최신 모델은 이 과정을 이미 안에서 하기도 한다 — 만능 주문은 아니다</div>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tn: q.get('tn'), tterm: q.get('tterm') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

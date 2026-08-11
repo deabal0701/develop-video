@@ -1,0 +1,109 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>빼기의 순서</title>
+<!-- 1장 도식 — 총지급액 막대에서 비과세가 잘려 나가고, 남은 과세대상에서
+     공제가 차례로 빠져 실지급액이 남는다.
+     기법: 상태 변화(줄어드는 것이 보인다). 소리를 꺼도 "깎여 나가는 것"이 읽힌다.
+     params: t1(총액) · t2(비과세) · t3(과세대상 라벨) · t4(공제) · t5(실지급) · wipe -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  .stage { padding: 0 9%; gap: 0; }
+
+  .track { width: 100%; margin-bottom: 2.2vh; }
+  .row-h {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 2.2vh; font-weight: 700; color: #8fa8a3; margin-bottom: 0.8vh;
+  }
+  .row-h b { color: #e2efec; font-size: 2.5vh; }
+
+  .bar-bg {
+    height: 6vh; border-radius: 0.9vh; background: #10201d;
+    display: flex; overflow: hidden;
+  }
+  .seg { height: 100%; transform-origin: left center; }
+  .seg.total { flex: 1; background: linear-gradient(90deg, var(--brand), var(--brand-soft)); }
+  .seg.cut { background: #2a4642; }
+
+  /* 비과세 조각 — 잘려 나간다 */
+  .cutaway {
+    width: 100%; display: flex; gap: 1.2vh; align-items: center;
+    font-size: 2.1vh; font-weight: 700; color: #7FD6C7;
+    margin-bottom: 2.2vh;
+  }
+  .cutaway .chip {
+    padding: 0.7vh 1.4vh; border-radius: 0.7vh;
+    background: color-mix(in srgb, var(--brand) 20%, transparent);
+    border: 0.16vh solid color-mix(in srgb, var(--brand) 45%, transparent);
+  }
+
+  .base-note {
+    width: 100%; padding: 1.8vh 2.2vh; border-radius: 1vh;
+    background: color-mix(in srgb, var(--brand) 14%, transparent);
+    border-left: 0.45vh solid var(--brand);
+    text-align: left; font-size: 2.4vh; font-weight: 700; color: #e2efec;
+    margin-bottom: 2.2vh;
+  }
+  .base-note em { font-style: normal; color: var(--brand-soft); }
+
+  .deducts { display: flex; gap: 1.4vh; width: 100%; margin-bottom: 2.2vh; }
+  .ded {
+    flex: 1; padding: 1.4vh 1vh; border-radius: 0.9vh;
+    background: #131f1d; border: 0.16vh solid #24403b;
+    font-size: 2vh; font-weight: 700; color: #a9c2bd; text-align: center;
+  }
+
+  .final {
+    width: 100%; display: flex; justify-content: space-between; align-items: baseline;
+    padding: 2vh 2.4vh; border-radius: 1.2vh;
+    background: #0d1917; border: 0.22vh solid var(--brand);
+  }
+  .final .lbl { font-size: 2.2vh; font-weight: 800; color: var(--brand-soft); }
+  .final .amt { font-size: 3.4vh; font-weight: 800; color: #fff; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="track animated" id="a1">
+    <div class="row-h"><span>총지급액 — 기본급 + 수당</span><b>4,166,660</b></div>
+    <div class="bar-bg"><div class="seg total"></div></div>
+  </div>
+
+  <div class="cutaway animated" id="a2">
+    <span>− 비과세</span>
+    <span class="chip">식대</span><span class="chip">자가운전 보조금</span>
+    <span>= 세금이 붙지 않는 돈</span>
+  </div>
+
+  <div class="base-note animated" id="a3">
+    남은 것이 <em>과세대상 급여</em> — 이후 모든 계산의 기준
+  </div>
+
+  <div class="deducts animated" id="a4">
+    <div class="ded">국민연금</div>
+    <div class="ded">건강보험</div>
+    <div class="ded">고용보험</div>
+    <div class="ded">소득세</div>
+  </div>
+
+  <div class="final animated" id="a5">
+    <span class="lbl">실지급액</span><span class="amt">3,554,360</span>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  // 사전 점검이 q.get('이름') 리터럴로 파라미터를 센다 — 명시적으로 한 번 읽는다.
+  const P = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), t4: q.get('t4'), t5: q.get('t5') };
+  const at = (k, d) => { const v = parseFloat(P[k]); return Number.isFinite(v) ? v : d; };
+  [['a1', at('t1', 3)], ['a2', at('t2', 10)], ['a3', at('t3', 20)],
+   ['a4', at('t4', 30)], ['a5', at('t5', 44)]].forEach(([id, d]) => {
+    const el = document.getElementById(id);
+    el.style.animationName = 'fadeUp';
+    el.style.animationDuration = '0.5s';
+    el.style.animationDelay = `${d}s`;
+  });
+</script>

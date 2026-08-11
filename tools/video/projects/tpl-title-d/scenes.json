@@ -1,0 +1,106 @@
+{
+  "_읽어보기": "[확정 템플릿] B롤 2s → 같은 소재 프레임 위 제목 4s → 스팅어 → 본론 → 마무리. 타이틀 카드는 강좌 공통 ../work5min/course-intro.html 를 참조한다.",
+  "id": "tpl-title-d",
+  "baseUrl": "http://localhost:9999",
+  "capture": {
+    "width": 1920,
+    "height": 1080
+  },
+  "voice": {
+    "provider": "edge",
+    "lang": "ko",
+    "gender": "female",
+    "rate": "+8%"
+  },
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#070b14",
+    "brand": "#3E63DD",
+    "brandText": "#93A4F5",
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.065,
+    "watermark": {
+      "text": "직장인 5분 개념강좌"
+    },
+    "watermarkAlign": 9,
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.08,
+    "bgmDucking": true,
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "broll",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-create.mp4",
+          "videoStart": 3,
+          "shade": 0.35,
+          "duration": 2,
+          "before": "end"
+        },
+        {
+          "id": "title",
+          "file": "../work5min/course-intro.html",
+          "duration": 4,
+          "before": "end",
+          "narration": "1강, 챗지피티의 심장, 엘엘엠입니다.",
+          "params": {
+            "src": "bg/ai-create.jpg",
+            "kicker": "직장인 5분 개념강좌",
+            "num": "1강",
+            "title": "LLM이란 무엇인가",
+            "subtitle": "챗GPT의 심장",
+            "shade": "0.55",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "stinger",
+          "file": "../work5min/course-stinger.html",
+          "duration": 2.5,
+          "before": "end",
+          "params": {
+            "brandline": "직장인 5분 개념강좌",
+            "tagline": "개념 하나를, 5분에",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "body",
+          "file": "../work5min-01/llm-next-word.html",
+          "duration": 4,
+          "before": "end",
+          "narration": "엘엘엠은 저장된 답을 찾아오지 않습니다. 지금 이 자리에서, 한 단어씩 만듭니다.",
+          "params": {
+            "t1": "2.0",
+            "t2": "3.4",
+            "t3": "4.4",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 3.5,
+          "before": "end",
+          "narration": "찾지 않고 만든다. 오늘은 이 한 문장입니다.",
+          "params": {
+            "title": "답은, 만들어진다",
+            "subtitle": "직장인 5분 개념강좌 · 1강",
+            "wipe": "off"
+          }
+        }
+      ]
+    }
+  },
+  "scenes": [],
+  "variants": [
+    {
+      "id": "tpl-title-d-16x9",
+      "width": 1920,
+      "height": 1080,
+      "captions": false
+    }
+  ]
+}

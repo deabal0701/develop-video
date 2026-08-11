@@ -1,0 +1,298 @@
+{
+  "_읽어보기": "클라우드 입문 강의 (약 5분). 완전 입문자 대상 — IT 비전공자가 '서버가 뭔지'부터 이해하도록 비유로 풀고, AWS·Azure 같은 고유명사는 마지막 챕터에만 살짝 놓는다. 찍을 앱 화면이 없는 개념 강의라 scenes 를 비우고 타이포 모션 + 스톡 B롤로만 구성한다.",
+  "id": "cloud-lecture",
+  "baseUrl": "http://localhost:9999",
+  "capture": {
+    "width": 1920,
+    "height": 1080
+  },
+  "_목소리메모": "기본값인 edge 의 선희(ko-KR-SunHiNeural)로 간다. 입문자 대상 강의라 또렷하고 중립적인 톤이 맞고, edge 는 키가 필요 없어 대본을 여러 번 고쳐도 과금이 없다. eleven 은 이 계정 무료 플랜에서 라이브러리 목소리를 API 로 못 써서(check-tts 확인) 후보에서 뺐다. rate +6% — 개념 설명이라 ai-lecture(+8%)보다 살짝 느리게 둔다.",
+  "voice": {
+    "provider": "edge",
+    "lang": "ko",
+    "gender": "female",
+    "rate": "+6%"
+  },
+  "_소재메모": "B롤은 assets/broll/ 에 이미 받아 둔 7개 중에서 골랐다(원래 ai-lecture 용으로 받은 것이지만 데이터센터·도시 야경·코드 화면은 클라우드 설명에 그대로 맞는다). 새로 받은 소재는 없으므로 CATALOG.md 에 추가할 항목도 없다. 각 클립의 duration 은 소스 실측 길이를 넘지 않게 잡았다 — 넘으면 마지막 프레임이 얼어붙는다. 실측: ai-datacenter 14.3s · ai-city 24.2s · ai-city2 12.0s · ai-code 29.0s · ai-typing 14.2s. 주의: build.js 가 duration 을 max(duration, 음성+0.5) 로 늘리므로 내레이션이 길면 선언값과 무관하게 늘어난다 — B롤 구간의 내레이션을 짧게 유지한 이유다.",
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#06101C",
+    "brand": "#2E9BFF",
+    "brandText": "#A8D5FF",
+    "subtitleScale": 0.046,
+    "subtitleMargin": 0.065,
+    "watermark": {
+      "text": "클라우드 5분 개념"
+    },
+    "watermarkAlign": 9,
+    "bgm": "../../.claude/skills/develop-video/assets/bgm/mixkit-623.mp3",
+    "bgmGain": 0.08,
+    "bgmDucking": true,
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "intro",
+          "file": "intro.html",
+          "duration": 3.0,
+          "before": "end",
+          "wipe": "off",
+          "narration": "클라우드. 하루에도 몇 번씩 듣는 말이지만, 정확히 뭐냐고 물으면 설명하기가 참 애매하죠. 오늘 5분만 쓰면, 클라우드가 무엇이고 왜 세상이 이쪽으로 옮겨갔는지 확실히 잡힙니다.",
+          "params": {
+            "title": "클라우드",
+            "subtitle": "5분 만에 개념 잡기",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch1",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "먼저 가장 큰 오해부터 풀고 가겠습니다.",
+          "params": {
+            "num": "1",
+            "title": "클라우드는 하늘에 없다",
+            "progress": "20",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "b-datacenter",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-datacenter.mp4",
+          "videoStart": 1,
+          "before": "end",
+          "duration": 13.0,
+          "narration": "이름이 구름이라 어딘가 공중에 떠 있는 것 같지만, 클라우드의 실체는 지금 보시는 이겁니다. 어느 도시엔가 실제로 존재하는, 컴퓨터가 가득 찬 건물이요."
+        },
+        {
+          "id": "s-def",
+          "file": "cloud-rent.html",
+          "duration": 4.5,
+          "before": "end",
+          "wipe": "off",
+          "narration": "그러니까 클라우드는 결국 남의 컴퓨터입니다. 아주 잘 관리되는, 남의 컴퓨터요. 한 문장으로 줄이면 이렇게 됩니다. 내 컴퓨터를 사는 대신, 남의 컴퓨터를 필요한 만큼 빌려 쓰는 것. 이 한 줄만 잡고 계시면 나머지는 다 따라옵니다. 그리고 이 빌린 컴퓨터는 인터넷만 되면 어디서든 쓸 수 있습니다. 사무실에 앉아 있든 집에 있든 똑같습니다.",
+          "params": {
+            "title": "클라우드는 남의 컴퓨터다",
+            "left": "직접 산다",
+            "right": "빌려 쓴다",
+            "note": "필요한 만큼 빌려 쓴다",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch2",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "그럼 빌려 쓰면 뭐가 그렇게 좋을까요.",
+          "params": {
+            "num": "2",
+            "title": "왜 빌려 쓰는가",
+            "progress": "40",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "s-before",
+          "file": "stat.html",
+          "duration": 5.0,
+          "before": "end",
+          "wipe": "off",
+          "narration": "예전에는 인터넷 서비스를 하나 만들려면 먼저 서버 컴퓨터부터 사야 했습니다. 큰돈을 미리 쓰고, 둘 곳을 마련하고, 고장 나면 직접 고쳐야 했죠. 문을 열기도 전에 돈이 나갑니다.",
+          "params": {
+            "value": "먼저 사야",
+            "unit": "했다",
+            "title": "클라우드 이전 — 서버 구입 · 설치 · 관리까지 직접",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "b-city",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-city.mp4",
+          "videoStart": 2,
+          "before": "end",
+          "duration": 12.0,
+          "narration": "클라우드는 이 순서를 뒤집었습니다. 전기를 쓰는 방식과 같아요. 발전소를 짓지 않아도 스위치만 켜면 전기가 오고, 쓴 만큼만 냅니다. 서버도 그렇게 바뀐 겁니다."
+        },
+        {
+          "id": "s-pay",
+          "file": "cloud-cost.html",
+          "duration": 4.5,
+          "before": "end",
+          "wipe": "off",
+          "narration": "덕분에 시작 비용이 거의 사라졌습니다. 아이디어만 있으면 오늘 당장 서비스를 띄워 보고, 안 되면 접으면 됩니다. 예전 같으면 서버를 사느라 몇 달을 준비했을 일이, 이제는 오후 한나절이면 됩니다.",
+          "params": {
+            "title": "시작할 때 드는 돈이 다르다",
+            "left": "직접 산다",
+            "right": "빌려 쓴다",
+            "note": "쓴 만큼만 — 전기 요금과 같은 방식",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch3",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "클라우드의 진짜 힘은 따로 있습니다.",
+          "params": {
+            "num": "3",
+            "title": "늘었다 줄었다 한다",
+            "progress": "60",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "b-city2",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-city2.mp4",
+          "videoStart": 0,
+          "before": "end",
+          "duration": 11.0,
+          "narration": "쇼핑몰을 한다고 해 봅시다. 평소에는 한산한데 명절에만 손님이 몰립니다. 서버를 직접 산다면 그 하루에 맞춰 사 둬야 하죠."
+        },
+        {
+          "id": "s-scale",
+          "file": "cloud-scale.html",
+          "duration": 5.0,
+          "before": "end",
+          "wipe": "off",
+          "narration": "나머지 삼백육십사 일은 그 큰 서버를 놀려야 합니다. 클라우드에서는 몰릴 때만 컴퓨터를 늘렸다가, 끝나면 도로 줄입니다. 몇 분이면 됩니다. 이걸 확장성이라고 부르는데, 많은 회사가 클라우드로 옮겨 간 가장 큰 이유입니다.",
+          "params": {
+            "title": "몰릴 때만 늘리고, 끝나면 줄인다",
+            "note": "평소엔 한 대, 명절엔 다섯 대 — 몇 분이면 된다",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch4",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "빌리는 방식에도 단계가 있습니다.",
+          "params": {
+            "num": "4",
+            "title": "어디까지 빌릴 것인가",
+            "progress": "80",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "b-code",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-code.mp4",
+          "videoStart": 3,
+          "before": "end",
+          "duration": 13.0,
+          "narration": "집에 비유하면 쉽습니다. 땅만 빌려 직접 짓는 방식, 뼈대까지 올라간 집을 빌려 안을 꾸미는 방식, 그리고 가구까지 다 갖춰진 집에 몸만 들어가는 방식이 있습니다."
+        },
+        {
+          "id": "s-layers",
+          "file": "cloud-layers.html",
+          "duration": 5.5,
+          "before": "end",
+          "wipe": "off",
+          "narration": "우리가 매일 쓰는 이메일이나 메신저, 사진 백업이 바로 이 세 번째, 몸만 들어가는 방식입니다. 서버가 어디 있는지 몰라도 아무 문제가 없죠. 그러니까 여러분은 이미 오래전부터 클라우드를 쓰고 계셨던 겁니다. 세 방식 중 무엇을 고르느냐는 직접 관리할 일을 얼마나 떠안을지의 문제입니다.",
+          "params": {
+            "title": "어디까지 빌릴 것인가",
+            "c1": "땅만 빌린다",
+            "c2": "뼈대까지 빌린다",
+            "c3": "몸만 들어간다",
+            "note": "오른쪽으로 갈수록 내 손이 덜 간다",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch5",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "마지막으로, 알아 두면 좋은 이름들입니다.",
+          "params": {
+            "num": "5",
+            "title": "그래서 어디를 쓰나",
+            "progress": "85",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "b-typing",
+          "video": "../../.claude/skills/develop-video/assets/broll/ai-typing.mp4",
+          "videoStart": 1,
+          "before": "end",
+          "duration": 12.0,
+          "narration": "이 컴퓨터를 빌려주는 회사가 몇 곳 있습니다. 아마존, 마이크로소프트, 구글이 대표적이죠."
+        },
+        {
+          "id": "s-caveat",
+          "file": "stat.html",
+          "duration": 5.5,
+          "before": "end",
+          "wipe": "off",
+          "narration": "이름은 달라도 컴퓨터를 빌려준다는 원리는 같습니다. 물론 단점도 있습니다. 쓴 만큼 낸다는 말은, 잘못 쓰면 요금이 훅 오른다는 뜻이기도 하죠. 실제로 설정을 잘못 걸어 두고 요금 고지서를 보고 놀라는 일이 자주 있습니다. 그리고 남의 컴퓨터에 얹혀 있으니, 그쪽이 멈추면 우리 서비스도 같이 멈춥니다.",
+          "params": {
+            "value": "공짜",
+            "unit": "는 아니다",
+            "title": "요금 관리 · 장애 의존",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "ch6",
+          "file": "chapter.html",
+          "duration": 2.2,
+          "before": "end",
+          "wipe": "off",
+          "narration": "여기서 많은 분이 이걸 물어보십니다.",
+          "params": {
+            "num": "6",
+            "title": "남의 컴퓨터인데 안전한가",
+            "progress": "100",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "s-safe",
+          "file": "cloud-replica.html",
+          "duration": 5.0,
+          "before": "end",
+          "wipe": "off",
+          "narration": "내 파일을 남의 컴퓨터에 두는 게 불안하다는 말씀, 당연합니다. 그런데 뒤집어 보면 이렇습니다. 우리 집 컴퓨터는 물에 젖거나 잃어버리면 그걸로 끝이지만, 클라우드는 같은 자료를 여러 곳에 나눠 보관하고 전문 인력이 밤낮으로 지킵니다. 개인이나 작은 회사가 그 수준을 혼자 갖추기는 오히려 더 어렵습니다. 다만 비밀번호 관리처럼 우리 쪽에서 지켜야 할 몫은 여전히 남습니다.",
+          "params": {
+            "title": "한 곳이 꺼져도 파일은 남는다",
+            "note": "같은 파일을 여러 곳에 복제해 둔다",
+            "wipe": "off"
+          }
+        },
+        {
+          "id": "outro",
+          "file": "outro.html",
+          "duration": 6.0,
+          "before": "end",
+          "wipe": "off",
+          "narration": "정리하겠습니다. 클라우드는 남의 컴퓨터를 필요한 만큼 빌려 쓰는 것입니다. 미리 크게 사 두지 않아도 되고, 몰릴 때만 늘렸다가 줄일 수 있습니다. 이 세 가지만 기억하시면, 앞으로 클라우드라는 말이 나와도 당황할 일은 없습니다. 오늘 영상은 여기까지입니다. 고맙습니다.",
+          "params": {
+            "title": "빌려 쓴다 · 미리 안 산다 · 늘렸다 줄인다",
+            "subtitle": "클라우드 5분 개념",
+            "wipe": "off"
+          }
+        }
+      ]
+    }
+  },
+  "scenes": [],
+  "variants": [
+    {
+      "id": "cloud-lecture-16x9",
+      "width": 1920,
+      "height": 1080,
+      "captions": false
+    }
+  ]
+}

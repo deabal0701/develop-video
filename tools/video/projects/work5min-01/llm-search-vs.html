@@ -1,0 +1,223 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>llm search vs</title>
+<!-- 1장 — 검색(서랍에서 완성된 문서를 꺼낸다) vs LLM(빈 말풍선에 단어 블록이 하나씩
+     날아와 조립된다)의 좌우 대비. 좌가 먼저(t1), 우가 나중(t2)에 움직여 내레이션을 따른다.
+     params: t1(검색 문서 꺼냄 s) · t2(조립 시작 s) · tn(하단 문구 s) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #05070d; --t1: 9s; --t2: 24s; --tn: 40s; }
+
+  .stage { padding: 0 8%; gap: 4vh; }
+
+  .head {
+    font-size: 4.4vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+
+  .cols { display: flex; gap: 4vh; width: 100%; }
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.6vh;
+    padding: 3.4vh 3vh 3vh;
+    border-radius: 2.2vh;
+    background: #0c1322;
+    border: 0.2vh solid #222f4e;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .col.left  { animation-delay: 0.25s; }
+  .col.right { animation-delay: calc(var(--t2) - 0.6s); }
+
+  .label { font-size: 3.2vh; font-weight: 800; }
+  .left  .label { color: #8ea0c8; }
+  .right .label { color: var(--brand-soft); }
+  .label small { display: block; margin-top: 0.5vh; font-size: 2.1vh; font-weight: 600; color: #6d7ea6; }
+
+  .scene { position: relative; width: 100%; height: 34vh; }
+
+  /* ── 좌: 서랍(문서함) — 완성된 답장이 통째로 올라온다 ── */
+  .cabinet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0 auto;
+    width: 30vh;
+    height: 17vh;
+    border-radius: 1.4vh;
+    background: #131c30;
+    border: 0.22vh solid #2b3a5e;
+  }
+  .cabinet .drawer {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    height: 3.6vh;
+    border-radius: 0.7vh;
+    background: #1b2440;
+    border: 0.18vh solid #33416a;
+  }
+  .cabinet .drawer::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5vh;
+    height: 0.5vh;
+    margin: -0.25vh 0 0 -2.5vh;
+    border-radius: 0.3vh;
+    background: #4a5b8c;
+  }
+  .cabinet .d1 { top: 8%; }
+  .cabinet .d2 { top: 38%; }
+  .cabinet .d3 { top: 68%; }
+
+  .doc {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12vh;
+    margin: 0 auto;
+    width: 17vh;
+    padding: 1.6vh 1.6vh 1.2vh;
+    border-radius: 1vh;
+    background: #e8ecf8;
+    color: #24304f;
+    font-size: 1.7vh;
+    font-weight: 700;
+    text-align: left;
+    box-shadow: 0 1.4vh 4vh rgb(0 0 0 / 0.5);
+    opacity: 0;
+    animation-name: docup;
+    animation-duration: 0.8s;
+    animation-delay: var(--t1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes docup {
+    from { opacity: 0; transform: translateY(9vh) scale(0.85); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .doc i { display: block; height: 0.55vh; border-radius: 0.3vh; background: #b9c4e0; margin-top: 0.9vh; }
+  .doc i.t { width: 62%; background: #7c93e8; height: 0.8vh; margin-top: 0.2vh; }
+
+  /* ── 우: 빈 말풍선에 단어 블록이 하나씩 날아와 조립 ── */
+  .bubble {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 4vh;
+    margin: 0 auto;
+    width: 34vh;
+    min-height: 15vh;
+    padding: 2.2vh;
+    border-radius: 1.8vh;
+    border-bottom-left-radius: 0.5vh;
+    background: #10182b;
+    border: 0.2vh solid #2c3a60;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 1.2vh;
+  }
+  .word {
+    padding: 0.9vh 1.5vh;
+    border-radius: 0.9vh;
+    background: color-mix(in srgb, var(--brand) 26%, transparent);
+    border: 0.2vh solid var(--brand);
+    font-size: 2.4vh;
+    font-weight: 700;
+    color: #dfe6f6;
+    opacity: 0;
+    animation-name: wordin;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes wordin {
+    from { opacity: 0; transform: translateY(9vh) translateX(3vh) scale(0.7); }
+    to   { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+  }
+  .word.w1 { animation-delay: var(--t2); }
+  .word.w2 { animation-delay: calc(var(--t2) + 0.9s); }
+  .word.w3 { animation-delay: calc(var(--t2) + 1.8s); }
+  .word.w4 { animation-delay: calc(var(--t2) + 2.7s); }
+  .word.w5 { animation-delay: calc(var(--t2) + 3.6s); }
+
+  /* 조립 중임을 보여주는 커서 점 */
+  .dot {
+    align-self: center;
+    width: 1.6vh;
+    height: 1.6vh;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    opacity: 0;
+    animation-name: dotpulse;
+    animation-duration: 0.8s;
+    animation-delay: calc(var(--t2) + 0.4s);
+    animation-iteration-count: infinite;
+  }
+  @keyframes dotpulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+
+  .note {
+    font-size: 2.9vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated">검색과 LLM — 답이 나오는 자리가 다르다</div>
+
+  <div class="cols">
+    <div class="col left animated">
+      <div class="label">검색 엔진<small>이미 있는 문서를 찾아온다</small></div>
+      <div class="scene">
+        <div class="doc animated"><i class="t"></i><i></i><i></i><i style="width:74%"></i></div>
+        <div class="cabinet">
+          <div class="drawer d1"></div>
+          <div class="drawer d2"></div>
+          <div class="drawer d3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col right animated">
+      <div class="label">LLM<small>그 자리에서 한 단어씩 만든다</small></div>
+      <div class="scene">
+        <div class="bubble">
+          <span class="word w1 animated">오늘도</span>
+          <span class="word w2 animated">고생</span>
+          <span class="word w3 animated">많으셨습니다.</span>
+          <span class="word w4 animated">내일</span>
+          <span class="word w5 animated">뵙겠습니다.</span>
+          <span class="dot animated"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note animated">그래서 같은 질문에도, 답은 조금씩 다르다</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), tn: q.get('tn') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

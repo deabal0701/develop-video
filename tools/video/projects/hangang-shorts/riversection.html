@@ -1,0 +1,209 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>river section</title>
+<!-- 한강 단면도 — 저수로·둔치(고수부지)·제방(강변도로)의 높이 관계를 보여 준다.
+     이 영상의 핵심 자산이다. 스톡에는 없는 그림이라 직접 그린다.
+
+     params:
+       title    상단 문구
+       rise     물이 차오르는 단계 0~3 (0=평상시, 1=둔치 잠김, 2=둔치 위, 3=제방 직전)
+       label*   각 층 이름표 — labelLow / labelDeck / labelBank
+       note     하단 보조 문구
+       wipe=off 모션끼리 이어질 때 흰 점멸 방지
+
+     주의: `animation:` 단축 속성을 쓰지 않는다(_base.css 주석 참조). -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  /* 9:16 변형은 1920 중 가운데 960만 남긴다(crop 960:1080:480:0). 그러므로 보이는 것은
+     화면 가운데 50%뿐이고, 그 밖에 둔 것은 전부 잘린다. 그림과 이름표를 전부
+     가운데 46% 안에 몰아넣는다 — 처음에 62%로 뒀다가 오른쪽 "제방" 이름표가 잘렸다. */
+  .stage { padding: 0 25%; gap: 2.4vh; }
+
+  .head {
+    font-size: 5.2vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  /* 좁은 세로 화면에서 상자가 세로로 길면 물이 "차오르는 단"이 아니라 파란 벽으로 보인다.
+     가로로 눕혀야 저수로→둔치→제방 계단이 읽힌다. */
+  .scene {
+    position: relative;
+    width: 100%;
+    height: 32vh;
+    border-radius: 1.6vh;
+    overflow: hidden;
+    background: linear-gradient(#0d1530, #131c3c);
+  }
+
+  /* 땅 — 오른쪽으로 갈수록 높아지는 계단(저수로 → 둔치 → 제방) */
+  .ground { position: absolute; inset: 0; }
+  /* 배경보다 확실히 밝게 — 어두우면 단이 배경에 묻혀 계단이 안 보인다. */
+  .ground i {
+    position: absolute;
+    bottom: 0;
+    display: block;
+    background: linear-gradient(#59648f, #3a4468);
+    border-top: 0.4vh solid #8f9bc4;
+  }
+  /* 저수로 바닥 — 평상시 물이 흐르는 가장 낮은 곳 */
+  .bed  { left: 0;   width: 28%; height: 12%; }
+  /* 둔치(고수부지) — 공원이 앉은 넓은 단. 여기가 잠기라고 만든 땅이다 */
+  .deck { left: 28%; width: 40%; height: 34%; }
+  /* 제방 = 강변도로. 둔치보다 확실히 높다 */
+  .bank { left: 68%; width: 32%; height: 62%; }
+
+  /* 둔치 위 공원 요소 — 잔디 띠와 가로등, 잠기는 대상임을 보여 준다 */
+  .grass {
+    position: absolute;
+    left: 28%; width: 40%;
+    bottom: 34%;
+    height: 1.2vh;
+    background: linear-gradient(#3f7a55, #2c5b3e);
+  }
+  .lamp {
+    position: absolute;
+    bottom: 34%;
+    width: 0.5vh;
+    height: 7vh;
+    background: #6b779f;
+  }
+  .lamp::after {
+    content: '';
+    position: absolute;
+    top: -0.9vh; left: -0.7vh;
+    width: 1.9vh; height: 1.9vh;
+    border-radius: 50%;
+    background: #f0c96b;
+  }
+  .lamp.a { left: 38%; }
+  .lamp.b { left: 56%; }
+
+  /* 도로 위 차선 — 제방이 도로임을 알아보게 */
+  .road {
+    position: absolute;
+    left: 68%; width: 32%;
+    bottom: 62%;
+    height: 1.1vh;
+    background: #4a5478;
+  }
+  .road::after {
+    content: '';
+    position: absolute;
+    top: 0.55vh; left: 8%;
+    width: 84%; height: 0.3vh;
+    background: repeating-linear-gradient(90deg, #cbd3ee 0 3%, transparent 3% 7%);
+  }
+
+  /* 물 — rise 단계에 따라 높이가 올라간다.
+     --h0~--h3을 CSS 변수로 두고 스크립트가 목표 높이를 정한다. */
+  /* 물은 제방 앞(왼쪽 68%)에서 멈춘다. 화면 끝까지 깔면 제방까지 덮어 버려서
+     "제방이 도시를 막고 있다"는 그림이 사라진다. */
+  .water {
+    position: absolute;
+    left: 0; right: 32%; bottom: 0;
+    height: var(--from, 12%);
+    /* 반투명 — 잠긴 둔치·가로등이 물 아래로 비쳐야 "잠겼다"가 읽힌다.
+       불투명하면 그냥 파란 면이 올라온 것으로 보인다. */
+    background: linear-gradient(180deg,
+      rgb(96 158 236 / 0.70) 0%,
+      rgb(46 96 176 / 0.78) 100%);
+    border-top: 0.4vh solid #9fc4f2;
+    animation-name: swell;
+    animation-duration: 2.2s;
+    animation-delay: 0.5s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes swell {
+    from { height: var(--from, 12%); }
+    to   { height: var(--to, 12%); }
+  }
+
+  /* 수위선 — 물 표면에서 옆으로 뻗는 점선. 높이 비교를 눈에 박는다 */
+  .mark {
+    position: absolute;
+    left: 0; right: 32%;
+    bottom: var(--to, 12%);
+    height: 0;
+    border-top: 0.3vh dashed rgb(255 255 255 / 0.55);
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 2.4s;
+  }
+
+  /* 층 이름표 */
+  .tag {
+    position: absolute;
+    font-size: 1.9vh;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #eef2ff;
+    text-shadow: 0 0.15vh 0.35vh rgb(0 0 0 / 0.9);
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  /* 이름표는 각자 가리키는 단 "위"에 앉힌다. 제방 이름표는 오른쪽 끝에 두면 좁은 화면에서
+     글자가 상자 밖으로 나가므로 오른쪽 정렬로 안쪽에 붙인다. */
+  /* 저수로 이름표는 물이 차오르면 잠기므로 수면 위(상자 위쪽)에 띄우되,
+     가리키는 대상이 왼쪽 저수로임이 보이게 왼쪽 끝에 붙인다. */
+  .tag.low  { left: 2%;  top: 8%;    animation-delay: 0.8s; }
+  .tag.deck { left: 29%; bottom: 37%; animation-delay: 1.0s; }
+  /* 제방 몸통(위에서 38% 지점부터 시작) 안쪽에 앉힌다. bottom 으로 잡으면 도로 띠와
+     겹치거나 상자 밖으로 밀려 나가서 top 기준으로 고정한다. */
+  .tag.bank { right: 2%; top: 46%; width: 30%; text-align: right; animation-delay: 1.2s; }
+
+  .note {
+    font-size: 2.9vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 2.6s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="scene">
+    <div class="ground">
+      <i class="bed"></i>
+      <i class="deck"></i>
+      <i class="bank"></i>
+    </div>
+    <div class="grass"></div>
+    <div class="lamp a"></div>
+    <div class="lamp b"></div>
+    <div class="road"></div>
+
+    <div class="water animated"></div>
+    <div class="mark animated"></div>
+
+    <div class="tag low  animated" data-p="labelLow"></div>
+    <div class="tag deck animated" data-p="labelDeck"></div>
+    <div class="tag bank animated" data-p="labelBank"></div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  // rise 단계 → 물 높이. 둔치 상단이 34%, 제방 상단이 62%이므로
+  // 2단계에서 둔치를 확실히 덮고 3단계는 제방 바로 아래까지만 올린다.
+  const LEVELS = ['12%', '34%', '46%', '58%'];
+  const q = new URLSearchParams(location.search);
+  const rise = Math.max(0, Math.min(3, Number(q.get('rise') ?? 0)));
+  const root = document.documentElement;
+  // 한 단계 아래에서 시작해 차오르는 것이 보이게 한다.
+  root.style.setProperty('--from', LEVELS[Math.max(0, rise - 1)]);
+  root.style.setProperty('--to', LEVELS[rise]);
+</script>

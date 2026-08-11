@@ -1,0 +1,147 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>llm promise</title>
+<!-- 약속 — 오늘 얻어갈 세 가지가 내레이션 순서로 서고 밑줄이 자란다(rest-line 이름표 패턴).
+     이것이 이 회차의 목차다 — 상세 목차는 챕터 카드와 유튜브 챕터가 맡는다.
+     params: t1·t2·t3(항목 등장 s) · wipe=off. 문구는 박아 둔다. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #05070d; --t1: 4s; --t2: 7s; --t3: 11s; }
+
+  .stage { padding: 0 16%; gap: 4.6vh; }
+
+  .head {
+    font-size: 4.6vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .items { display: flex; flex-direction: column; gap: 3.6vh; width: 100%; }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 3vh;
+    padding: 2.8vh 3.6vh;
+    border-radius: 2vh;
+    background: #0e1526;
+    border: 0.2vh solid #24304f;
+    text-align: left;
+    animation-name: fadeUp;
+    animation-duration: 0.55s;
+  }
+  .item.i1 { animation-delay: var(--t1); }
+  .item.i2 { animation-delay: var(--t2); }
+  .item.i3 { animation-delay: var(--t3); }
+
+  .no {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 6.4vh;
+    height: 6.4vh;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--brand) 24%, transparent);
+    border: 0.24vh solid var(--brand);
+    font-size: 3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+  }
+
+  .txt { position: relative; font-size: 3.7vh; font-weight: 700; padding-bottom: 1.4vh; }
+  .txt small { display: block; margin-top: 0.7vh; font-size: 2.3vh; font-weight: 600; color: #8ea0c8; }
+  .txt .ul {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0.45vh;
+    border-radius: 0.3vh;
+    background: var(--brand);
+    transform-origin: left center;
+    animation-name: grow;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .i1 .ul { animation-delay: calc(var(--t1) + 0.4s); }
+  .i2 .ul { animation-delay: calc(var(--t2) + 0.4s); }
+  .i3 .ul { animation-delay: calc(var(--t3) + 0.4s); }
+  /* 용어 주석 — SKILL.md '용어 주석' 절. templates/termnote.css 복사. */
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: var(--tterm, 6s);
+  }
+  .termnote b {
+    font-family: var(--mono, ui-monospace, Menlo, monospace);
+    font-size: 2.3vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+    letter-spacing: 0.01em;
+  }
+  .termnote .en {
+    font-size: 1.8vh;
+    font-weight: 600;
+    color: #8ea0c8;
+  }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+  .termnote { position: absolute; left: 0; right: 0; top: 4%; margin: 0 auto; width: fit-content; }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="termnote animated"><b>LLM</b><span class="en">Large Language Model</span><span class="ko">대규모 언어 모델 — 다음에 올 말을 확률로 골라 문장을 만드는 AI</span></div>
+
+  <div class="head animated">오늘 <b>세 가지</b>를 가져갑니다</div>
+
+  <div class="items">
+    <div class="item i1 animated">
+      <span class="no">1</span>
+      <span class="txt">답을 만드는 진짜 방식<small>찾는 게 아니라, 만든다</small><i class="ul animated"></i></span>
+    </div>
+    <div class="item i2 animated">
+      <span class="no">2</span>
+      <span class="txt">심장 — 다음 단어 맞히기<small>확률로 한 칸씩</small><i class="ul animated"></i></span>
+    </div>
+    <div class="item i3 animated">
+      <span class="no">3</span>
+      <span class="txt">그 감각을 만든 예습<small>어마어마한 규모의 빈칸 맞히기</small><i class="ul animated"></i></span>
+    </div>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tterm: q.get('tterm') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

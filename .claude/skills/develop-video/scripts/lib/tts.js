@@ -369,6 +369,24 @@ const PROVIDERS = {
 
 export const PROVIDER_LIST = Object.keys(PROVIDERS);
 
+// 제공자가 붙여 보내는 앞뒤 무음을 잘라낸다. Azure 는 앞 ~0.35초·뒤 ~1.1초를 항상 붙인다 —
+// 클립마다 1.4초씩, 7클립 쇼츠에서 10초가 침묵으로 샜다. 클립 길이는 audioDuration 에서
+// 계산되므로 여기서 안 자르면 그 무음이 화면 시간까지 늘린다.
+// 문장 중간 호흡(쉼표)은 건드리지 않는다 — 앞뒤에서만 자른다.
+// 앞 0.12초·뒤 0.25초는 남긴다: 첫 프레임과 동시에 말이 터지면 부자연스럽다.
+async function trimEdgeSilence(file) {
+  const trimmed = `${file}.trim${path.extname(file)}`;
+  await run('ffmpeg', [
+    ...['-hide_banner', '-loglevel', 'error', '-y'],
+    ...['-i', file],
+    '-af',
+    'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.12,' +
+      'areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.25,areverse',
+    trimmed,
+  ]);
+  fs.renameSync(trimmed, file);
+}
+
 // 폴백 없이 지정한 제공자로 딱 한 번 합성한다 — 점검(check-tts.js)에서 쓴다.
 // 씬 파이프라인과 달리 여기서는 "어느 제공자가 살아 있는가"를 있는 그대로 봐야 하므로 폴백이 없다.
 export function synthDirect(name, args) {
@@ -454,9 +472,11 @@ export async function synthesizeScenes(scenes, voiceConfig, dirs, { force = fals
 
     // 폴백이 걸린 뒤에는 그쪽 확장자를 쓴다 (azure→edge 는 둘 다 mp3 라 실제로는 같다).
     const file = path.join(dir, `${scene.id}.${PROVIDERS[activeProvider(synthName)].ext}`);
+    // 'trim1' 은 앞뒤 무음 트리밍 도입 표식 — 트리밍 전에 만든 캐시(무음 포함)를 한 번
+    // 무효화한다. 지우면 예전 mp3 가 그대로 재사용돼 무음이 남는다.
     const hash = crypto
       .createHash('sha1')
-      .update(JSON.stringify([scene.narration, voiceConfig]))
+      .update(JSON.stringify([scene.narration, voiceConfig, 'trim1']))
       .digest('hex')
       .slice(0, 12);
     const cached = manifest[scene.id];
@@ -479,6 +499,7 @@ export async function synthesizeScenes(scenes, voiceConfig, dirs, { force = fals
       // azure 로 맞춰야 해서 조용히 바뀌면 안 되는 경우에 쓴다.
       { allowFallback: !voiceConfig.strict }
     );
+    await trimEdgeSilence(file);
     const duration = await mediaDuration(file);
     manifest[scene.id] = { hash, duration };
     results.push({ ...scene, audioFile: file, audioDuration: duration, cached: false });

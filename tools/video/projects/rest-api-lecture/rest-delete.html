@@ -1,0 +1,261 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>rest delete hook</title>
+<!-- 오프닝 훅 — 살아 있는 사용자 카드에 `DELETE /users/1` 이 타이핑되고, 엔터(플래시)와
+     함께 카드가 조각으로 부서져 떨어진 뒤 `204 No Content` 만 남는다.
+     내레이션 없는 클립(2.8s) — 다음 클립(rest-line.html)이 그 줄을 다시 세워 해설한다.
+
+     연출은 전부 고정 지연의 결정적 CSS 키프레임이다 — 렌더러(lib/motion.js)가
+     currentTime 을 밀며 프레임을 찍으므로 rAF·JS 물리는 쓰지 않는다.
+     "부서짐"은 같은 카드 마크업을 clip-path 조각 4개로 겹쳐 두고 조각마다
+     낙하 지연을 달리 주는 방식이다.
+
+     params: wipe=off 만 받는다 (문구는 전부 박아 둔다 — 타이핑 폭이 글자수에 묶여 있다).
+     주의: `animation:` 단축 속성 금지 (_base.css 주석 참조). -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  /* 완전한 검정에 가깝게 — 컨셉이 "완전한 검정 위"다. glow 도 쓰지 않는다. */
+  :root { --bg: #05070d; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 14%; gap: 0; }
+
+  .scene { position: relative; width: 100%; height: 100%; }
+
+  /* ── 사용자 카드 — "카드=사람" 판독을 첫 0.5초 안에 시키는 생존 신호들 ── */
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 2.6vh;
+    width: 52vh;
+    padding: 3.2vh 3.6vh;
+    border-radius: 2vh;
+    background: linear-gradient(#161f36, #101728);
+    border: 0.22vh solid #2b3a5e;
+    box-shadow: 0 2vh 6vh rgb(0 0 0 / 0.55);
+    text-align: left;
+  }
+  .avatar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 9.5vh;
+    height: 9.5vh;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3e63dd, #6b8bff);
+    font-size: 4.4vh;
+    font-weight: 800;
+  }
+  .who .name { font-size: 3.4vh; font-weight: 800; letter-spacing: -0.02em; }
+  .who .live {
+    display: flex;
+    align-items: center;
+    gap: 1vh;
+    margin-top: 0.9vh;
+    font-size: 2.1vh;
+    font-weight: 600;
+    color: #7fe3a8;
+  }
+  .live i {
+    width: 1.5vh;
+    height: 1.5vh;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 1.2vh #34d399;
+  }
+  .who .last { margin-top: 0.6vh; font-size: 1.9vh; color: #8ea0c8; }
+
+  /* 조각 4개 — 부서지기 전에는 완전히 겹쳐 한 장으로 보인다 */
+  .piece {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+  }
+  .piece.p1 { clip-path: polygon(0 0, 56% 0, 46% 50%, 0 44%); }
+  .piece.p2 { clip-path: polygon(56% 0, 100% 0, 100% 46%, 46% 50%); }
+  .piece.p3 { clip-path: polygon(0 44%, 46% 50%, 41% 100%, 0 100%); }
+  .piece.p4 { clip-path: polygon(46% 50%, 100% 46%, 100% 100%, 41% 100%); }
+
+  .piece.animated { animation-duration: 0.75s; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.4); }
+  .piece.p1.animated { animation-name: fall1; animation-delay: 1.05s; }
+  .piece.p2.animated { animation-name: fall2; animation-delay: 1.10s; }
+  .piece.p3.animated { animation-name: fall3; animation-delay: 1.08s; }
+  .piece.p4.animated { animation-name: fall4; animation-delay: 1.14s; }
+  @keyframes fall1 { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-58%) translateY(52vh) rotate(-22deg); } }
+  @keyframes fall2 { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-38%) translateY(58vh) rotate(17deg); } }
+  @keyframes fall3 { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-60%) translateY(62vh) rotate(14deg); } }
+  @keyframes fall4 { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-40%) translateY(55vh) rotate(-15deg); } }
+
+  /* 파편 — 작은 사각 조각이 함께 떨어져 "부서졌다"를 보탠다 */
+  .bit {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: 1.3vh;
+    height: 1.3vh;
+    background: #2b3a5e;
+    opacity: 0;
+    animation-name: bitfall;
+    animation-duration: 0.7s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.5);
+  }
+  @keyframes bitfall {
+    0%   { opacity: 0; transform: translate(var(--dx0, 0), 0) rotate(0); }
+    12%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx, 0), 46vh) rotate(200deg); }
+  }
+  .bit.b1 { animation-delay: 1.06s; --dx0: -18vh; --dx: -24vh; }
+  .bit.b2 { animation-delay: 1.10s; --dx0: -7vh;  --dx: -13vh; }
+  .bit.b3 { animation-delay: 1.08s; --dx0: 3vh;   --dx: 8vh; }
+  .bit.b4 { animation-delay: 1.13s; --dx0: 12vh;  --dx: 20vh; }
+  .bit.b5 { animation-delay: 1.07s; --dx0: -13vh; --dx: -9vh; width: 0.9vh; height: 0.9vh; }
+  .bit.b6 { animation-delay: 1.12s; --dx0: 8vh;   --dx: 15vh; width: 0.9vh; height: 0.9vh; }
+
+  /* ── 타이핑되는 요청 한 줄 ── */
+  .req {
+    position: absolute;
+    left: 50%;
+    top: 66%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 5.6vh;
+    font-weight: 700;
+    letter-spacing: 0;
+    animation-name: reqout;
+    animation-duration: 0.35s;
+    animation-delay: 1.15s;
+    animation-timing-function: ease-in;
+  }
+  @keyframes reqout { from { opacity: 1; } to { opacity: 0; } }
+
+  /* 15자(DELETE /users/1)를 steps 로 드러낸다 — 타자기 효과의 결정적 구현 */
+  .typed {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 15ch;
+    animation-name: typing;
+    animation-duration: 0.9s;
+    animation-delay: 0.05s;
+    animation-timing-function: steps(15, end);
+  }
+  @keyframes typing { from { width: 0ch; } to { width: 15ch; } }
+  .typed .verb { color: #f4586a; }
+
+  .cursor {
+    flex: none;
+    width: 0.5ch;
+    height: 6vh;
+    margin-left: 0.4vh;
+    background: #e8ecf8;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(2, jump-none);
+  }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ── 엔터 순간의 화이트 플래시 ── */
+  .flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    animation-name: flash;
+    animation-duration: 0.22s;
+    animation-delay: 0.98s;
+    animation-timing-function: ease-out;
+  }
+  @keyframes flash {
+    0%   { opacity: 0; }
+    30%  { opacity: 0.85; }
+    100% { opacity: 0; }
+  }
+
+  /* ── 남는 것 — 204 No Content ── */
+  /* 주의: fadeUp 키프레임이 transform 을 통째로 덮어쓰므로 translateX(-50%) 정렬은
+     여기서 못 쓴다(cloud-replica 에서 걸렸던 패턴). left/right + text-align 으로 가운데 둔다. */
+  .res {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 47%;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 4.2vh;
+    font-weight: 600;
+    color: #8fa3c8;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 1.85s;
+  }
+  .res b { color: #34d399; font-weight: 700; }
+</style>
+
+<div class="stage">
+  <div class="scene">
+    <div class="piece p1 animated">
+      <div class="card">
+        <div class="avatar">김</div>
+        <div class="who">
+          <div class="name">김민준</div>
+          <div class="live"><i></i>온라인</div>
+          <div class="last">마지막 접속: 방금 전</div>
+        </div>
+      </div>
+    </div>
+    <div class="piece p2 animated">
+      <div class="card">
+        <div class="avatar">김</div>
+        <div class="who">
+          <div class="name">김민준</div>
+          <div class="live"><i></i>온라인</div>
+          <div class="last">마지막 접속: 방금 전</div>
+        </div>
+      </div>
+    </div>
+    <div class="piece p3 animated">
+      <div class="card">
+        <div class="avatar">김</div>
+        <div class="who">
+          <div class="name">김민준</div>
+          <div class="live"><i></i>온라인</div>
+          <div class="last">마지막 접속: 방금 전</div>
+        </div>
+      </div>
+    </div>
+    <div class="piece p4 animated">
+      <div class="card">
+        <div class="avatar">김</div>
+        <div class="who">
+          <div class="name">김민준</div>
+          <div class="live"><i></i>온라인</div>
+          <div class="last">마지막 접속: 방금 전</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bit b1 animated"></div>
+    <div class="bit b2 animated"></div>
+    <div class="bit b3 animated"></div>
+    <div class="bit b4 animated"></div>
+    <div class="bit b5 animated"></div>
+    <div class="bit b6 animated"></div>
+
+    <div class="req animated">
+      <span class="typed animated"><span class="verb">DELETE</span> /users/1</span>
+      <span class="cursor animated"></span>
+    </div>
+
+    <div class="res animated"><b>204</b> No Content</div>
+  </div>
+</div>
+
+<!-- 플래시는 stage(좌우 여백) 밖, 화면 전체를 덮는다 — 안에 두면 좌우에 검은 띠가 남는다 -->
+<div class="flash animated"></div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

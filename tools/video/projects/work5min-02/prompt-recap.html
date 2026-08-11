@@ -1,0 +1,110 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>prompt recap</title>
+<!-- 정리 — 세 손잡이가 내레이션 순서로 쌓이고, 일상어 풀이 옆에 **정식 용어를 병기**한다
+     (스킬 '깊이' 절 — recap 은 용어로 잠근다). rest-outro·llm-recap 패턴.
+     params: t1·t2·t3(행 등장 s) · tn(마무리 s) · wipe=off -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --bg: #070b14; --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+          --t1: 4s; --t2: 9s; --t3: 14s; --tn: 20s; }
+
+  .stage { padding: 0 12%; gap: 3.6vh; }
+
+  .head {
+    font-size: 4.6vh;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+  }
+  .head b { color: var(--brand-soft); }
+
+  .rows { display: flex; flex-direction: column; gap: 2.4vh; width: 100%; }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 2.4vh;
+    padding: 2.4vh 3vh;
+    border-radius: 1.8vh;
+    background: #0e1526;
+    border: 0.2vh solid #24304f;
+    text-align: left;
+    opacity: 0;
+    animation-name: rowin;
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .row.r1 { animation-delay: var(--t1); }
+  .row.r2 { animation-delay: var(--t2); }
+  .row.r3 { animation-delay: var(--t3); }
+  @keyframes rowin {
+    from { opacity: 0; transform: translateY(3.5vh); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .plain { flex: 1; font-size: 3vh; font-weight: 700; color: #eef2fc; }
+  .eq { flex: none; font-size: 2.6vh; font-weight: 800; color: #55648a; }
+  .term {
+    flex: none;
+    min-width: 30vh;
+    padding: 0.9vh 1.6vh;
+    border-radius: 0.9vh;
+    background: color-mix(in srgb, var(--brand) 18%, transparent);
+    border: 0.18vh solid var(--brand);
+    font-family: var(--mono);
+    font-size: 2.4vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    text-align: center;
+  }
+
+  .note b { color: #fff; }
+  .note {
+    font-size: 2.9vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: var(--tn);
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head">손잡이 셋, <b>그리고 그 이름</b></div>
+
+  <div class="rows">
+    <div class="row r1 animated">
+      <span class="plain">예시를 몇 개 붙인다</span>
+      <span class="eq">=</span>
+      <span class="term">few-shot</span>
+    </div>
+    <div class="row r2 animated">
+      <span class="plain">과정을 쓰게 한다</span>
+      <span class="eq">=</span>
+      <span class="term">Chain-of-Thought</span>
+    </div>
+    <div class="row r3 animated">
+      <span class="plain">규칙은 맨 앞에 한 번</span>
+      <span class="eq">=</span>
+      <span class="term">system / user</span>
+    </div>
+  </div>
+
+  <div class="note animated">셋 다 <b>모델 앞에 놓는 글</b>을 바꾸는 일</div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const root = document.documentElement;
+  const timing = { t1: q.get('t1'), t2: q.get('t2'), t3: q.get('t3'), tn: q.get('tn') };
+  for (const [k, v] of Object.entries(timing)) {
+    if (v) root.style.setProperty(`--${k}`, `${v}s`);
+  }
+</script>

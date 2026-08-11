@@ -69,19 +69,47 @@
         to   { transform: scaleX(1); }
       }
       .wipe { animation-delay: 1.6s; }
+
+      /* strike=1 이면 제목 위로 취소선이 좌→우로 그어진다. U+0336(결합 취소선)은
+         글꼴에 글리프가 없으면 하이픈으로 보여서("1-3-년-") 쓰지 않는다.
+         .reveal 이 overflow:hidden 이라 선은 제목 밖 래퍼에 올린다. */
+      .titlewrap { position: relative; display: inline-block; }
+      .strike {
+        position: absolute;
+        left: -0.06em;
+        right: -0.06em;
+        top: 54%;
+        height: 0.7vh;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        transform-origin: left center;
+        animation-name: grow;
+        animation-duration: 0.5s;
+        animation-delay: 1.15s;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        animation-fill-mode: both;
+        animation-play-state: paused;
+      }
     </style>
   </head>
   <body>
     <div class="stage">
       <div class="glow animated"></div>
       <div class="num animated" data-p="num">1</div>
-      <div class="reveal title"><span class="animated" data-p="title">단계 제목</span></div>
+      <div class="titlewrap">
+        <div class="reveal title"><span class="animated" data-p="title">단계 제목</span></div>
+        <i class="strike animated"></i>
+      </div>
       <div class="subtitle"><span class="animated" data-p="subtitle"></span></div>
       <div class="bar"><i></i></div>
       <div class="wipe animated"></div>
     </div>
     <script src="_params.js"></script>
     <script>
+      // strike=1 일 때만 제목 위 취소선을 남긴다. 없으면 지운다.
+      if (new URLSearchParams(location.search).get('strike') !== '1')
+        document.querySelector('.strike')?.remove();
+
       // progress=0~100 (전체 중 진행률). 없으면 막대를 지운다.
       const p = new URLSearchParams(location.search).get('progress');
       if (p) document.documentElement.style.setProperty('--progress', `${p}%`);

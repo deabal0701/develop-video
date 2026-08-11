@@ -1,0 +1,182 @@
+{
+  "_읽어보기": "한강공원 침수 지식정보 쇼츠. 찍을 앱 화면이 없으므로 scenes 를 비우고 모션 클립만 쓴다 — 사진(켄번즈) + 타이포 카드 + 직접 그린 단면도(riversection.html). 구조는 훅(통념) → 반전 → 근거(단면도 3단계) → 마무리. 세로(9:16) 변형 하나만 뽑는다.",
+
+  "id": "hangang-shorts",
+
+  "_baseUrl메모": "scenes 가 비어 있어 녹화는 돌지 않지만 build.js 가 시작할 때 baseUrl 을 무조건 읽는다. 쓰이지 않는 값이라 아무 주소나 둔다.",
+  "baseUrl": "http://localhost:9999",
+
+  "capture": { "width": 1920, "height": 1080 },
+
+  "voice": {
+    "provider": "azure",
+    "lang": "ko",
+    "gender": "male",
+    "voice": "ko-KR-InJoonNeural",
+    "rate": "+9%",
+    "pitch": "+0Hz"
+  },
+
+  "render": {
+    "fps": 30,
+    "crf": 19,
+    "preset": "medium",
+    "background": "#0b1020",
+    "brand": "#2f6fd0",
+    "brandText": "#9fc4f2",
+
+    "subtitleScale": 0.052,
+    "subtitleMargin": 0.185,
+    "subtitleBox": false,
+
+    "watermark": { "text": "잠기라고 만든 땅" },
+
+    "bgm": "",
+    "bgmGain": 0.1,
+    "bgmDucking": true,
+    "endCard": false,
+
+    "motion": {
+      "dir": "motion",
+      "clips": [
+        {
+          "id": "hook",
+          "file": "photo.html",
+          "before": "end",
+          "duration": 4.2,
+          "wipe": "off",
+          "narration": "매년 물에 잠기는 한강공원. 사실 잠기라고 만든 땅입니다.",
+          "params": {
+            "src": "../../../.claude/skills/develop-video/assets/photo/hangang-cloudy.jpg",
+            "kicker": "매년 여름, 같은 장면",
+            "title": "또 잠겼습니다",
+            "zoomFrom": "1.04",
+            "zoomTo": "1.16",
+            "panX": "-1.2",
+            "padY": "34",
+            "shade": "0.62"
+          }
+        },
+        {
+          "id": "turn",
+          "file": "intro.html",
+          "before": "end",
+          "duration": 3.4,
+          "wipe": "off",
+          "narration": "설계가 잘못된 것 같지만, 실패가 아니라 계획입니다.",
+          "params": {
+            "title": "잠기라고 만든 땅",
+            "subtitle": "실패가 아니라 설계입니다",
+            "brand": "#2f6fd0",
+            "brandSoft": "#9fc4f2"
+          }
+        },
+        {
+          "id": "sec0",
+          "file": "riversection.html",
+          "before": "end",
+          "duration": 5.0,
+          "wipe": "off",
+          "narration": "한강 단면을 봅시다. 물이 흐르는 낮은 바닥이 저수로, 옆의 넓은 단이 둔치. 공원은 이 둔치 위에 있습니다.",
+          "params": {
+            "title": "한강의 단면",
+            "rise": "0",
+            "labelLow": "저수로",
+            "labelDeck": "둔치 — 공원",
+            "labelBank": "제방·강변도로",
+            "note": "공원은 강바닥보다 조금 높을 뿐",
+            "brand": "#2f6fd0",
+            "brandSoft": "#9fc4f2"
+          }
+        },
+        {
+          "id": "sec1",
+          "file": "riversection.html",
+          "before": "end",
+          "duration": 5.4,
+          "wipe": "off",
+          "narration": "비가 쏟아지면 저수로만으로 감당이 안 됩니다. 이때 둔치가 물을 받아 냅니다. 강이 퍼질 자리를 비워 둔 거죠.",
+          "params": {
+            "title": "둔치가 받아 낸다",
+            "rise": "2",
+            "labelLow": "저수로",
+            "labelDeck": "둔치가 잠긴다",
+            "labelBank": "제방·강변도로",
+            "note": "물이 퍼질 자리를 비워 둔 것",
+            "brand": "#2f6fd0",
+            "brandSoft": "#9fc4f2"
+          }
+        },
+        {
+          "id": "sec2",
+          "file": "riversection.html",
+          "before": "end",
+          "duration": 5.2,
+          "wipe": "off",
+          "narration": "이 자리를 건물로 채웠다면, 갈 곳 잃은 물은 제방을 넘어 도시로 들어옵니다. 공원이 잠긴 건 도시가 안 잠겼다는 뜻입니다.",
+          "params": {
+            "title": "이 자리가 없었다면",
+            "rise": "3",
+            "labelLow": "저수로",
+            "labelDeck": "여기가 막히면",
+            "labelBank": "다음은 도시",
+            "note": "공원이 잠겨야 도시가 안 잠긴다",
+            "brand": "#2f6fd0",
+            "brandSoft": "#9fc4f2"
+          }
+        },
+        {
+          "id": "name",
+          "file": "stat.html",
+          "before": "end",
+          "duration": 4.4,
+          "wipe": "off",
+          "narration": "그래서 원래 이름이 고수부지. 물이 높을 때 잠기는 땅이라는 뜻입니다.",
+          "_메모": "stat.html의 value는 22vh라 숫자 한두 자 기준이다. 네 글자를 넣으면 넘치므로 '高水'만 크게 두고 나머지는 unit·title로 뺀다.",
+          "params": {
+            "value": "高水",
+            "unit": "부지",
+            "title": "물이 높을 때 잠기는 땅 — 이름부터 그렇습니다",
+            "brand": "#2f6fd0",
+            "brandSoft": "#9fc4f2"
+          }
+        },
+        {
+          "id": "close",
+          "file": "photo.html",
+          "before": "end",
+          "duration": 5.0,
+          "wipe": "off",
+          "narration": "그래서 시설도 잠겨도 되게 만듭니다. 물이 빠지면 치우고 다시 열죠. 고장이 아니라, 원래 그렇게 쓰는 땅입니다.",
+          "params": {
+            "src": "../../../.claude/skills/develop-video/assets/photo/hangang-mapo.jpg",
+            "kicker": "물이 빠지면 다시 연다",
+            "title": "잠기는 게 고장이 아니다",
+            "subtitle": "원래 그렇게 쓰는 땅입니다",
+            "zoomFrom": "1.14",
+            "zoomTo": "1.02",
+            "panX": "1.0",
+            "shade": "0.66"
+          }
+        }
+      ]
+    }
+  },
+
+  "variants": [
+    {
+      "id": "hangang-shorts-9x16",
+      "label": "한강공원 쇼츠 (9:16)",
+      "width": 1080,
+      "height": 1920,
+      "crop": "960:1080:480:0",
+      "padY": 200,
+      "subtitleMargin": 0.185,
+      "captionScale": 0.064,
+      "captionMargin": 0.025,
+      "watermarkMargin": 0.075
+    }
+  ],
+
+  "scenes": []
+}
