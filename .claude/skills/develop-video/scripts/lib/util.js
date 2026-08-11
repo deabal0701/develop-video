@@ -157,6 +157,29 @@ export function envFiles() {
     dir = parent;
   }
   add(process.cwd());
+
+  // 마지막 후보(우선순위 가장 낮음) — 사용자 홈의 **공용 키 파일**.
+  //
+  //   %USERPROFILE%\.claude\develop-video.env   (Windows)
+  //   ~/.claude/develop-video.env               (macOS·Linux)
+  //
+  // 이게 있어야 "스킬 폴더만 복사하면 끝"이 azure·eleven 까지 성립한다. 프로젝트마다 .env 를
+  // 심으면 키가 저장소 수만큼 흩어지고 교체할 때 전부 찾아다녀야 한다.
+  //
+  // **스킬 폴더 안에 두지 않는 이유**: 그 폴더는 프로젝트 사이를 복사해 다니라고 만든 물건이다.
+  // 키를 넣으면 사본마다 비밀이 따라다니고, 남에게 스킬을 건네는 순간 같이 건너간다.
+  // 키는 한 곳(여기 또는 셸 환경변수)에 두고 코드가 찾아가는 쪽이 맞다.
+  //
+  // 위의 위로-올라가기가 홈 디렉터리를 훑지 않는 규칙과 충돌하지 않는다 — 그건 남의 `.env` 를
+  // **우연히** 주워 오지 말자는 것이고, 이건 이 파이프라인 전용 이름을 **일부러** 찾는 것이다.
+  const home = process.env.USERPROFILE || process.env.HOME;
+  if (home) {
+    const shared = path.join(home, '.claude', 'develop-video.env');
+    if (!seen.has(shared)) {
+      seen.add(shared);
+      if (fs.existsSync(shared)) files.push(shared);
+    }
+  }
   return files;
 }
 
@@ -234,6 +257,20 @@ export function defaultSubtitleFont() {
   if (process.platform === 'win32') return 'Malgun Gothic';
   if (process.platform === 'darwin') return 'Apple SD Gothic Neo';
   return 'Noto Sans CJK KR';
+}
+
+// 경로를 사람이 읽을 수 있게 찍는다 — 프로젝트 안이면 상대 경로, 밖이면 절대 경로(홈은 ~ 로).
+// 상대 경로로만 찍으면 홈의 공용 .env 가 `..\..\..\..\..\..\..\..\.claude\develop-video.env`
+// 가 되어 어디를 읽었는지 알아볼 수 없다.
+export function displayPath(file) {
+  const rel = path.relative(process.cwd(), file);
+  // 윈도에서 드라이브가 다르면(D:\작업 ↔ C:\Users\…) path.relative 는 상대 경로를 만들지 못하고
+  // **절대 경로를 그대로** 돌려준다. `..` 로 시작하지 않는다고 "프로젝트 안"으로 보면 홈 경로가
+  // 안 줄어든다 — 그래서 절대 경로인지도 함께 본다.
+  if (rel && !rel.startsWith('..') && !path.isAbsolute(rel)) return rel;
+  const home = process.env.USERPROFILE || process.env.HOME;
+  if (home && file.startsWith(home)) return `~${file.slice(home.length)}`;
+  return file;
 }
 
 export function ensureDir(dir) {

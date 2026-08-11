@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { ensureDir, envFiles, loadEnv, mediaDuration, parseArgs, tryRun } from './lib/util.js';
+import { displayPath, ensureDir, envFiles, loadEnv, mediaDuration, parseArgs, tryRun } from './lib/util.js';
 import {
   ELEVEN_PRESETS,
   PROVIDER_LIST,
@@ -41,10 +41,10 @@ const bad = (s) => `  실패 ${s}`;
 process.stdout.write('[1] .env\n');
 const found = envFiles();
 if (!found.length) process.stdout.write('  (없음 — 셸 환경변수만 씁니다)\n');
-for (const f of found) process.stdout.write(`  · ${path.relative(process.cwd(), f)}\n`);
+for (const f of found) process.stdout.write(`  · ${displayPath(f)}\n`);
 const applied = loadEnv();
 for (const { file, count } of applied) {
-  process.stdout.write(`    → ${path.relative(process.cwd(), file)} 에서 ${count}개 적용\n`);
+  process.stdout.write(`    → ${displayPath(file)} 에서 ${count}개 적용\n`);
 }
 process.stdout.write(`  AZURE_SPEECH_KEY    ${mask(process.env.AZURE_SPEECH_KEY)}\n`);
 process.stdout.write(`  AZURE_SPEECH_REGION ${process.env.AZURE_SPEECH_REGION || '(없음)'}\n`);
