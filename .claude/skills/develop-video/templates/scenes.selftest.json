@@ -28,7 +28,7 @@
           "duration": 2.4,
           "before": "end",
           "narration": "출력 폴더 구조를 점검합니다.",
-          "params": { "title": "develop-video", "subtitle": "출력 폴더 점검" }
+          "params": { "title": "develop-video", "subtitle": "출력 폴더 점검", "wipe": "off" }
         },
         {
           "id": "outro",

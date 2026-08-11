@@ -190,9 +190,19 @@ cp <skill>/templates/.env.sample tools/video/          # 키를 쓸 때만 .env 
 npm --prefix tools/video i -D playwright && npx playwright install chromium   # 저장소에 이미 있으면 생략
 ```
 
-키는 `.env`에서 읽는다(`tools/video/.env` → 상위 → 저장소 루트 순, 셸 환경변수가 우선).
-`.env.sample`만 커밋하고 `.env`는 커밋하지 않는다. **기본 경로(edge)는 키가 아예 필요 없다** —
-`.env`는 Azure를 쓸 때만 만든다.
+**키를 어디에 두나.** `.env`는 `tools/video/.env` → 상위 → 저장소 루트 순으로 찾고, 저장소
+표시(`.git`·`package.json`)를 만나면 거기서 멈춘다. **기본 경로(edge)는 키가 아예 필요 없으니
+대개 아무것도 안 만들어도 된다.**
+
+| 상황 | 둘 곳 |
+|---|---|
+| 기본 (edge) | 없음 — 키가 필요 없다 |
+| 이 프로젝트만 azure·eleven | `tools/video/.env` (`.env.sample`을 복사해 채운다) |
+| **여러 프로젝트에서 공용** | **OS 사용자 환경변수.** 이미 설정된 값은 파일이 덮어쓰지 않으므로(셸 우선) 프로젝트마다 `.env`를 심을 필요가 없다 |
+
+**스킬 폴더 안에 `.env`를 두지 않는다 — 두어도 안 읽힌다.** 탐색은 `AD_DIR`(= `tools/video`)에서
+위로만 올라가고 `.claude/skills/...`는 그 경로에 없다. 게다가 스킬 폴더는 프로젝트 사이를
+복사해 다니는 물건이라 키를 넣으면 그대로 새어 나간다. `.env.sample`만 커밋한다.
 
 **대본을 쓰기 전에 파이프라인부터 한 번 돌린다.** 앱도 대본도 없이 20초 만에 끝나고,
 ffmpeg·Playwright·TTS·자막·워터마크가 전부 도는지 확인된다. 여기서 막히면 대본을 아무리 잘 써도 소용없다.
@@ -203,15 +213,45 @@ node tools/video/check-tts.js                                        # 소리부
 node tools/video/build.js --scenes tools/video/scenes.selftest.json  # out/selftest/final/ 에 2개
 ```
 
+#### 다른 프로젝트로 옮기기 — 스킬 폴더가 전부다
+
 **이 스킬은 프로젝트에 묶여 있지 않다.** 스크립트는 저장소 이름·경로를 하나도 모르고, 필요한 것은
-ffmpeg · Playwright · edge-tts뿐이다. 다른 저장소에 그대로 복사해 위 명령만 실행하면 동작한다
-(단, 기본값이 한국어다 — 다른 언어는 `--lang`, 자막 글꼴은 `render.subtitleFont`로 바꾼다).
+ffmpeg · Playwright · edge-tts뿐이다 (단, 기본값이 한국어다 — 다른 언어는 `--lang`, 자막 글꼴은
+`render.subtitleFont`로 바꾼다).
+
+**스킬 폴더 밖에는 아무것도 두지 않는다.** 예전에는 컨셉 검증 워크플로가 `.claude/workflows/`에,
+제작 기록 형식이 `.claude/memory/README.md`에 있어서 폴더만 복사하면 4단계·8단계가 조용히
+깨졌다. 지금은 전부 안에 있다.
+
+| 기능 | 어디에 | 부르는 법 |
+|---|---|---|
+| 컨셉 검증(4단계) | `workflows/video-concept.js` | `Workflow({scriptPath: ...})` — 경로를 직접 준다 |
+| 제작 기록 형식(8단계) | `templates/memory-record.md` | 읽어서 `.claude/memory/<id>.md`를 쓴다 |
+| 평가 지침(9단계) | `agents/reviewer.md` | `general-purpose` 에게 이 파일을 읽게 한다 |
+
+그래서 옮기는 일은 **폴더 복사 + 스캐폴딩** 두 가지뿐이다.
+
+```bash
+cp -r <이 저장소>/.claude/skills/develop-video  <대상>/.claude/skills/
+cp -r <이 저장소>/.claude/skills/develop-lecture <대상>/.claude/skills/   # 강좌를 만들 때만
+# 그다음 대상 저장소에서 위 스캐폴딩 명령을 그대로 실행한다
+```
+
+**단 하나 따라가지 않는 것이 `assets/`다** — 무료 스톡은 재배포가 금지라 git 에서 제외한다.
+`assets/CATALOG.md`(출처·라이선스)와 `assets/fetch.js`(받아오기)는 따라가므로, 대상에서 필요한
+소재만 다시 받는다. 대본이 없는 소재를 가리키면 0단계 사전 점검이 굽기 전에 잡아 준다.
 
 `.gitignore`에 산출물을 추가한다.
 
 ```
-/tools/video/out/
+/tools/video/out/*
+!/tools/video/out/*/
+!/tools/video/out/*/final/
+/tools/video/out/*/*
+*.mp4
+*.webm
 /tools/video/presenter/
+.claude/debate-logs/
 .env
 !.env.sample
 ```
@@ -221,11 +261,12 @@ ffmpeg · Playwright · edge-tts뿐이다. 다른 저장소에 그대로 복사�
 **도입부가 성패를 가르는 영상은 대본을 쓰기 전에 컨셉을 검증한다.** 훅을 잘못 잡으면 대본·촬영·
 합성이 전부 헛일이 되고, 그 사실은 완성한 뒤에야 드러난다. 되돌리기가 비싼 것은 목소리만이 아니다.
 
-`.claude/workflows/video-concept.js`를 Workflow 도구로 돌린다.
+스킬 안의 `workflows/video-concept.js`를 Workflow 도구로 돌린다. `scriptPath`는 아무 경로나
+받으므로 `.claude/workflows/`에 따로 두지 않는다 — 스킬 폴더 하나만 복사하면 그대로 따라온다.
 
 ```
 Workflow({
-  scriptPath: ".claude/workflows/video-concept.js",
+  scriptPath: ".claude/skills/develop-video/workflows/video-concept.js",
   args: {
     brief: "<무엇에 대한 영상인가 — 한 문장>",
     videoId: "<out/<영상 id>/ 와 같은 id>",
@@ -503,8 +544,10 @@ BGM 이 바닥을 채워서다(cloud-lecture 가 그랬다). 반대로 BGM 없�
 산출물 위치(`out/<영상 id>/final/`)와 **남은 판단 사항**(BGM 음원, 카피 확정, 도메인 등)을
 함께 보고한다.
 
-그리고 **제작 기록을 남긴다** — `.claude/memory/<영상 id>.md`. 형식은 `.claude/memory/README.md`에
-있고, id는 `out/<영상 id>/`와 반드시 같게 쓴다. `out/`은 용량 때문에 지워질 수 있지만 기록은 남는다.
+그리고 **제작 기록을 남긴다** — `.claude/memory/<영상 id>.md`. 형식은 스킬 안의
+[`templates/memory-record.md`](templates/memory-record.md)에 있고(프로젝트 쪽에 사본을 두지
+않는다 — 두면 갈라진다), id는 `out/<영상 id>/`와 반드시 같게 쓴다. `out/`은 용량 때문에 지워질
+수 있지만 기록은 남는다.
 
 채우는 것은 **`## 평가`를 뺀 전부** — 무엇을 왜 그렇게 만들었는지, 소재의 출처와 라이선스,
 걸린 지점과 해결 방법, 남은 판단 사항. **걸린 것을 빠뜨리지 마라** — 다음 영상에서 같은 데
@@ -512,12 +555,21 @@ BGM 이 바닥을 채워서다(cloud-lecture 가 그랬다). 반대로 BGM 없�
 
 ### 9. 평가 — 별도 agent에게 맡긴다
 
-영상이 완성된 **뒤에만** 한다. `agents/reviewer.md`의 `video-reviewer`를 Agent 도구로 띄운다.
+영상이 완성된 **뒤에만** 한다. Agent 도구로 **`general-purpose`** 를 띄우고, 평가 지침
+`agents/reviewer.md`를 읽게 한다.
 
 ```
-subagent_type: video-reviewer
-prompt: video_id=<영상 id>, video_root=tools/video
+subagent_type: general-purpose
+prompt: |
+  .claude/skills/develop-video/agents/reviewer.md 를 먼저 읽고 거기 적힌 절차·채점 기준을
+  그대로 따라 영상 한 편을 평가하라.
+  video_id=<영상 id>, video_root=tools/video
 ```
+
+**`subagent_type: video-reviewer` 로 부르지 않는다.** Claude Code 의 agent 레지스트리는
+`.claude/agents/*.md` 만 읽고 스킬 하위 `agents/` 는 스캔하지 않는다 — 그 이름으로 부르면
+"없는 agent" 로 실패한다. 지침을 파일로 넘기면 **스킬 폴더만 복사해도 평가가 그대로 돈다.**
+`.claude/agents/` 에 사본을 두는 방식은 쓰지 않는다(프로젝트마다 심어야 하고 갈라진다).
 
 **만든 쪽이 자기 영상을 채점하지 않는다.** 별도 agent는 제작 대화의 맥락을 물려받지 않고 남은
 산출물만 본다 — ffprobe로 규격과 라우드니스를 재고, 프레임을 뽑아 눈으로 보고, 자막을 대본과
