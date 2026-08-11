@@ -1,0 +1,229 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>gw guard</title>
+<!-- 3장 — 문지기의 일. 검사 셋이 문에 차례로 붙고(왼쪽), 게이트웨이가 없으면 같은 검사를
+     서버마다 복제해야 한다는 것을 오른쪽이 보여 준다. 왼쪽은 단정하고 오른쪽은 어수선한
+     대비 자체가 설명이다 — 소리를 꺼도 "한 벌 vs 여섯 벌"이 읽힌다.
+
+     내레이션(213자 · 초당 6.4자):
+       0.0~5.5   문이 하나로 모였다는 건, 검사도 한 곳에서       → 문 0.3s
+       5.5~8.3   로그인한 사용자가 맞는지 확인하고               → 배지1 5.8s
+       8.3~11.1  너무 자주 두드리면 막고                         → 배지2 8.6s · 차단 9.4s
+      11.1~13.8  누가 무엇을 불렀는지 기록합니다                 → 배지3 11.4s
+      13.8~19.5  …이것을 레이트 리미팅이라고 부릅니다            → 주석 17.5s
+      19.5~27.7  없으면 여섯 곳에 전부 / 여섯 벌을 고쳐야        → 복제 20.5~23.0s
+      27.7~33.6  회의에서 "게이트웨이 앞단에서 막자"             → note 30.5s
+
+     ※ 위 시각은 설계값(초당 6.4자)이다. **실제 지연은 --only tts 실측(213자 / 30.26초
+       = 초당 7.0자)에 맞춰 x0.909 로 재계산해 넣었다** — 구간마다 문장 수가 달라
+       TTS 의 문장 간 호흡이 다르게 붙는다. 대본을 고치면 다시 재야 한다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 7%; gap: 2.8vh; }
+
+  .head {
+    font-size: 4.4vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: 1fr 0.16vh 1fr;
+    align-items: center;
+    gap: 3.4vh;
+    width: 100%;
+  }
+  .divider { align-self: stretch; background: #253352; }
+
+  .side { display: flex; flex-direction: column; align-items: center; gap: 1.8vh; }
+  .side .cap {
+    font-size: 2.2vh;
+    font-weight: 800;
+    color: #8ea0c8;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+  .side.bad .cap { animation-delay: 18.0s; }
+
+  /* 왼쪽 — 문 하나에 검사 셋 */
+  .gatewrap { position: relative; }
+  .gate {
+    position: relative;
+    width: 15vh;
+    height: 19vh;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 0.3s;
+  }
+  .gate .arch {
+    position: absolute;
+    inset: 0;
+    border: 0.5vh solid var(--brand);
+    border-bottom: none;
+    border-radius: 7.5vh 7.5vh 0 0;
+    background: rgb(9 14 26 / 0.92);
+    box-shadow: 0 0 3.4vh color-mix(in srgb, var(--brand) 40%, transparent);
+  }
+  /* 막히는 요청 — 문에 부딪혀 튕긴다 */
+  .blocked {
+    position: absolute;
+    left: -14vh;
+    top: 45%;
+    padding: 0.5vh 1.2vh;
+    border-radius: 0.8vh;
+    background: #7a2331;
+    border: 0.2vh solid #d9536b;
+    color: #ffd9df;
+    font-family: var(--mono);
+    font-size: 1.7vh;
+    font-weight: 800;
+    white-space: nowrap;
+    animation-name: bounce;
+    animation-duration: 1.4s;
+    animation-delay: 8.5s;
+  }
+  @keyframes bounce {
+    0%   { opacity: 0; transform: translateX(0); }
+    20%  { opacity: 1; }
+    55%  { opacity: 1; transform: translateX(9vh); }
+    100% { opacity: 0; transform: translateX(-1vh); }
+  }
+
+  .badges { display: flex; flex-direction: column; gap: 1.1vh; width: 30vh; }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 1.2vh;
+    padding: 1.2vh 1.6vh;
+    border-radius: 1.1vh;
+    background: #111a2d;
+    border: 0.2vh solid #2a3a5f;
+    border-left: 0.4vh solid var(--brand);
+    animation-name: fadeUp;
+    animation-duration: 0.45s;
+  }
+  .badge .ic { font-size: 2.4vh; }
+  .badge .tx { font-size: 2.2vh; font-weight: 700; color: #d3ddf5; }
+  .b1 { animation-delay: 5.2s; }
+  .b2 { animation-delay: 7.7s; }
+  .b3 { animation-delay: 10.3s; }
+
+  /* 오른쪽 — 게이트웨이가 없으면 서버마다 같은 검사를 복제 */
+  .grid6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2vh; width: 100%; }
+  .box {
+    padding: 1.1vh 0.8vh;
+    border-radius: 1vh;
+    background: #16101a;
+    border: 0.2vh solid #4a2a3a;
+    text-align: center;
+    animation-name: fadeUp;
+    animation-duration: 0.4s;
+  }
+  .box .nm { font-size: 1.9vh; font-weight: 700; color: #d7c3cc; }
+  .box .dots { margin-top: 0.7vh; display: flex; justify-content: center; gap: 0.4vh; }
+  .box .dots i {
+    width: 1.5vh;
+    height: 0.55vh;
+    border-radius: 0.3vh;
+    background: #b4566e;
+  }
+  .g1 { animation-delay: 18.5s; }
+  .g2 { animation-delay: 18.8s; }
+  .g3 { animation-delay: 19.2s; }
+  .g4 { animation-delay: 19.6s; }
+  .g5 { animation-delay: 20.1s; }
+  .g6 { animation-delay: 20.6s; }
+
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: 15.8s;
+    animation-fill-mode: forwards;
+  }
+  .termnote b { font-family: var(--mono); font-size: 2.3vh; font-weight: 800; color: var(--brand-soft); }
+  .termnote .en { font-size: 1.8vh; font-weight: 600; color: #8ea0c8; }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+
+  .note {
+    font-size: 2.9vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 27.5s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="termnote animated">
+    <b>Rate Limiting</b><span class="en">레이트 리미팅</span>
+    <span class="ko">정해진 시간에 받아 줄 요청 횟수를 제한하는 일 — 넘으면 문에서 되돌린다</span>
+  </div>
+
+  <div class="board">
+    <div class="side">
+      <div class="cap">게이트웨이가 있으면 — 한 벌</div>
+      <div class="gatewrap">
+        <div class="gate animated">
+          <i class="arch"></i>
+        </div>
+        <span class="blocked animated">너무 잦은 요청</span>
+      </div>
+      <div class="badges">
+        <div class="badge b1 animated"><span class="ic">🔑</span><span class="tx">인증 — 맞는 사용자인가</span></div>
+        <div class="badge b2 animated"><span class="ic">⏱</span><span class="tx">요청 제한 — 너무 잦지 않은가</span></div>
+        <div class="badge b3 animated"><span class="ic">📝</span><span class="tx">기록 — 누가 무엇을 불렀나</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="side bad">
+      <div class="cap">없으면 — 여섯 벌</div>
+      <div class="grid6">
+        <div class="box g1 animated"><div class="nm">회원</div><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="box g2 animated"><div class="nm">상품</div><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="box g3 animated"><div class="nm">재고</div><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="box g4 animated"><div class="nm">가격</div><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="box g5 animated"><div class="nm">배송</div><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="box g6 animated"><div class="nm">결제</div><div class="dots"><i></i><i></i><i></i></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

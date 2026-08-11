@@ -1,0 +1,270 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>gw routing</title>
+<!-- 2장 — 라우팅. 문에 들어온 요청이 주소를 보고 알맞은 차선으로 빠진다.
+     뒤이어 주문 서버가 3대로 늘고, 요청이 번갈아 배분된다(부하 분산).
+     소리를 꺼도 "주소 → 갈림길"과 "한 대에 몰리지 않게"가 읽혀야 한다.
+
+     내레이션(204자 · 초당 6.4자):
+       0.0~3.3   그럼 문 안에서는 무슨 일이                     → 문·차선 0.3s
+       3.3~7.8   주소를 보고 알맞은 서버로 보내 줍니다
+       7.8~13.4  /users 는 회원으로, /orders 는 주문으로        → 패킷 8.2s · 10.8s
+      13.4~21.1  …이것을 라우팅이라고 합니다 / 길을 잡아 준다    → 주석 17.0s
+      21.1~29.1  주문 서버를 여러 대 띄우면 번갈아 나눠 보냅니다 → 복제 22.0s · 배분 24.2/25.4/26.6
+      29.1~31.9  문이 교통정리까지 하는 셈입니다                 → note 29.5s
+
+     ※ 위 시각은 설계값(초당 6.4자)이다. **실제 지연은 --only tts 실측(204자 / 29.49초
+       = 초당 6.9자)에 맞춰 x0.925 로 재계산해 넣었다** — 구간마다 문장 수가 달라
+       TTS 의 문장 간 호흡이 다르게 붙는다. 대본을 고치면 다시 재야 한다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 9%; gap: 3vh; }
+
+  .head {
+    font-size: 4.4vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: 14vh 1fr;
+    align-items: center;
+    gap: 3vh;
+    width: 100%;
+  }
+
+  .gate {
+    position: relative;
+    width: 13vh;
+    height: 17vh;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 0.3s;
+  }
+  .gate .arch {
+    position: absolute;
+    inset: 0;
+    border: 0.45vh solid var(--brand);
+    border-bottom: none;
+    border-radius: 6.5vh 6.5vh 0 0;
+    background: rgb(9 14 26 / 0.92);
+    box-shadow: 0 0 3vh color-mix(in srgb, var(--brand) 38%, transparent);
+  }
+  .gate .tag {
+    position: absolute;
+    left: 50%;
+    bottom: -3.2vh;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 1.9vh;
+    font-weight: 800;
+    color: var(--brand-soft);
+  }
+
+  .lanes { display: flex; flex-direction: column; gap: 2vh; }
+  .lane {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 20vh;
+    align-items: center;
+    gap: 1.6vh;
+    /* 높이를 고정하지 않는다. 8.2vh 로 박아 두었더니 3행짜리 주문 서버 pool 이 차선 밖으로
+       흘러넘쳐 아래 /products 차선과 겹쳤고, DOM 뒤쪽인 "상품 서버"가 "주문 서버 3" 을
+       덮어 그 상자가 통째로 사라졌다 — 렌더는 성공해서 프레임을 뽑기 전까지 몰랐다. */
+    min-height: 8.2vh;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: 0.5s;
+  }
+  .rail {
+    position: relative;
+    height: 0.3vh;
+    border-radius: 1vh;
+    background: #2b3a5e;
+  }
+  .rail .path {
+    position: absolute;
+    left: 0.6vh;
+    top: -3.4vh;
+    font-family: var(--mono);
+    font-size: 1.9vh;
+    font-weight: 700;
+    color: #7f92bb;
+  }
+
+  /* 이동하는 요청 패킷 */
+  .pkt {
+    position: absolute;
+    top: -1.5vh;
+    left: 0;
+    padding: 0.5vh 1.3vh;
+    border-radius: 0.8vh;
+    background: var(--brand);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 1.8vh;
+    font-weight: 800;
+    white-space: nowrap;
+    opacity: 0;
+    animation-name: travel;
+    animation-duration: 1.5s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
+  }
+  @keyframes travel {
+    0%   { opacity: 0; transform: translateX(0); }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(38vh); }
+  }
+  .p-users  { animation-delay: 7.6s; }
+  .p-orders { animation-delay: 10.0s; }
+  .p-b1 { animation-delay: 22.4s; }
+  .p-b2 { animation-delay: 23.5s; }
+  .p-b3 { animation-delay: 24.6s; }
+
+  .srv {
+    padding: 1.5vh 1.2vh;
+    border-radius: 1.1vh;
+    background: #131c31;
+    border: 0.2vh solid #263657;
+    text-align: center;
+    font-size: 2.2vh;
+    font-weight: 700;
+    color: #c8d4f0;
+  }
+  .srv.hit {
+    animation-name: hit;
+    animation-duration: 0.6s;
+    animation-fill-mode: forwards;
+  }
+  @keyframes hit {
+    0%   { border-color: #263657; }
+    30%  { border-color: var(--brand); box-shadow: 0 0 2.4vh color-mix(in srgb, var(--brand) 45%, transparent); }
+    100% { border-color: #263657; box-shadow: none; }
+  }
+  .h-users  { animation-delay: 8.8s; }
+  .h-orders { animation-delay: 11.2s; }
+
+  /* 주문 서버가 3대로 늘어난다 */
+  .pool { display: grid; grid-template-rows: repeat(3, 1fr); gap: 0.7vh; }
+  .pool .srv { font-size: 1.9vh; padding: 0.9vh 1vh; }
+  /* 2·3번 서버는 22초에 **등장**하고 나중에 **점멸**한다 — 한 요소에 애니메이션이 둘이다.
+     규칙을 나눠 쓰면 뒤 규칙이 animation-name 을 통째로 덮어써서 등장이 사라진다
+     (같은 특정도라 나중 것이 이긴다). 그래서 쉼표로 두 개를 함께 건다. */
+  .pool .b1 {
+    animation-name: hit;
+    animation-duration: 0.6s;
+    animation-delay: 23.6s;
+  }
+  .pool .r2 {
+    animation-name: fadeUp, hit;
+    animation-duration: 0.45s, 0.6s;
+    animation-delay: 20.3s, 24.7s;
+  }
+  .pool .r3 {
+    animation-name: fadeUp, hit;
+    animation-duration: 0.45s, 0.6s;
+    animation-delay: 20.8s, 25.8s;
+  }
+
+  .termnote {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 1.2vh;
+    padding: 1vh 1.8vh;
+    border-radius: 0.9vh;
+    background: rgb(14 21 38 / 0.9);
+    border: 0.16vh solid #2c3a60;
+    border-left: 0.4vh solid var(--brand);
+    text-align: left;
+    opacity: 0;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+    animation-delay: 15.7s;
+    animation-fill-mode: forwards;
+  }
+  .termnote b { font-family: var(--mono); font-size: 2.3vh; font-weight: 800; color: var(--brand-soft); }
+  .termnote .en { font-size: 1.8vh; font-weight: 600; color: #8ea0c8; }
+  .termnote .ko {
+    flex-basis: 100%;
+    margin-top: 0.4vh;
+    font-size: 1.9vh;
+    font-weight: 600;
+    color: #a9b8dd;
+    line-height: 1.35;
+  }
+
+  .note {
+    font-size: 2.9vh;
+    font-weight: 600;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 27.3s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="termnote animated">
+    <b>Routing</b><span class="en">라우팅</span>
+    <span class="ko">들어온 요청의 주소를 보고 알맞은 서비스로 넘겨 주는 일</span>
+  </div>
+
+  <div class="board">
+    <div class="gate animated">
+      <i class="arch"></i>
+      <span class="tag">게이트웨이</span>
+    </div>
+
+    <div class="lanes">
+      <div class="lane animated">
+        <div class="rail">
+          <span class="path">/users</span>
+          <span class="pkt p-users animated">/users</span>
+        </div>
+        <div class="srv hit h-users animated">회원 서버</div>
+      </div>
+
+      <div class="lane animated">
+        <div class="rail">
+          <span class="path">/orders</span>
+          <span class="pkt p-orders animated">/orders</span>
+          <span class="pkt p-b1 animated">/orders</span>
+          <span class="pkt p-b2 animated">/orders</span>
+          <span class="pkt p-b3 animated">/orders</span>
+        </div>
+        <div class="pool">
+          <div class="srv b1 animated">주문 서버 1</div>
+          <div class="srv r2 animated">주문 서버 2</div>
+          <div class="srv r3 animated">주문 서버 3</div>
+        </div>
+      </div>
+
+      <div class="lane animated">
+        <div class="rail">
+          <span class="path">/products</span>
+        </div>
+        <div class="srv">상품 서버</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

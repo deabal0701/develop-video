@@ -1,0 +1,145 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>gw outro</title>
+<!-- 아웃트로 — 훅의 회수. "앱이 아는 주소는 하나뿐"이던 그 하나에 이름표가 붙는다.
+     다음 강 예고는 넣지 않는다(develop-lecture 아웃트로 규칙 — 커리큘럼이 바뀌면 거짓이 된다).
+
+     내레이션(63자 · 초당 6.4자):
+       0.0~2.0  처음으로 돌아가 볼까요
+       2.0~4.7  앱이 아는 주소는 하나뿐이었죠      → 앱·선·주소칩 2.2s
+       4.7~7.0  그 하나가 게이트웨이입니다          → 이름표 4.9s
+       7.0~9.8  오늘은 여기까지입니다 / 고맙습니다  → 각인 7.4s
+
+     ※ 위 시각은 설계값(초당 6.4자)이다. **실제 지연은 --only tts 실측(63자 / 12.24초
+       = 초당 5.1자)에 맞춰 x1.243 로 재계산해 넣었다** — 구간마다 문장 수가 달라
+       TTS 의 문장 간 호흡이 다르게 붙는다. 대본을 고치면 다시 재야 한다.
+
+     params: title · note · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 12%; gap: 4vh; }
+
+  .head {
+    font-size: 5vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+  }
+
+  .line {
+    position: relative;
+    display: grid;
+    grid-template-columns: 13vh 1fr 15vh;
+    align-items: center;
+    gap: 2.4vh;
+    width: 100%;
+    animation-name: fadeUp;
+    animation-duration: 0.6s;
+    animation-delay: 2.7s;
+  }
+
+  .phone {
+    justify-self: center;
+    width: 11vh;
+    height: 19vh;
+    border-radius: 1.8vh;
+    border: 0.28vh solid #33456e;
+    background: linear-gradient(#101a2e, #0b1220);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.6vh;
+  }
+
+  .rail { position: relative; height: 0.6vh; border-radius: 1vh; background: var(--brand); }
+  .rail .chip {
+    position: absolute;
+    left: 50%;
+    top: -3.6vh;
+    transform: translateX(-50%);
+    padding: 0.7vh 1.6vh;
+    border-radius: 0.9vh;
+    background: rgb(9 14 26 / 0.96);
+    border: 0.24vh solid var(--brand);
+    font-family: var(--mono);
+    font-size: 2.1vh;
+    font-weight: 800;
+    color: #dbe5ff;
+    white-space: nowrap;
+  }
+
+  .gate {
+    position: relative;
+    justify-self: center;
+    width: 14vh;
+    height: 18vh;
+  }
+  .gate .arch {
+    position: absolute;
+    inset: 0;
+    border: 0.5vh solid var(--brand);
+    border-bottom: none;
+    border-radius: 7vh 7vh 0 0;
+    background: rgb(9 14 26 / 0.9);
+    box-shadow: 0 0 3.4vh color-mix(in srgb, var(--brand) 40%, transparent);
+  }
+  .gate .name {
+    position: absolute;
+    left: 50%;
+    bottom: -4.2vh;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 0.6vh 1.6vh;
+    border-radius: 0.9vh;
+    background: var(--brand);
+    color: #fff;
+    font-size: 2.1vh;
+    font-weight: 800;
+    opacity: 0;
+    animation-name: nameon;
+    animation-duration: 0.5s;
+    animation-delay: 6.1s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes nameon {
+    from { opacity: 0; transform: translate(-50%, 1.2vh); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  .note {
+    font-size: 3.2vh;
+    font-weight: 700;
+    color: var(--brand-soft);
+    animation-name: fadeUp;
+    animation-duration: 0.7s;
+    animation-delay: 9.2s;
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="line animated">
+    <div class="phone">🛒</div>
+    <div class="rail">
+      <span class="chip">https://api.shop.com</span>
+    </div>
+    <div class="gate">
+      <i class="arch"></i>
+      <span class="name animated">API Gateway</span>
+    </div>
+  </div>
+
+  <div class="note animated" data-p="note"></div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>

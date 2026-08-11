@@ -71,6 +71,7 @@ node assets/fetch.js list
 |---|---|---|---|---|
 | `broll/road-drone.mp4` | 33초 · 1280×720 | https://www.pexels.com/video/3571264/ | Pexels License | 해변 파도 드론 샷 — 반복·회복 은유. 얼굴 없음 |
 | `broll/shark-swim.mp4` | 4.9초 · 1920×1080 | https://www.pexels.com/video/7997336/ | Pexels License | 물속 상어 유영 |
+| `broll/cables-blue.mp4` | 23.5초 · 2560×1440 · 25fps | https://www.pexels.com/video/blue-colored-cables-1085656/ (직접링크 https://videos.pexels.com/video-files/1085656/1085656-uhd_2560_1440_25fps.mp4) | Pexels License | 파란 조명 아래 네트워크 케이블 + 초록 LED (Dima Krivoy). api-gateway 인트로 채택 — 어두운 남색 덱과 톤이 맞고 "요청이 지나는 길"이라는 주제와 직결. 얼굴 없음 |
 | `broll/ai-datacenter.mp4` | 14.3초 · 1280×720 | https://mixkit.co/free-stock-video/bluish-data-center-hallway-23282/ | Mixkit Free License | 파란 서버룸 복도 — AI 학습 인프라 은유. 얼굴 없음 |
 | `broll/ai-typing.mp4` | 14.2초 · 1920×1080 | https://mixkit.co/free-stock-video/close-up-shot-of-a-person-typing-on-a-laptop-1808/ | Mixkit Free License | 노트북 타이핑 손 클로즈업. 얼굴 없음 |
 | `broll/ai-code.mp4` | 29초 · 1280×720 | https://mixkit.co/free-stock-video/computational-digital-codes-14596/ | Mixkit Free License | 초록 헥스 코드 화면 — 학습·코딩 은유 |

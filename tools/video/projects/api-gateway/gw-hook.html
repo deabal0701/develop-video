@@ -1,0 +1,191 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>gw hook</title>
+<!-- 훅 — 서버 여섯 대와 주소 하나의 **대비만** 3~4초에 때린다.
+     제목 카드가 이미 "무엇에 대한 영상인지"를 말했으므로 훅은 "왜 봐야 하나"만 담당한다
+     (develop-lecture 인트로 규격: 훅 3~4초). 정답(게이트웨이)은 여기서 말하지 않는다 —
+     문은 promise 에서 처음 선다.
+
+     내레이션(25자 · 약 4.5초): "서버는 여섯 대인데, 앱이 아는 주소는 하나뿐입니다."
+       0.2~1.1  서버 여섯이 좌르륵 뜬다 (선도 같이 그어진다)
+       2.3      여섯 갈래가 흐려지고 굵은 한 줄만 남는다
+       2.9      주소 하나가 튀어나온다
+
+     ※ 앞판은 17.7초짜리 훅에 맞춰 최대 15.5초 지연까지 썼다. 훅을 규격대로 줄이면 그 지연들이
+       클립 밖으로 나가 **아무것도 안 뜬다.** 그래서 전부 다시 잡았다 — 구간 길이를 바꾸면
+       도식 타이밍은 반드시 같이 바뀐다.
+
+     params: title · wipe=off
+     주의: `animation:` 단축 속성 금지. -->
+<link rel="stylesheet" href="../../motion/_base.css">
+<style>
+  :root { --mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+
+  .stage { padding: 0 11%; gap: 4vh; }
+
+  .head {
+    font-size: 4.6vh;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    animation-name: fadeUp;
+    animation-duration: 0.5s;
+  }
+
+  .board {
+    position: relative;
+    display: grid;
+    grid-template-columns: 22vh 1fr 30vh;
+    align-items: center;
+    gap: 3vh;
+    width: 100%;
+  }
+
+  .phone {
+    justify-self: center;
+    width: 17vh;
+    height: 30vh;
+    border-radius: 2.6vh;
+    border: 0.3vh solid #33456e;
+    background: linear-gradient(#101a2e, #0b1220);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2vh;
+    animation-name: fadeUp;
+    animation-duration: 0.4s;
+    animation-delay: 0.2s;
+  }
+  .phone .cart { font-size: 5vh; }
+  .phone .lbl { font-size: 2.2vh; font-weight: 700; color: #b9c6e8; }
+
+  .wires { position: relative; height: 34vh; }
+  .wires svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wires path {
+    fill: none;
+    stroke: #3a4d7a;
+    stroke-width: 0.28vh;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation-name: draw;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .w1 { animation-delay: 0.30s; }
+  .w2 { animation-delay: 0.45s; }
+  .w3 { animation-delay: 0.60s; }
+  .w4 { animation-delay: 0.75s; }
+  .w5 { animation-delay: 0.90s; }
+  .w6 { animation-delay: 1.05s; }
+
+  /* 2.3초 — 여섯 갈래가 물러나고 굵은 한 줄만 남는다 */
+  .wires .fade, .servers {
+    animation-name: dim;
+    animation-duration: 0.6s;
+    animation-delay: 2.3s;
+    animation-fill-mode: forwards;
+  }
+  @keyframes dim { to { opacity: 0.13; } }
+  .one {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 0.7vh;
+    stroke-linecap: round;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    opacity: 0;
+    animation-name: drawone;
+    animation-duration: 0.6s;
+    animation-delay: 2.5s;
+    animation-fill-mode: forwards;
+  }
+  @keyframes drawone { from { opacity: 1; } to { opacity: 1; stroke-dashoffset: 0; } }
+
+  .servers { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6vh; }
+  .srv {
+    padding: 1.5vh 1.2vh;
+    border-radius: 1.2vh;
+    background: #131c31;
+    border: 0.2vh solid #263657;
+    text-align: center;
+    font-size: 2.4vh;
+    font-weight: 700;
+    color: #c8d4f0;
+    animation-name: fadeUp;
+    animation-duration: 0.35s;
+  }
+  .s1 { animation-delay: 0.30s; }
+  .s2 { animation-delay: 0.45s; }
+  .s3 { animation-delay: 0.60s; }
+  .s4 { animation-delay: 0.75s; }
+  .s5 { animation-delay: 0.90s; }
+  .s6 { animation-delay: 1.05s; }
+
+  .single {
+    position: absolute;
+    left: 34%;
+    top: 50%;
+    padding: 1.4vh 2.4vh;
+    border-radius: 1.2vh;
+    background: rgb(9 14 26 / 0.96);
+    border: 0.3vh solid var(--brand);
+    box-shadow: 0 0 3.4vh color-mix(in srgb, var(--brand) 45%, transparent);
+    font-family: var(--mono);
+    font-size: 2.8vh;
+    font-weight: 800;
+    color: #dbe5ff;
+    white-space: nowrap;
+    opacity: 0;
+    animation-name: popin;
+    animation-duration: 0.45s;
+    animation-delay: 2.9s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.2, 0.75, 0.2, 1);
+  }
+  @keyframes popin {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.86); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+</style>
+
+<div class="stage">
+  <div class="glow animated"></div>
+
+  <div class="head animated" data-p="title"></div>
+
+  <div class="board">
+    <div class="phone animated">
+      <div class="cart">🛒</div>
+      <div class="lbl">장바구니</div>
+    </div>
+
+    <div class="wires">
+      <svg viewBox="0 0 200 200" preserveAspectRatio="none">
+        <g class="fade animated">
+          <path class="w1 animated" d="M0,100 C70,100 110,14 200,14"></path>
+          <path class="w2 animated" d="M0,100 C70,100 110,48 200,48"></path>
+          <path class="w3 animated" d="M0,100 C70,100 110,82 200,82"></path>
+          <path class="w4 animated" d="M0,100 C70,100 110,118 200,118"></path>
+          <path class="w5 animated" d="M0,100 C70,100 110,152 200,152"></path>
+          <path class="w6 animated" d="M0,100 C70,100 110,186 200,186"></path>
+        </g>
+        <path class="one animated" d="M0,100 L200,100"></path>
+      </svg>
+      <div class="single animated">https://api.shop.com</div>
+    </div>
+
+    <div class="servers animated">
+      <div class="srv s1 animated">회원</div>
+      <div class="srv s2 animated">상품</div>
+      <div class="srv s3 animated">재고</div>
+      <div class="srv s4 animated">가격</div>
+      <div class="srv s5 animated">배송</div>
+      <div class="srv s6 animated">결제</div>
+    </div>
+  </div>
+</div>
+
+<div class="wipe animated"></div>
+
+<script src="../../motion/_params.js"></script>
